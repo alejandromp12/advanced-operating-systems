@@ -164,9 +164,6 @@ void *bridgeMonitor(void *pCarData)
 		// kill the thread
 		pthread_exit(NULL);
 	}
-
-	// kill the thread
-	//pthread_exit(NULL);
 }
 
 
@@ -274,7 +271,7 @@ int main(int argc, char *pArgv[])
 	// finish until all cars have crossed the bridge
 	for (int i = 0; i < totalCars; i++)
 	{
-		pthread_join(cars + i, NULL);
+		pthread_join(cars[i], NULL);
 	}
 
 	printf("Program finished...\n");

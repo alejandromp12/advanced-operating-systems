@@ -17,3 +17,8 @@ build: $(TARGET_FILE_NAME).c $(BIN_DIR)
 
 clean:
 	rm -f bin/*
+
+$(BIN_DIR):
+	mkdir $(BIN_DIR)
+
+
