@@ -12,8 +12,11 @@ SRC_DIR=src
 TARGET_FILE_NAME=$(SRC_DIR)/app
 TARGET_APP=$(BIN_DIR)/shortTask1
 
-build: $(TARGET_FILE_NAME).c
+build: $(TARGET_FILE_NAME).c $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(TARGET_APP) $(TARGET_FILE_NAME).c
 
 clean:
 	rm -f bin/*
+
+$(BIN_DIR):
+	mkdir $(BIN_DIR)
