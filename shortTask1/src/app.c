@@ -239,6 +239,7 @@ int main(int argc, char *pArgv[])
 	time_t t;
 	srand((unsigned)time(&t));
 
+	// general variables
 	int totalCarsEastToWest = atoi(pArgv[1]);
 	int totalCarsWestToEast = atoi(pArgv[2]);
 	int totalCars = totalCarsWestToEast + totalCarsEastToWest;
@@ -278,7 +279,11 @@ int main(int argc, char *pArgv[])
 				pthread_mutex_unlock(&_mutexLogger);
 				break;
 		}
+	}
 
+	// must be out of the other for
+	for (int i = 0; i < totalCars; i++)
+	{
 		// finish until all cars have crossed the bridge
 		pthread_join(threadCars[i], NULL);
 	}
