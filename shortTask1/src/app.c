@@ -67,9 +67,9 @@ char *getCarDirectionStr(CarsDirectionEnum carDirection)
 	switch (carDirection)
 	{
 		case EAST_TO_WEST:
-			return "west to east";
-		case WEST_TO_EAST:
 			return "east to west";
+		case WEST_TO_EAST:
+			return "west to east";
 		default:
 			return "unknown direction";
 	}
