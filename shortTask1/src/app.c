@@ -40,6 +40,28 @@ void carsFactory(CarsDirectionEnum carDirection, int threadId, carsPerDirection 
 }
 
 
+CarsDirectionEnum getCarDirection(int totalCarsEastToWest, int totalCarsWestToEast)
+{
+	// use random pick up
+	if ((totalCarsEastToWest > 0) && (totalCarsWestToEast > 0))
+	{
+		return rand() % MAX_DIRECTION_INDEX;
+	}
+	else if (totalCarsEastToWest > 0)
+	{
+		return WEST_TO_EAST;
+	}
+	else if (totalCarsWestToEast > 0)
+	{
+		return EAST_TO_WEST;
+	}
+	else
+	{
+		return MAX_DIRECTION_INDEX;
+	}
+}
+
+
 char *getCarDirectionStr(CarsDirectionEnum carDirection)
 {
 	switch (carDirection)
@@ -227,64 +249,37 @@ int main(int argc, char *pArgv[])
 
 	for (int i = 0; i < totalCars; i++)
 	{
-		// use random pick up
-		if ((totalCarsEastToWest > 0) && (totalCarsWestToEast > 0))
+		CarsDirectionEnum carDirection = getCarDirection(totalCarsEastToWest, totalCarsWestToEast);
+		switch (carDirection)
 		{
-			int randomCarDirection = rand() % MAX_DIRECTION_INDEX;
-			switch (randomCarDirection)
-			{
-				case EAST_TO_WEST:
-					pthread_mutex_lock(&_mutexLogger);
-					printf("Car %i departed from east to west...\n", i);
-					pthread_mutex_unlock(&_mutexLogger);
+			case EAST_TO_WEST:
+				pthread_mutex_lock(&_mutexLogger);
+				printf("Car %i departed from east to west...\n", i);
+				pthread_mutex_unlock(&_mutexLogger);
 
-					--totalCarsEastToWest;
-					carsFactory(EAST_TO_WEST, i, &cars[i]);
-					pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
-					break;
+				--totalCarsEastToWest;
+				carsFactory(EAST_TO_WEST, i, &cars[i]);
+				pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
+				break;
 
-				case WEST_TO_EAST:
-					pthread_mutex_lock(&_mutexLogger);
-					printf("Car %i departed from west to east...\n", i);
-					pthread_mutex_unlock(&_mutexLogger);
+			case WEST_TO_EAST:
+				pthread_mutex_lock(&_mutexLogger);
+				printf("Car %i departed from west to east...\n", i);
+				pthread_mutex_unlock(&_mutexLogger);
 
-					--totalCarsWestToEast;
-					carsFactory(WEST_TO_EAST, i, &cars[i]);
-					pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
-					break;
+				--totalCarsWestToEast;
+				carsFactory(WEST_TO_EAST, i, &cars[i]);
+				pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
+				break;
 
-				default:
-					pthread_mutex_lock(&_mutexLogger);
-					printf("No car departed, unknown case...\n");
-					pthread_mutex_unlock(&_mutexLogger);
-					break;
-			}
+			default:
+				pthread_mutex_lock(&_mutexLogger);
+				printf("No car departed, unknown case...\n");
+				pthread_mutex_unlock(&_mutexLogger);
+				break;
 		}
-		else if (totalCarsEastToWest > 0)
-		{
-			pthread_mutex_lock(&_mutexLogger);
-			printf("Car %i departed from east to west...\n", i);
-			pthread_mutex_unlock(&_mutexLogger);
 
-			--totalCarsEastToWest;
-			carsFactory(WEST_TO_EAST, i, &cars[i]);
-			pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
-		}
-		else if (totalCarsWestToEast > 0)
-		{
-			pthread_mutex_lock(&_mutexLogger);
-			printf("Car %i departed from west to east...\n", i);
-			pthread_mutex_unlock(&_mutexLogger);
-
-			--totalCarsWestToEast;
-			carsFactory(EAST_TO_WEST, i, &cars[i]);
-			pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
-		}
-	}
-
-	// finish until all cars have crossed the bridge
-	for (int i = 0; i < totalCars; i++)
-	{
+		// finish until all cars have crossed the bridge
 		pthread_join(threadCars[i], NULL);
 	}
 
