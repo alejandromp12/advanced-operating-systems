@@ -16,6 +16,9 @@ typedef enum
 	MAX_DIRECTION_INDEX
 } CarsDirectionEnum;
 
+
+double _eastToWestTimeConst = 0.6;
+double _westToEastTimeConst = 0.8;
 pthread_mutex_t _mutexLogger = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t _mutexBridgeMonitor = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t _mutexBridgeDirectionResource = PTHREAD_MUTEX_INITIALIZER;
@@ -141,7 +144,7 @@ void scheduleAcquireBridgeResource(CarsDirectionEnum carDirection, int carId)
 	pthread_mutex_unlock(&_mutexBridgeMonitor);
 
 	// 2 seconds crossing the bridge
-	sleep(2);
+	sleep(3);
 	releaseBridgeResource(carDirection, carId);
 }
 
@@ -173,7 +176,7 @@ void *bridgeMonitor(void *pCarData)
 			acquireBridgeResource(carAttemptingCrossBridgeDirection);
 
 			// 2 seconds crossing the bridge
-			sleep(2);
+			sleep(3);
 			releaseBridgeResource(carAttemptingCrossBridgeDirection, carId);
 		}
 		else if ((numCarsCrossingBridge > NO_CARS_IN_BRIDGE)
@@ -189,7 +192,7 @@ void *bridgeMonitor(void *pCarData)
 				acquireBridgeResource(carAttemptingCrossBridgeDirection);
 
 				// 2 seconds crossing the bridge
-				sleep(2);
+				sleep(3);
 				releaseBridgeResource(carAttemptingCrossBridgeDirection, carId);
 			}
 			else
@@ -250,26 +253,33 @@ int main(int argc, char *pArgv[])
 
 	for (int i = 0; i < totalCars; i++)
 	{
+		int time = 0;
 		CarsDirectionEnum carDirection = getCarDirection(totalCarsEastToWest, totalCarsWestToEast);
 		switch (carDirection)
 		{
 			case EAST_TO_WEST:
+				time = ceil(randomExponentialDistribution(_eastToWestTimeConst));
 				pthread_mutex_lock(&_mutexLogger);
-				printf("Car %i departed from east to west...\n", i);
+				printf("Car %i departed from east to west...  time:%i\n", i, time);
 				pthread_mutex_unlock(&_mutexLogger);
 
 				--totalCarsEastToWest;
 				carsFactory(EAST_TO_WEST, i, &cars[i]);
+
+				sleep(time);
 				pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
 				break;
 
 			case WEST_TO_EAST:
+				time = ceil(randomExponentialDistribution(_westToEastTimeConst));
 				pthread_mutex_lock(&_mutexLogger);
-				printf("Car %i departed from west to east...\n", i);
+				printf("Car %i departed from west to east...  time:%i\n", i, time);
 				pthread_mutex_unlock(&_mutexLogger);
 
 				--totalCarsWestToEast;
 				carsFactory(WEST_TO_EAST, i, &cars[i]);
+
+				sleep(time);
 				pthread_create(threadCars + i, NULL, bridgeMonitor, (void*)&cars[i]);
 				break;
 
