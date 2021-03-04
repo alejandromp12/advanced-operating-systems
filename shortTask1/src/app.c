@@ -118,6 +118,12 @@ double randomExponentialDistribution(double lambda)
 }
 
 
+/**
+ * \brief Releases a resource when a car leaves the bridge
+ *
+ * \param carDirection, direction of the car
+ * \param carId, thread id of the car
+ */
 void releaseBridgeResource(CarsDirectionEnum carDirection, int carId)
 {
 	pthread_mutex_lock(&_mutexLogger);
