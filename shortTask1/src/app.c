@@ -35,14 +35,15 @@ double _westToEastTimeConst = 0.8; ///< lambda value of the random exponential d
 int _numCarsCrossingBridge = 0; ///< Indicates the current number of cars crossing the bridge
 CarsDirectionEnum _dirCarsCrossingBridge = MAX_DIRECTION_INDEX; ///< Indicates the direction of the cars that are crossing the bridge
 
-int _conditionQueque[] = {}; ///<
-int _queueTail = - 1; ///<
-int _queueHead = - 1; ///<
-int _queueSize = 0; ///<
+int _conditionQueque[] = {}; ///< Queue to control the thread conditions
+int _queueTail = - 1; ///< Tail of the queue
+int _queueHead = - 1; ///< Head of the queue
+int _queueSize = 0; ///< Size of the queue
 
 
 /**
- * \brief
+ * \brief Enqueues thread conditions
+ * \param carId, thread id of the car
  */
 void enqueueCondition(int carId)
 {
@@ -64,7 +65,7 @@ void enqueueCondition(int carId)
 
 
 /**
- * \brief
+ * \brief Dequeues thread conditions
  */
 int dequeueCondition()
 {
@@ -83,13 +84,13 @@ int dequeueCondition()
 
 
 /**
- * \brief
+ * \brief Indicate whether is a condition queued or not
  */
 int isConditionQueued()
 {
 	int condition = 0;
 	pthread_mutex_lock(&_mutexConditionQueue);
-	if ((_queueHead != -1) && (_conditionQueque[_queueHead] != _queueSize + 1))
+	if ((_queueHead != -1) && (_queueHead != _queueSize - 1) && (_conditionQueque[_queueHead] != _queueSize + 1))
 	{
 		condition = 1;
 	}
@@ -294,7 +295,7 @@ void *bridgeMonitor(void *pCarData)
 
 		pthread_mutex_lock(&_mutexLogger);
 		printf("Car %i, which is going from %s arrived to the bridge...\n",
-               carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
+				carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
 		pthread_mutex_unlock(&_mutexLogger);
 
 		if (numCarsCrossingBridge == NO_CARS_IN_BRIDGE)
@@ -303,7 +304,7 @@ void *bridgeMonitor(void *pCarData)
 			{
 				pthread_mutex_lock(&_mutexLogger);
 				printf("Car %i, which is going from %s entereded to the bridge, since there were no cars inside...\n",
-					   carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
+						carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
 				pthread_mutex_unlock(&_mutexLogger);
 
 				acquireBridgeResource(carAttemptingCrossBridgeDirection);
@@ -312,8 +313,8 @@ void *bridgeMonitor(void *pCarData)
 			else
 			{
 				pthread_mutex_lock(&_mutexLogger);
-				printf("Car %i, which is going from %s is waiting for enter to the bridge, since cars inside are going to the opposite direction...\n",
-					   carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
+				printf("Car %i, which is going from %s is waiting for enter to the bridge, since other car had arrived to the bridge before of it...\n",
+						carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
 				pthread_mutex_unlock(&_mutexLogger);
 				scheduleAcquireBridgeResource(carAttemptingCrossBridgeDirection, carId);
 			}
@@ -326,7 +327,7 @@ void *bridgeMonitor(void *pCarData)
 				{
 					pthread_mutex_lock(&_mutexLogger);
 					printf("Car %i, which is going from %s entereded to the bridge, since cars inside were going to the same direction...\n",
-                           carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
+							carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
 					pthread_mutex_unlock(&_mutexLogger);
 
 					acquireBridgeResource(carAttemptingCrossBridgeDirection);
@@ -336,7 +337,7 @@ void *bridgeMonitor(void *pCarData)
 				{
 					pthread_mutex_lock(&_mutexLogger);
 					printf("Car %i, which is going from %s is waiting for enter to the bridge, since cars inside are going to the opposite direction...\n",
-                           carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
+							carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
 					pthread_mutex_unlock(&_mutexLogger);
 
 					// wait for bridge resource
@@ -345,26 +346,12 @@ void *bridgeMonitor(void *pCarData)
 			}
 			else
 			{
-				if (carAttemptingCrossBridgeDirection == carsCrossingBridgeDirection)
-				{
-					pthread_mutex_lock(&_mutexLogger);
-					printf("Car %i, which is going from %s is waiting for enter to the bridge, since it is full of cars going to the same direction...\n",
-                           carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
-					pthread_mutex_unlock(&_mutexLogger);
-
-					// wait for bridge resource
-					scheduleAcquireBridgeResource(carAttemptingCrossBridgeDirection, carId);
-				}
-				else
-				{
-					pthread_mutex_lock(&_mutexLogger);
-					printf("Car %i, which is going from %s is waiting for enter to the bridge, since it is full of cars going to the opposite direction...\n",
-                           carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
-					pthread_mutex_unlock(&_mutexLogger);
-
-					// wait for bridge resource
-					scheduleAcquireBridgeResource(carAttemptingCrossBridgeDirection, carId);
-				}
+				pthread_mutex_lock(&_mutexLogger);
+				printf("Car %i, which is going from %s is waiting for enter to the bridge, since it is full of cars...\n",
+						carId, getCarDirectionStr(carAttemptingCrossBridgeDirection));
+				pthread_mutex_unlock(&_mutexLogger);
+				// wait for bridge resource
+				scheduleAcquireBridgeResource(carAttemptingCrossBridgeDirection, carId);
 			}
 		}
 
