@@ -15,6 +15,14 @@ Guia para usar el programa:
 
 1. Buscar el archivo ejecutable llamado shortTask1 en el directorio shortTask1/bin/
 
+	En caso de no existir este archivo, ejecutar en consola:
+
+	#crear directorio bin
+	mkdir -p shortTask1/bin/ 
+	
+	#compilar el programa
+	make
+
 	cd shortTask1/bin/
 
 2. Definir los parametros del programa en el siguiente orden:
