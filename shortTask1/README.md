@@ -2,7 +2,7 @@
 
 *****************************************************
 
-Tecnologico de Costa Rica
+Instituto Tecnológico de Costa Rica
 
 Sistemas Operativos Avanzados
 
