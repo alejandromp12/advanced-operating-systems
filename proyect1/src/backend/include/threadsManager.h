@@ -1,5 +1,5 @@
+#include <setjmp.h>
 #include <stdio.h>
-
 
 typedef enum
 {
@@ -7,11 +7,20 @@ typedef enum
     NON_EXPROPRIATED = 1
 } OperationModeEnum; ///<
 
+typedef enum
+{
+    NO_ERROR = 0,
+    ERROR = 1
+} ResultEnum; ///<
+
 typedef struct
 {
     int tickets;
-    int workLoad;
+    int workLoad; // total
+    int workLoadProgress; // current
     int quantum;
+    int piApprox; // PI value
+    sigjmp_buf sigjmpBuf;
     OperationModeEnum mode;
 } *thread; ///<
 
@@ -19,7 +28,7 @@ typedef struct
 void populateWorker(void *pThread, int tickets, int workLoad, int quantum, OperationModeEnum mode);
 
 ///
-void updateQuantum(void *pThread, int newQuantum);
+ResultEnum updateQuantum(void *pThread, int newQuantum);
 
 ///
-void updateWorkLoad(void *pThread, int newWorkLoad);
+int updateWorkLoad(void *pThread, int newWorkLoad);
