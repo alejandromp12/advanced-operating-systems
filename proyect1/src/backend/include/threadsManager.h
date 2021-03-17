@@ -32,3 +32,9 @@ ResultEnum updateQuantum(void *pThread, int newQuantum);
 
 ///
 int updateWorkLoad(void *pThread, int newWorkLoad);
+
+///
+void sleepWorker(void *pThread);
+
+///
+void wakeupWorker(void *pThread);

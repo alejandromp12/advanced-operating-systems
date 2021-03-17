@@ -32,13 +32,33 @@ ResultEnum updateQuantum(void *pThread, int newQuantum)
 
 int updateWorkLoad(void *pThread, int newWorkLoad)
 {
-	int currenWorkLoadPercentage = 0;
+	int currenWorkLoad = 0;
 	thread pWorker = (thread)pThread;
 	if (pWorker)
 	{
 		pWorker->workLoadProgress += newWorkLoad;
-		currenWorkLoadPercentage = pWorker->workLoadProgress / pWorker->workLoad;
+		currenWorkLoad = pWorker->workLoadProgress / pWorker->workLoad;
 	}
 
-	return (currenWorkLoadPercentage / 100);
+	return (currenWorkLoad / 100);
+}
+
+
+void sleepWorker(void *pThread)
+{
+	thread pWorker = (thread)pThread;
+	if (pWorker)
+	{
+		sigsetjmp(pWorker->sigjmpBuf, 1);
+	}
+}
+
+
+void wakeupWorker(void *pThread)
+{
+	thread pWorker = (thread)pThread;
+	if (pWorker)
+	{
+		siglongjmp(pWorker->sigjmpBuf, 1);
+	}
 }
