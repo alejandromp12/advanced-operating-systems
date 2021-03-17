@@ -1,27 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 #include <string.h>
 //#include <iostream.h>
+#include <time.h>
 
 #define NUM_THREADS 10
-
-static GtkWidget *number1;
-static GtkWidget *number2;
-static GtkWidget *result;
-
-int _totalProgress = 0;
-
-/*
-void do_calculate(GtkWidget *calculate, gpointer data) {
-    int num1 = atoi((char *)gtk_entry_get_text(GTK_ENTRY(number1)));
-    int num2 = atoi((char *)gtk_entry_get_text(GTK_ENTRY(number2)));
-
-    char buffer[32];
-    snprintf(buffer, sizeof(buffer), "result: %d", num1 + num2);
-
-    gtk_label_set_text(GTK_LABEL(result), buffer);
-} */
 
 typedef struct
 {
@@ -35,36 +20,104 @@ typedef struct
 	
 } threadStruct; ///< Struct to handle threads information
 
+threadStruct threadBank[];
+int _totalProgress = 0;
 
-// gcc 007_gtk.c -o 007_gtk `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
+static GtkWidget *window;
+static GtkWidget *grid;
+static GtkWidget *totalProgressLabel;
+static GtkWidget *totalProgressBar;
+static GtkWidget *totalPercentageLabel;
+static GtkWidget *totalPiApproxLabel;
+
+
+void update_UI(int threadId, int progress, float piApprox)
+{
+	int i = threadId - 1;
+	threadBank[i].progress = progress;
+	threadBank[i].piApprox = piApprox;
+	
+	//************************* Thread Pi Approximate
+		
+	char piApproxString[10];
+	sprintf(piApproxString, "%f", threadBank[i].piApprox);
+	char piApproxText[] = "Pi: ";
+	strncat(piApproxText, piApproxString, 10);
+	//threadBank[i].piApproxLabel = gtk_label_new(piApproxText);
+	gtk_label_set_text(GTK_LABEL(threadBank[i].piApproxLabel), piApproxText);
+	//gtk_grid_attach(GTK_GRID(grid), threadBank[i].piApproxLabel, 1, rowCount, 1, 1);
+	//rowCount++;
+		
+	//************************* Thread Progress Label
+	char percentageString[4];
+	sprintf(percentageString, "%d", threadBank[i].progress);
+	strncat(percentageString, "\%", 1);
+		
+	//threadBank[i].progressLabel = gtk_label_new(percentageString);
+	gtk_label_set_text(GTK_LABEL(threadBank[i].progressLabel), percentageString);
+	//gtk_grid_attach(GTK_GRID(grid), threadBank[i].progressLabel, 1, rowCount, 1, 1);
+		
+		
+	//************************* Thread Progress Bar
+		
+	float percentageFloat = (float)threadBank[i].progress / 100;
+	//threadBank[i].progressBar = gtk_progress_bar_new ();
+	//gtk_grid_attach(GTK_GRID(grid), threadBank[i].progressBar, 0, rowCount, 1, 1);
+	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (threadBank[i].progressBar), percentageFloat);
+	//rowCount++;
+}
+
+
 int main(int argc, char **argv) {
     gtk_init(&argc, &argv);
 
-	GtkWidget *window;
+	//GtkWidget *window;
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-	GtkWidget *grid;
+	//GtkWidget *grid;
     grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
     
-    GtkWidget *totalProgressLabel;
+    //****** Total Progress Label
+    //GtkWidget *totalProgressLabel;
     totalProgressLabel = gtk_label_new("Total Progress");
     gtk_grid_attach(GTK_GRID(grid), totalProgressLabel, 0, 0, 1, 1);
     
-    GtkWidget *totalProgressBar;
+    //****** Total Progress Bar
+    //GtkWidget *totalProgressBar;
     totalProgressBar = gtk_progress_bar_new ();
     gtk_grid_attach(GTK_GRID(grid), totalProgressBar, 0, 1, 1, 1);
     
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (totalProgressBar), 0.5);
     
-    GtkWidget *totalPercentage;
-    totalPercentage = gtk_label_new(" 0 \%");
-    gtk_grid_attach(GTK_GRID(grid), totalPercentage, 2, 0, 1, 1);
+    //GdkColor color;
+    //gdk_color_parse("blue",&color);
+    //gtk_widget_modify_bg(totalProgressBar,GTK_STATE_ACTIVE, GdkRGBA(0.0, 1.0, 0.0, 1.0));
+    
+    //****** Total Percentage
+    int totalPercentageNum = 0;
+    char totalPercentageString[4];
+	sprintf(totalPercentageString, "%d", totalPercentageNum);
+	strncat(totalPercentageString, "\%", 1);
+    //GtkWidget *totalPercentageLabel;
+    totalPercentageLabel = gtk_label_new(totalPercentageString);
+    gtk_grid_attach(GTK_GRID(grid), totalPercentageLabel, 1, 1, 1, 1);
+    
+    //****** Total Pi Approximate
+    float totalPiApproxNum = 3.1415;
+    char totalPiApproxString[10];
+    sprintf(totalPiApproxString, "%f", totalPiApproxNum);
+    char totalPiApproxText[] = "Pi: ";
+    strncat(totalPiApproxText, totalPiApproxString, 10);
+    //GtkWidget *totalPiApproxLabel;
+    totalPiApproxLabel = gtk_label_new(totalPiApproxText);
+    gtk_grid_attach(GTK_GRID(grid), totalPiApproxLabel, 1, 0, 1, 1);
+    
     
     int rowCount = 2;
     
-    threadStruct threadBank[NUM_THREADS];
+    //threadBank[NUM_THREADS];
     
     for (int i=0; i<NUM_THREADS; i++)
     {
@@ -81,19 +134,27 @@ int main(int argc, char **argv) {
 		
 		threadBank[i].threadIdLabel = gtk_label_new(labelId);
 		
-		rowCount++;
 		gtk_grid_attach(GTK_GRID(grid), threadBank[i].threadIdLabel, 0, rowCount, 1, 1);
 		
-		//************************* Thread Progress Label
-		char percentage[3];
-		sprintf(percentage, "%d", threadBank[i].progress);
-		char labelPercentage[] = "Progress ";
-		strncat(labelPercentage, percentage, 3);
-		strncat(labelPercentage, "\%", 1);
 		
-		threadBank[i].progressLabel = gtk_label_new(labelPercentage);
-		gtk_grid_attach(GTK_GRID(grid), threadBank[i].progressLabel, 1, rowCount, 1, 1);
+		//************************* Thread Pi Approximate
+		
+		char piApproxString[10];
+		sprintf(piApproxString, "%f", threadBank[i].piApprox);
+		char piApproxText[] = "Pi: ";
+		strncat(piApproxText, piApproxString, 10);
+		threadBank[i].piApproxLabel = gtk_label_new(piApproxText);
+		gtk_grid_attach(GTK_GRID(grid), threadBank[i].piApproxLabel, 1, rowCount, 1, 1);
 		rowCount++;
+		
+		//************************* Thread Progress Label
+		char percentageString[4];
+		sprintf(percentageString, "%d", threadBank[i].progress);
+		strncat(percentageString, "\%", 1);
+		
+		threadBank[i].progressLabel = gtk_label_new(percentageString);
+		gtk_grid_attach(GTK_GRID(grid), threadBank[i].progressLabel, 1, rowCount, 1, 1);
+		
 		
 		//************************* Thread Progress Bar
 		
@@ -103,13 +164,15 @@ int main(int argc, char **argv) {
 		gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (threadBank[i].progressBar), percentageFloat);
 		rowCount++;
 		
-		
-		
 	}
+	
+    update_UI(7, 65, 3.1415);
     
-
     gtk_widget_show_all(window);
+    
     gtk_main();
+    
+    
 
     return 0;
 }
