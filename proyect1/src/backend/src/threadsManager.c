@@ -1,8 +1,6 @@
 #include "include/threadsManager.h"
 
-/**
- *
- */
+
 void populateWorker(void *pThread, int tickets, int workLoad, int quantum, OperationModeEnum mode)
 {
 	thread pWorker = (thread)pThread;
@@ -16,3 +14,21 @@ void populateWorker(void *pThread, int tickets, int workLoad, int quantum, Opera
 }
 
 
+void updateQuantum(void *pThread, int newQuantum)
+{
+	thread pWorker = (thread)pThread;
+	if (pWorker)
+	{
+		pWorker->quantum = newQuantum;
+	}
+}
+
+
+void updateWorkLoad(void *pThread, int newWorkLoad)
+{
+	thread pWorker = (thread)pThread;
+	if (pWorker)
+	{
+		pWorker->workLoad = newWorkLoad;
+	}
+}

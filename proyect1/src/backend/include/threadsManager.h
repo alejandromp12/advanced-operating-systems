@@ -21,4 +21,5 @@ void populateWorker(void *pThread, int tickets, int workLoad, int quantum, Opera
 ///
 void updateQuantum(void *pThread, int newQuantum);
 
-
+///
+void updateWorkLoad(void *pThread, int newWorkLoad);
