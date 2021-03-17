@@ -8,7 +8,7 @@ CFLAGS=-I. -g -Wall
 LFLAGS=
 
 BIN_DIR=bin
-LIB_BACKEND=backend/build/lib/liblottery.a
+LIB_BACKEND=backend/build_tmp/lib/liblottery.a
 APP=$(BIN_DIR)/lottery_threads
  
 build: backend $(APP)
