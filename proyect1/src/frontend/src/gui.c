@@ -1,24 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
-#include <string.h>
-//#include <iostream.h>
-#include <time.h>
 
-#define NUM_THREADS 10
-
-typedef struct
-{
-	int threadId;
-	int progress;
-	float piApprox;
-	GtkWidget *threadIdLabel;
-	GtkWidget *progressLabel;
-	GtkWidget *progressBar;
-	GtkWidget *piApproxLabel;
-	
-} threadStruct; ///< Struct to handle threads information
+#include "include/gui.h"
 
 threadStruct threadBank[];
 int _totalProgress = 0;
@@ -31,7 +12,7 @@ static GtkWidget *totalPercentageLabel;
 static GtkWidget *totalPiApproxLabel;
 
 
-void update_UI(int threadId, int progress, float piApprox)
+void updateUI(int threadId, int progress, float piApprox)
 {
 	int i = threadId - 1;
 	threadBank[i].progress = progress;
@@ -68,7 +49,8 @@ void update_UI(int threadId, int progress, float piApprox)
 }
 
 
-int main(int argc, char **argv) {
+void run(int argc, char **argv, int threadNum) {
+    
     gtk_init(&argc, &argv);
 
 	//GtkWidget *window;
@@ -119,7 +101,7 @@ int main(int argc, char **argv) {
     
     //threadBank[NUM_THREADS];
     
-    for (int i=0; i<NUM_THREADS; i++)
+    for (int i=0; i<threadNum; i++)
     {
 		threadBank[i].threadId = i + 1;
 		threadBank[i].progress = 50;
@@ -166,13 +148,10 @@ int main(int argc, char **argv) {
 		
 	}
 	
-    update_UI(7, 65, 3.1415);
+    
     
     gtk_widget_show_all(window);
     
     gtk_main();
     
-    
-
-    return 0;
 }
