@@ -1,40 +1,25 @@
 #include "include/threadsManager.h"
+#include <stdlib.h>
 
-
-void populateWorker(void *pThread, int tickets, int workLoad, int quantum, OperationModeEnum mode)
+void populateWorker(thread *pWorker, int *tickets, int totalTickets, int workLoad, int quantum)
 {
-	thread pWorker = (thread)pThread;
-	if (pWorker)
+	if (pWorker != NULL)
 	{
+		printf("totalTickets: %i,\n workLoad: %i,\n quantum: %i\n", totalTickets, workLoad, quantum);
 		pWorker->tickets = tickets;
+		pWorker->totalTickets = totalTickets;
 		pWorker->workLoad = workLoad;
 		pWorker->workLoadProgress = 0;
 		pWorker->quantum = quantum;
 		pWorker->piApprox = 0;
-		pWorker->mode = mode;
 	}
 }
 
 
-ResultEnum updateQuantum(void *pThread, int newQuantum)
-{
-	ResultEnum result = ERROR;
-	thread pWorker = (thread)pThread;
-	if (pWorker)
-	{
-		pWorker->quantum = newQuantum;
-		result = NO_ERROR;
-	}
-
-	return result;
-}
-
-
-int updateWorkLoad(void *pThread, int newWorkLoad)
+int updateWorkLoad(thread *pWorker, int newWorkLoad)
 {
 	int currenWorkLoad = 0;
-	thread pWorker = (thread)pThread;
-	if (pWorker)
+	if (pWorker != NULL)
 	{
 		pWorker->workLoadProgress += newWorkLoad;
 		currenWorkLoad = pWorker->workLoadProgress / pWorker->workLoad;
@@ -44,20 +29,18 @@ int updateWorkLoad(void *pThread, int newWorkLoad)
 }
 
 
-void sleepWorker(void *pThread)
+void sleepWorker(thread *pWorker)
 {
-	thread pWorker = (thread)pThread;
-	if (pWorker)
+	if (pWorker != NULL)
 	{
 		sigsetjmp(pWorker->sigjmpBuf, 1);
 	}
 }
 
 
-void wakeupWorker(void *pThread)
+void wakeupWorker(thread *pWorker)
 {
-	thread pWorker = (thread)pThread;
-	if (pWorker)
+	if (pWorker != NULL)
 	{
 		siglongjmp(pWorker->sigjmpBuf, 1);
 	}

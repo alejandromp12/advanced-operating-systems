@@ -1,40 +1,30 @@
+#ifndef THREADS_MANAGER_FILE
+#define THREADS_MANAGER_FILE
+
 #include <setjmp.h>
 #include <stdio.h>
 
-typedef enum
-{
-    EXPROPRIATED = 0,
-    NON_EXPROPRIATED = 1
-} OperationModeEnum; ///<
-
-typedef enum
-{
-    NO_ERROR = 0,
-    ERROR = 1
-} ResultEnum; ///<
-
 typedef struct
 {
-    int tickets;
-    int workLoad; // total
-    int workLoadProgress; // current
-    int quantum;
-    int piApprox; // PI value
-    sigjmp_buf sigjmpBuf;
-    OperationModeEnum mode;
-} *thread; ///<
+	int *tickets;
+	int totalTickets;
+	int workLoad; // total
+	int workLoadProgress; // current
+	int quantum;
+	int piApprox; // PI value
+	sigjmp_buf sigjmpBuf;
+} thread; ///<
 
 ///
-void populateWorker(void *pThread, int tickets, int workLoad, int quantum, OperationModeEnum mode);
+void populateWorker(thread *pWorker, int *tickets, int totalTickets, int workLoad, int quantum);
 
 ///
-ResultEnum updateQuantum(void *pThread, int newQuantum);
+int updateWorkLoad(thread *pWorker, int newWorkLoad);
 
 ///
-int updateWorkLoad(void *pThread, int newWorkLoad);
+void sleepWorker(thread *pWorker);
 
 ///
-void sleepWorker(void *pThread);
+void wakeupWorker(thread *pWorker);
 
-///
-void wakeupWorker(void *pThread);
+#endif
