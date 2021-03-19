@@ -18,15 +18,18 @@ typedef enum
 
 typedef struct
 {
-	int totalBaseTickets;
 	OperationModeEnum mode;
 	thread *pNextWorker;
+	thread *pPrevWorker;
 } scheduler; ///<
 
-//void
-void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets);
+//
+void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets, int *pTickets);
 
 //
 LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers);
+
+//
+void removeTickets(int *pTicketsToRemove, int numTicketsToRemove);
 
 #endif
