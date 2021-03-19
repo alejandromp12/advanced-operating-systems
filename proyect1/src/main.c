@@ -8,24 +8,32 @@
 #define EXPROPRIATION 0
 #define NON_EXPROPRIATION 1
 
+
+
+
+
 int NUM_THREADS = MIN_THREAD;
 int EXPROPRIATION_MODE = -1;
+
+
+
+
 
 void argumentsError()
 {
     printf("Error argument. The format is:\n\n"
-           "./project <-m|--mode> <expropriation_type> <-t|--threads> <num_threads:int> -t1 <num_ticket:int> <amount_of_work:int> <quantum:int> ... -tN <num_ticket:int> <amount_of_work:int> <quantum:int>\n\n"
+           "./project <-m|--mode> <expropriation_type> <-t|--threads> <num_threads:int> -t1 <num_ticket:int> <workload:int> <quantum:int> ... -tN <num_ticket:int> <workload:int> <quantum:int>\n\n"
            "Help:\n\n"
            "<-m | --mode> ==> mode\n"
            "<expropriation_type> ==> 0 for expropriation | 1 for non-expropriation\n"
            "<-t| --threads> ==> set num threads\n"
            "<num_threads> ==> num threads, N >= 5\n"
-           "<-t1> ==> set num_ticket and amount_of_work for thread number 1\n"
+           "<-t1> ==> set num_ticket and workload for thread number 1\n"
            "<num_ticket> => num_ticket > 0\n"
-           "<amount_of_work> ==> amount_of_work > 0\n"
+           "<workload> ==> workload > 0\n"
            "quantum ==> if the program is in expropriation mode the quantum must be in milliseconds\n"
            "   |    ==> if the program is in non-expropriation mode, the quantum must be a percentage of the total work\n"
-           "<-tN> ==> set num_ticket and amount_of_work for thread number N, 1 =< N =< num_threads\n\n");
+           "<-tN> ==> set num_ticket and workload for thread number N, 1 =< N =< num_threads\n\n");
     exit(0);
 }
 
@@ -77,7 +85,7 @@ void createThread(int index, char const *argv[])
             }
             else
             {
-                printf("Error thread attribute ==> -tN <num_ticket:int> <amount_of_work:int> <quantum:int>\n\n");
+                printf("Error thread attribute ==> -tN <num_ticket:int> <workload:int> <quantum:int>\n\n");
                 argumentsError();
             }
         }
