@@ -4,10 +4,10 @@
 #include <time.h>
 
 int _totalBaseTickets;
-int *_pTickets;
+int **_pTickets;
 
 
-void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets, int *pTickets)
+void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets, int **pTickets)
 {
 	//sanity check
 	if (pScheduler != NULL)
@@ -88,6 +88,8 @@ LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorker
 				// check if we have a winner
 				if ((&pWorkers[i])->pTickets[j] == randomTicket)
 				{
+					// save the current worker as the prev one to keep a tracking
+					pScheduler->pPrevWorker = pScheduler->pNextWorker;
 					printf("ThreadId %i won the lottery, with the number %i.\n", (&pWorkers[i])->threadId, (&pWorkers[i])->pTickets[j]);
 					processResult = NO_ERROR;
 					pScheduler->pNextWorker = &pWorkers[i];

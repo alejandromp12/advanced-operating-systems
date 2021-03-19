@@ -24,7 +24,7 @@ typedef struct
 } scheduler; ///<
 
 //
-void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets, int *pTickets);
+void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets, int **pTickets);
 
 //
 LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers);
