@@ -16,6 +16,12 @@ typedef enum
 	NON_EXPROPRIATED_MODE = 1
 } OperationModeEnum; ///<
 
+typedef enum
+{
+	VALID_TICKET = 0,
+	INVALID_TICKET = 1
+} LotteryTicketEnum; ///<
+
 typedef struct
 {
 	OperationModeEnum mode;
@@ -24,12 +30,18 @@ typedef struct
 } scheduler; ///<
 
 //
-void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int totalTickets, int **pTickets);
+void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets);
 
 //
-LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers);
+LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets);
 
 //
-void removeTickets(int *pTicketsToRemove, int numTicketsToRemove);
+void invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTickets);
+
+//
+void validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets);
+
+//
+int haveValidTickets(int *pTickets);
 
 #endif
