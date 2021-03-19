@@ -7,20 +7,28 @@ CC=gcc
 CFLAGS=-c -I.
 LFLAGS=
 
-BUILD_DIR=build
+BUILD_DIR=build_tmp
 BIN_DIR=$(BUILD_DIR)/bin
 LIB_DIR=$(BUILD_DIR)/lib
 STATIC_COMPONENT=$(LIB_DIR)/liblottery.a
-FILE_NAME=threadsManager
 SRC_DIR=src
-TARGET_FILE=$(SRC_DIR)/$(FILE_NAME).c
-OBJECT_FILE=$(BIN_DIR)/$(FILE_NAME).o
+OBJECT_FILES=$(BIN_DIR)/threadsManager.o $(BIN_DIR)/scheduler.o
+FILE_NAMES=threadsManager scheduler
 
-$(STATIC_COMPONENT): $(OBJECT_FILE)
+build: $(STATIC_COMPONENT)
+
+define BUILD_OBJECT
+.PHONY: $(1).o
+$(1).o: $(2).c $(BUILD_DIR) $(BIN_DIR) $(LIB_DIR)
+	$(CC) $(CFLAGS) $(2).c -o $$@
+endef # BUILD_OBJECT
+
+# Build .o files
+$(foreach file,$(FILE_NAMES),$(eval $(call BUILD_OBJECT,$$(BIN_DIR)/$(file),$$(SRC_DIR)/$(file))))
+
+
+$(STATIC_COMPONENT): $(OBJECT_FILES)
 	ar rcs $@ $^
-
-$(OBJECT_FILE): $(TARGET_FILE) $(BUILD_DIR) $(BIN_DIR) $(LIB_DIR)
-	$(CC) $(CFLAGS) $(TARGET_FILE) -o $@
 
 $(LIB_DIR):
 	mkdir -p $@
@@ -32,5 +40,5 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 clean:
-	rm -rf build/
+	rm -rf $(BUILD_DIR)/
 

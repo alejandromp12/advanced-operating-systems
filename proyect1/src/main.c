@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "backend/include/threadsManager.h"
+#include "backend/include/scheduler.h"
 
 #define MIN_THREAD 5
 #define EXPROPRIATION 0
