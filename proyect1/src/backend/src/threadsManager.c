@@ -71,7 +71,8 @@ void piCalculate(thread *pWorker)
 
 	for(double i = pWorker->startTerm; i < conditionalIndex; i++)
 	{	
-		termValue = 4 * (2 / ((4 * i + 1) * (4 * i + 3)));
+		termValue = 4 * (2 / ((4 * (double)i + 1) * (4 * (double)i + 3)));
+		TOTAL_PI += termValue;
 	}
 
 	printf("%f\n", TOTAL_PI);
