@@ -9,13 +9,9 @@
 #define EXPROPRIATION 0
 #define NON_EXPROPRIATION 1
 
-
-
-
-
 int NUM_THREADS = MIN_THREAD;
 int EXPROPRIATION_MODE = -1;
-
+int TOTAL_TERM = 0;
 
 
 
@@ -23,13 +19,13 @@ int EXPROPRIATION_MODE = -1;
 void argumentsError()
 {
     printf("Error argument. The format is:\n\n"
-           "./project <-m|--mode> <expropriation_type> <-t|--threads> <num_threads:int> -t1 <num_ticket:int> <workload:int> <quantum:int> ... -tN <num_ticket:int> <workload:int> <quantum:int>\n\n"
+           "./project <-m|--mode> <expropriation_type> <-t|--threads> <num_threads:int> -t0 <num_ticket:int> <workload:int> <quantum:int> ... -tN <num_ticket:int> <workload:int> <quantum:int>\n\n"
            "Help:\n\n"
            "<-m | --mode> ==> mode\n"
            "<expropriation_type> ==> 0 for expropriation | 1 for non-expropriation\n"
            "<-t| --threads> ==> set num threads\n"
            "<num_threads> ==> num threads, N >= 5\n"
-           "<-t1> ==> set num_ticket and workload for thread number 1\n"
+           "<-t0> ==> set num_ticket and workload for thread number 0\n"
            "<num_ticket> => num_ticket > 0\n"
            "<workload> ==> workload > 0\n"
            "quantum ==> if the program is in expropriation mode the quantum must be in milliseconds\n"
@@ -74,37 +70,58 @@ void readNumThreads(int index, char const *argv[])
     }
 }
 
-void createThread(int index, char const *argv[])
-{
-    if (EXPROPRIATION_MODE == EXPROPRIATION)
+void createThread(int index, int counter, char const *argv[])
+{   
+    char *nextThread = (char*)malloc(2 * sizeof(char));
+    sprintf(nextThread, "t%d", counter);
+
+    if(!strcmp(nextThread, argv[index]))
     {
         for (int k = index + 1; k <= index + 3; k++)
         {
-            if (isdigit(*argv[k]) && atoi(argv[k]) > 0)
+            if (!(isdigit(*argv[k]) && atoi(argv[k]) > 0))
             {
-                int t = 0; // replace this 
-            }
-            else
-            {
-                printf("Error thread attribute ==> -tN <num_ticket:int> <workload:int> <quantum:int>\n\n");
+                printf("Error thread attribute ==> -t%d <num_ticket:int> <workload:int> <quantum:int>\n\n", counter);
                 argumentsError();
             }
         }
+        int totalTickets = atoi(argv[index + 1]);
+        int workload = atoi(argv[index + 2]);
+        int quantum = atoi(argv[index + 3]);
+        int startTerm = TOTAL_TERM;
+        //TEST TICKETS
+        int tickets[7] = {9, 50, 3, 1, 4, 0, 2};
+
+
+        populateWorker(&WORKER_LIST[counter], &tickets, totalTickets, startTerm, workload, quantum);
+        free(nextThread);
+
+        TOTAL_TERM += (workload * UNIT_OF_WORK);
         printf("CREATE THREAD %c!!\n", argv[index][1]);
     }
     else
     {
+        printf("Error thread => %s is wrong , the next thread must be %s\n", argv[index], nextThread);
+         argumentsError();
     }
+            
+    
+    
+
 }
 
 void readAttriThreads(int index, int argc, char const *argv[])
-{   
+{     
     if((argc - index) ==  (NUM_THREADS * 4))
-    {
+    {   
+        WORKER_LIST = (thread*)malloc(NUM_THREADS * sizeof(thread));
+
+        int counter = 0;
         for (int i = index; i < argc; i++)
         {
-            createThread(i, argv);
+            createThread(i, counter, argv);
             i += 3;
+            counter++;
         }
     }
     else
@@ -134,6 +151,26 @@ void readArguments(int argc, char const *argv[])
     }
 }
 
+
+/*TEST SERIES*/
+
+void testSerie()
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char const *argv[])
 {
     readArguments(argc, argv);
@@ -142,3 +179,7 @@ int main(int argc, char const *argv[])
     printf("NUM_THREADS %d\n", NUM_THREADS);
     return 0;
 }
+
+
+
+

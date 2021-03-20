@@ -4,10 +4,13 @@
 #include <setjmp.h>
 #include <stdio.h>
 
+#define UNIT_OF_WORK 50
+
 typedef struct
 {
 	int *tickets;
 	int totalTickets;
+	int startTerm;
 	int workLoad; // total
 	int workLoadProgress; // current
 	int quantum;
@@ -15,8 +18,12 @@ typedef struct
 	sigjmp_buf sigjmpBuf;
 } thread; ///<
 
+
+thread *WORKER_LIST; // threads 
+
+double TOTAL_PI = 0.0; //PI Accumulated 
 ///
-void populateWorker(thread *pWorker, int *tickets, int totalTickets, int workLoad, int quantum);
+void populateWorker(thread *pWorker, int *tickets, int totalTickets, int startTerm, int workLoad, int quantum);
 
 ///
 int updateWorkLoad(thread *pWorker, int newWorkLoad);
@@ -26,5 +33,8 @@ void sleepWorker(thread *pWorker);
 
 ///
 void wakeupWorker(thread *pWorker);
+
+///
+void piCalculate(thread *pWorker);
 
 #endif
