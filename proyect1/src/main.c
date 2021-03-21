@@ -283,7 +283,7 @@ int main(int argc, char const *pArgv[])
 
 	for (int k = 0; k < NUM_THREADS; k++)
 	{
-		if (validateTickets(_pWorkers->pTickets, _pWorkers->totalTickets, _pTickets) != SCHEDULER_NO_ERROR)
+		if (validateTickets((&_pWorkers[k])->pTickets, (&_pWorkers[k])->totalTickets, _pTickets) != SCHEDULER_NO_ERROR)
 		{
 			printf("Error, validating tickets.\n");
 			return 0;
