@@ -30,12 +30,12 @@ typedef struct
 	OperationModeEnum mode;
 	thread *pNextWorker;
 	thread *pPrevWorker;
-	int winnerTicket;
+	int numWorkers;
 	sigjmp_buf environment;
 } scheduler; ///<
 
 //
-int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, sigjmp_buf environment);
+int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, int numWorkers, sigjmp_buf environment);
 
 //
 int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets);

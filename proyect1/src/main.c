@@ -7,10 +7,12 @@
 
 #define TOTAL_TICKETS 100
 int *_pTickets;
+thread *_pWorkers;
+scheduler *_pSystemScheduler;
 
-static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int numWorkers)
+static void lotteryThreads()
 {
-	if ((pSystemScheduler == NULL) || (pWorkers == NULL) || (_pTickets == NULL))
+	if ((_pSystemScheduler == NULL) || (_pWorkers == NULL) || (_pTickets == NULL))
 	{
 		printf("Error, lotteryThreads(...) detected a Null pointer.\n");
 		return;
@@ -20,7 +22,7 @@ static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int nu
 	while ((haveValidTickets(_pTickets) > 0) && (stopLotteryThreads == 0))
 	{
 		// verify if the worker has to be removed, we have to this before any attempt to playing again
-		thread *pPreviousWorker = (thread*)pSystemScheduler->pPrevWorker;
+		thread *pPreviousWorker = (thread*)_pSystemScheduler->pPrevWorker;
 		if (pPreviousWorker != NULL)
 		{
 			// if it already finishes its work, the remove it
@@ -35,16 +37,16 @@ static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int nu
 			}
 		}
 
-		if (lotteryChooseNextWorker(pSystemScheduler, pWorkers, numWorkers, _pTickets) == SCHEDULER_NO_ERROR)
+		if (lotteryChooseNextWorker(_pSystemScheduler, _pWorkers, _pSystemScheduler->numWorkers, _pTickets) == SCHEDULER_NO_ERROR)
 		{
-			thread *pCurrWorker = (thread*)pSystemScheduler->pNextWorker;
+			thread *pCurrWorker = (thread*)_pSystemScheduler->pNextWorker;
 			if (pCurrWorker == NULL)
 			{
 				stopLotteryThreads = 1;
 				continue;
 			}
 
-			if (sigsetjmp(pSystemScheduler->environment, 1) == 0)
+			if (sigsetjmp(_pSystemScheduler->environment, 1) == 0)
 			{
 				printf("Worker %i just woke up.\n", pCurrWorker->threadId);
 				siglongjmp(pCurrWorker->environment, pCurrWorker->threadId);
@@ -83,8 +85,8 @@ int main(int argc, char *pArgv[])
 	}
 
 	sigjmp_buf schedulerEnvironment;
-	scheduler systemScheduler;
-	if ((initializeScheduler(&systemScheduler, EXPROPRIATED_MODE, _pTickets, TOTAL_TICKETS, schedulerEnvironment) != SCHEDULER_NO_ERROR)
+	_pSystemScheduler = (scheduler*)malloc(sizeof(scheduler));
+	if ((initializeScheduler(_pSystemScheduler, EXPROPRIATED_MODE, _pTickets, TOTAL_TICKETS, numWorkers, schedulerEnvironment) != SCHEDULER_NO_ERROR)
 		|| (validateTickets(tickets1, 7, _pTickets) != SCHEDULER_NO_ERROR)
 		|| (validateTickets(tickets2, 2, _pTickets) != SCHEDULER_NO_ERROR)
 		|| (validateTickets(tickets3, 6, _pTickets) != SCHEDULER_NO_ERROR)
@@ -95,8 +97,8 @@ int main(int argc, char *pArgv[])
 		return 0;
 	}
 
-	thread *pWorkers = (thread*)malloc(numWorkers * sizeof(thread));
-	if (pWorkers == NULL)
+	_pWorkers = (thread*)malloc(numWorkers * sizeof(thread));
+	if (_pWorkers == NULL)
 	{
 		printf("Error, main(...) detected a Null pointer.\n");
 		return 0;
@@ -108,23 +110,23 @@ int main(int argc, char *pArgv[])
 	{
 		if (i == 0)
 		{
-			tmpResult = populateWorker(&pWorkers[i], tickets1, 7, 6000, 1000, i + 1, workersEnvironment[i]);
+			tmpResult = populateWorker(&_pWorkers[i], tickets1, 7, 6000, 1000, i + 1, workersEnvironment[i]);
 		}
 		else if (i == 1)
 		{
-			tmpResult = populateWorker(&pWorkers[i], tickets2, 2, 8000, 1000, i + 1, workersEnvironment[i]);
+			tmpResult = populateWorker(&_pWorkers[i], tickets2, 2, 8000, 1000, i + 1, workersEnvironment[i]);
 		}
 		else if (i == 2)
 		{
-			tmpResult = populateWorker(&pWorkers[i], tickets3, 6, 9000, 2000, i + 1, workersEnvironment[i]);
+			tmpResult = populateWorker(&_pWorkers[i], tickets3, 6, 9000, 2000, i + 1, workersEnvironment[i]);
 		}
 		else if (i == 3)
 		{
-			tmpResult = populateWorker(&pWorkers[i], tickets4, 3, 10000, 5000, i + 1, workersEnvironment[i]);
+			tmpResult = populateWorker(&_pWorkers[i], tickets4, 3, 10000, 5000, i + 1, workersEnvironment[i]);
 		}
 		else if (i == 4)
 		{
-			tmpResult = populateWorker(&pWorkers[i], tickets5, 1, 50000, 1500, i + 1, workersEnvironment[i]);
+			tmpResult = populateWorker(&_pWorkers[i], tickets5, 1, 50000, 1500, i + 1, workersEnvironment[i]);
 		}
 
 		if (tmpResult != THREAD_NO_ERROR)
@@ -134,17 +136,22 @@ int main(int argc, char *pArgv[])
 		}
 	}
 
-	prepareWorkersEnvironment(pWorkers, &systemScheduler, numWorkers);
-	lotteryThreads(&systemScheduler, pWorkers, numWorkers);
+	prepareWorkersEnvironment(_pWorkers, _pSystemScheduler, numWorkers);
+	lotteryThreads();
 
-	if (pWorkers != NULL)
+	if (_pWorkers != NULL)
 	{
-		free(pWorkers);
+		free(_pWorkers);
 	}
 
 	if (_pTickets != NULL)
 	{
 		free(_pTickets);
+	}
+
+	if (_pSystemScheduler != NULL)
+	{
+		free(_pSystemScheduler);
 	}
 
 	return 0;

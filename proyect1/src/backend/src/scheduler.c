@@ -24,7 +24,7 @@ static int initializeTickets(int *pTickets)
 }
 
 
-int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, sigjmp_buf environment)
+int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, int numWorkers, sigjmp_buf environment)
 {
 	//sanity check
 	if (pScheduler == NULL)
@@ -37,6 +37,7 @@ int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTic
 	pScheduler->mode = mode;
 	pScheduler->pNextWorker = NULL;
 	pScheduler->pPrevWorker = NULL;
+	pScheduler->numWorkers = numWorkers;
 	_totalBaseTickets = totalBaseTickets;
 	memcpy(&(pScheduler->environment), &environment, sizeof(sigjmp_buf));
 	return initializeTickets(pTickets);
@@ -69,7 +70,7 @@ static int getRandomTicket(int *pTickets)
 		randomTicket = ticket;
 	}
 
-	printf("Random ticket: %i\n", randomTicket);
+	//printf("Random ticket: %i\n", randomTicket);
 
 	return randomTicket;
 }
