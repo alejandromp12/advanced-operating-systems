@@ -6,17 +6,18 @@
 #include "backend/include/scheduler.h"
 
 #define TOTAL_TICKETS 100
+int *_pTickets;
 
-static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int *pTickets, int numWorkers)
+static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int numWorkers)
 {
-	if ((pSystemScheduler == NULL) || (pWorkers == NULL) || (pTickets == NULL))
+	if ((pSystemScheduler == NULL) || (pWorkers == NULL) || (_pTickets == NULL))
 	{
 		printf("Error, lotteryThreads(...) detected a Null pointer.\n");
 		return;
 	}
 
 	int stopLotteryThreads = 0;
-	while ((haveValidTickets(pTickets) > 0) && (stopLotteryThreads == 0))
+	while ((haveValidTickets(_pTickets) > 0) && (stopLotteryThreads == 0))
 	{
 		// verify if the worker has to be removed, we have to this before any attempt to playing again
 		thread *pPreviousWorker = (thread*)pSystemScheduler->pPrevWorker;
@@ -26,7 +27,7 @@ static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int *p
 			if (pPreviousWorker->workLoadProgress == pPreviousWorker->workLoad)
 			{
 				// remove its tickest
-				if (invalidateTickets(pPreviousWorker->pTickets, pPreviousWorker->totalTickets, pTickets)  != SCHEDULER_NO_ERROR)
+				if (invalidateTickets(pPreviousWorker->pTickets, pPreviousWorker->totalTickets, _pTickets)  != SCHEDULER_NO_ERROR)
 				{
 					stopLotteryThreads = 1;
 					continue;
@@ -34,7 +35,7 @@ static void lotteryThreads(scheduler *pSystemScheduler, thread *pWorkers, int *p
 			}
 		}
 
-		if (lotteryChooseNextWorker(pSystemScheduler, pWorkers, numWorkers, pTickets) == SCHEDULER_NO_ERROR)
+		if (lotteryChooseNextWorker(pSystemScheduler, pWorkers, numWorkers, _pTickets) == SCHEDULER_NO_ERROR)
 		{
 			thread *pCurrWorker = (thread*)pSystemScheduler->pNextWorker;
 			if (pCurrWorker == NULL)
@@ -74,8 +75,8 @@ int main(int argc, char *pArgv[])
 	int tickets4[3] = {85, 99, 80};
 	int tickets5[1] = {100};
 
-	int *pTickets = (int*)malloc(TOTAL_TICKETS * sizeof(int));
-	if (pTickets == NULL)
+	_pTickets = (int*)malloc(TOTAL_TICKETS * sizeof(int));
+	if (_pTickets == NULL)
 	{
 		printf("Error, main(...) detected a Null pointer.\n");
 		return 0;
@@ -83,12 +84,12 @@ int main(int argc, char *pArgv[])
 
 	sigjmp_buf schedulerEnvironment;
 	scheduler systemScheduler;
-	if ((initializeScheduler(&systemScheduler, EXPROPRIATED_MODE, pTickets, TOTAL_TICKETS, schedulerEnvironment) != SCHEDULER_NO_ERROR)
-		|| (validateTickets(tickets1, 7, pTickets) != SCHEDULER_NO_ERROR)
-		|| (validateTickets(tickets2, 2, pTickets) != SCHEDULER_NO_ERROR)
-		|| (validateTickets(tickets3, 6, pTickets) != SCHEDULER_NO_ERROR)
-		|| (validateTickets(tickets4, 3, pTickets) != SCHEDULER_NO_ERROR)
-		|| (validateTickets(tickets5, 1, pTickets) != SCHEDULER_NO_ERROR))
+	if ((initializeScheduler(&systemScheduler, EXPROPRIATED_MODE, _pTickets, TOTAL_TICKETS, schedulerEnvironment) != SCHEDULER_NO_ERROR)
+		|| (validateTickets(tickets1, 7, _pTickets) != SCHEDULER_NO_ERROR)
+		|| (validateTickets(tickets2, 2, _pTickets) != SCHEDULER_NO_ERROR)
+		|| (validateTickets(tickets3, 6, _pTickets) != SCHEDULER_NO_ERROR)
+		|| (validateTickets(tickets4, 3, _pTickets) != SCHEDULER_NO_ERROR)
+		|| (validateTickets(tickets5, 1, _pTickets) != SCHEDULER_NO_ERROR))
 	{
 		printf("Error, validating tickets or initializing scheduler.\n");
 		return 0;
@@ -134,16 +135,16 @@ int main(int argc, char *pArgv[])
 	}
 
 	prepareWorkersEnvironment(pWorkers, &systemScheduler, numWorkers);
-	lotteryThreads(&systemScheduler, pWorkers, pTickets, numWorkers);
+	lotteryThreads(&systemScheduler, pWorkers, numWorkers);
 
 	if (pWorkers != NULL)
 	{
 		free(pWorkers);
 	}
 
-	if (pTickets != NULL)
+	if (_pTickets != NULL)
 	{
-		free(pTickets);
+		free(_pTickets);
 	}
 
 	return 0;
