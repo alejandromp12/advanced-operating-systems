@@ -94,6 +94,7 @@ int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers
 
 	// remove ticket from base to avoid get it again
 	pTickets[randomTicket] = INVALID_TICKET;
+	printf("Ticket %i invalidated.\n", randomTicket);
 
 	for (int i = 0; i < workers; i++)
 	{
@@ -146,6 +147,7 @@ int invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTicke
 			// invalidate ticket
 			ticketNum = pTicketsToRemove[j];
 			pTickets[ticketNum] = INVALID_TICKET;
+			printf("Ticket %i invalidated.\n", ticketNum);
 		}
 	}
 
