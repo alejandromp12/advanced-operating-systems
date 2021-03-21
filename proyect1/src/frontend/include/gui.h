@@ -21,6 +21,10 @@ typedef struct
 } threadStruct; ///< Struct to handle threads information
 
 
-void updateUI(int threadId, int progress, float piApprox);
+void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
 
-void run(int argc, char **argv, int threadNum);
+void markCurrentThread(int threadId, gboolean unmark);
+
+void runGUI(int argc, char **argv, int threadNum);
+
+gboolean time_handler(GtkWidget *widget);
