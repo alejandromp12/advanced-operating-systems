@@ -22,6 +22,7 @@ typedef struct
 thread *WORKER_LIST; // threads 
 
 double TOTAL_PI; //PI Accumulated 
+
 typedef enum
 {
 	THREAD_NO_ERROR = 0,
@@ -32,9 +33,9 @@ typedef enum
 int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int startTerm, int workLoad, int quantum, int threadId, sigjmp_buf environment);
 
 ///
-int updateWorkLoad(thread *pWorker, int newWorkLoad);
+int getWorkLoadProgressInPercentage(thread *pWorker);
 
 ///
-void piCalculate(thread *pWorker);
+void piCalculate(thread *pWorker, int isNonExpropiated);
 
 #endif

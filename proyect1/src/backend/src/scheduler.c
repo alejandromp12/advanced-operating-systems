@@ -219,6 +219,7 @@ static void cpuHandler(thread *pWorker, scheduler *pScheduler)
 			while (timeElapsed < pWorker->quantum)
 			{
 				timeElapsed = clock() - timeElapsed;
+				piCalculate(pWorker, 0);
 			}
 			break;
 		}
@@ -226,6 +227,7 @@ static void cpuHandler(thread *pWorker, scheduler *pScheduler)
 		case NON_EXPROPRIATED_MODE:
 		{
 			printf("Non Expropiated mode.\n");
+			piCalculate(pWorker, 1);
 			break;
 		}
 

@@ -1,4 +1,5 @@
 #include "include/threadsManager.h"
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,7 +27,7 @@ int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int startTe
 }
 
 
-int updateWorkLoad(thread *pWorker, int newWorkLoad)
+int getWorkLoadProgressInPercentage(thread *pWorker)
 {
 	int currenWorkLoad = THREAD_ERROR;
 
@@ -37,23 +38,48 @@ int updateWorkLoad(thread *pWorker, int newWorkLoad)
 		return currenWorkLoad;
 	}
 
-	pWorker->workLoadProgress += newWorkLoad;
 	currenWorkLoad = pWorker->workLoadProgress / pWorker->workLoad;
 
 	return (currenWorkLoad * 100);
 }
 
-void piCalculate(thread *pWorker)
-{
-	int conditionalIndex = pWorker->startTerm + (pWorker->workLoad * UNIT_OF_WORK);
-	double termValue = -1;
 
-	for(double i = pWorker->startTerm; i < conditionalIndex; i++)
-	{	
-		termValue = 4 * (2 / ((4 * (double)i + 1) * (4 * (double)i + 3)));
-		TOTAL_PI += termValue;
+void piCalculate(thread *pWorker, int isNonExpropiated)
+{
+	//sanity check
+	if (pWorker == NULL)
+	{
+		printf("Error, piCalculate(...) detected a Null pointer.\n");
+		return;
 	}
 
-	printf("%f\n", TOTAL_PI);
+	// TODO : f change
+	int f = 1;
+	int conditionalIndex = pWorker->startTerm + (pWorker->workLoad * UNIT_OF_WORK) * ( 1 / f);
+	double termValue = -1;
+	if (isNonExpropiated == 1)
+	{
+		double i = 0.0;
+		for (i = (double)pWorker->startTerm; i < conditionalIndex; i++)
+		{
+			termValue = 4 * (2 / ((4 * (double)i + 1) * (4 * (double)i + 3)));
+			TOTAL_PI += termValue;
+		}
+
+		// review it
+		pWorker->startTerm = conditionalIndex;
+	}
+	else
+	{
+		if (pWorker->startTerm < conditionalIndex)
+		{
+			TOTAL_PI += 4 * (2 / ((4 * (double)pWorker->startTerm + 1) * (4 * (double)pWorker->startTerm + 3)));
+			pWorker->startTerm += 1;
+		}
+	}
+
+	pWorker->workLoadProgress += pWorker->workLoad * ( 1 / f);
+
+	printf("Total PI: %f\n", TOTAL_PI);
 }
 
