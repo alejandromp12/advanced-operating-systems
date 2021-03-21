@@ -142,7 +142,7 @@ void runGUI(int argc, char **argv, int threadNum) {
 		sprintf(piApproxString, "%f", threadBank[i].piApprox);
 		char piApproxText[] = "Pi: ";
 		strncat(piApproxText, piApproxString, 10);
-		threadBank[i].piApproxLabel = gtk_label_new("");
+		threadBank[i].piApproxLabel = gtk_label_new(piApproxText);
 		gtk_grid_attach(GTK_GRID(grid), threadBank[i].piApproxLabel, 1, rowCount, 1, 1);
 		rowCount++;
 		
@@ -180,8 +180,16 @@ gboolean time_handler(GtkWidget *widget) {
     //Sanity check
 	if (widget == NULL) return FALSE;
 
+	
+	/*
+	TOTAL_PI
+	scheduler next id
+
+
+	*/
+
 	//Update the GUI information
-	updateGUI(7, 75, 3.1415, 85, 3.141526);
+	updateGUI(3, 75, 3.1415, 85, 3.141526);
 
 	//Unmark the previous running thread
 	if(_previousThread != 0)
@@ -190,10 +198,10 @@ gboolean time_handler(GtkWidget *widget) {
 	}
 
 	//Mark the current thread label in green
-	markCurrentThread(7, FALSE);
+	markCurrentThread(3, FALSE);
 
 	//Register as previous thread for the next cycle
-	_previousThread = 7;
+	_previousThread = 3;
 
 	gtk_widget_queue_draw(widget);
 

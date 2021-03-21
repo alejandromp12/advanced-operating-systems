@@ -5,7 +5,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <string.h>
-//#include <iostream.h>
 #include <time.h>
 
 typedef struct

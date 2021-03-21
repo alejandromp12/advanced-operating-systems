@@ -10,7 +10,7 @@ GTKLIB=`pkg-config --cflags --libs gtk+-3.0`
 
 
 BIN_DIR=bin
-LIB_BACKEND=backend/build/lib/liblottery.a
+LIB_BACKEND=backend/build_tmp/lib/liblottery.a
 LIB_GUI=frontend/build/lib/libgui.a
 APP=$(BIN_DIR)/lottery_threads
  
