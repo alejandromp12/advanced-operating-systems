@@ -12,6 +12,10 @@
 int NUM_THREADS = MIN_THREAD;
 int EXPROPRIATION_MODE = -1;
 int TOTAL_TERM = 0;
+int TOTAL_TICKETS = 0;
+int TICKET_LIST_SIZE;
+int *TICKET_LIST;
+int *pTickets;
 
 
 
@@ -34,6 +38,38 @@ void argumentsError()
     exit(0);
 }
 
+void setTicketsList()
+{   
+    TICKET_LIST_SIZE = TOTAL_TICKETS;
+    TICKET_LIST = (int*) malloc (TOTAL_TICKETS * sizeof(int));
+
+    for(int i = 0; i < TOTAL_TICKETS; i++)
+    {
+        TICKET_LIST[i] = i;
+    }
+}
+
+
+void removeElementTicketList(int index)
+{
+     for(int i = index; i < TICKET_LIST_SIZE - 1; i++)
+    {
+        TICKET_LIST[i] = TICKET_LIST[i + 1];
+    }
+    TICKET_LIST_SIZE -= 1;
+}
+
+void distributeTickets(int *threadTicket, int threadTotalTicket)
+{   
+    int ticket = 0;
+
+    for(int k = 0; k < threadTotalTicket; k++)  // [ 3, 4, 5]
+    {
+        ticket = rand() % TICKET_LIST_SIZE; 
+        threadTicket[k] = TICKET_LIST[ticket];
+        removeElementTicketList(ticket);
+    }
+}
 
 void readMode(int index, char const *argv[])
 {
@@ -75,42 +111,45 @@ void readNumThreads(int index, char const *argv[])
 
 void createThread(int index, int counter, char const *argv[])
 {   
+    int totalTickets = atoi(argv[index + 1]);
+    int workload = atoi(argv[index + 2]);
+    int quantum = atoi(argv[index + 3]);
+    int startTerm = TOTAL_TERM;
+    int *tickets = (int *) malloc(totalTickets * sizeof(int));
+    distributeTickets(tickets, totalTickets);
+    populateWorker(&WORKER_LIST[counter], tickets, totalTickets, startTerm, workload, quantum, counter);
+
+    TOTAL_TERM += (workload * UNIT_OF_WORK);
+    printf("CREATED THREAD %c!!\n", argv[index][1]);
+
+        
+}
+
+
+void threadValidator(int index, int counter, char const *argv[])
+{   
     char *nextThread = (char*)malloc(2 * sizeof(char));
     sprintf(nextThread, "t%d", counter);
 
-    if(!strcmp(nextThread, argv[index]))
-    {
-        for (int k = index + 1; k <= index + 3; k++)
-        {
-            if (!(isdigit(*argv[k]) && atoi(argv[k]) > 0))
-            {
-                printf("Error thread attribute ==> -t%d <num_ticket:int> <workload:int> <quantum:int>\n\n", counter);
-                argumentsError();
-            }
-        }
-        int totalTickets = atoi(argv[index + 1]);
-        int workload = atoi(argv[index + 2]);
-        int quantum = atoi(argv[index + 3]);
-        int startTerm = TOTAL_TERM;
-        //TEST TICKETS
-        int tickets[7] = {9, 50, 3, 1, 4, 0, 2};
-
-
-        populateWorker(&WORKER_LIST[counter], tickets, totalTickets, startTerm, workload, quantum, counter);
-        free(nextThread);
-
-        TOTAL_TERM += (workload * UNIT_OF_WORK);
-        printf("CREATE THREAD %c!!\n", argv[index][1]);
-    }
-    else
+    if(strcmp(nextThread, argv[index]))
     {
         printf("Error thread => %s is wrong , the next thread must be %s\n", argv[index], nextThread);
-         argumentsError();
+        argumentsError();
+    }
+    for (int k = index + 1; k <= index + 3; k++)
+    {   
+
+        if (!(isdigit(*argv[k]) && atoi(argv[k]) > 0))
+        {
+            printf("Error thread attribute ==> -t%d <num_ticket:int> <workload:int> <quantum:int>\n\n", counter);
+            argumentsError();
+        }
+        else if((k - index) == 1)
+        {
+            TOTAL_TICKETS += atoi(argv[k]);
+        }
     }
             
-    
-    
-
 }
 
 
@@ -121,12 +160,26 @@ void readAttriThreads(int index, int argc, char const *argv[])
         WORKER_LIST = (thread*)malloc(NUM_THREADS * sizeof(thread));
 
         int counter = 0;
+        TOTAL_TICKETS = 0; //global variable
         for (int i = index; i < argc; i++)
         {
-            createThread(i, counter, argv);
+            threadValidator(i, counter, argv);
             i += 3;
             counter++;
         }
+
+        setTicketsList();
+        counter = 0;
+        
+        for (int k = index; k < argc; k++)
+        {
+            createThread(k, counter, argv);
+            k += 3;
+            counter++;
+        }
+
+        pTickets = (int *) malloc (TOTAL_TICKETS * sizeof(int));
+
     }
     else
     {
@@ -230,18 +283,20 @@ int main1(int argc, char *pArgv[])
 */
 
 int main(int argc, char const *argv[])
-{
+{   
+    time_t t;
+	srand((unsigned)time(&t));
+
     readArguments(argc, argv);
 
-    for(int i = 0; i < NUM_THREADS; i++)
+    /* for(int i = 0; i < NUM_THREADS; i++)
     {
         piCalculate(&WORKER_LIST[i]);
     }
-
-
+    */
 
     printf("EXPROPRIATION_MODE %d\n", EXPROPRIATION_MODE);
-    printf("NUM_THREADS %d\n total PI %f\n", NUM_THREADS, TOTAL_PI);
+    printf("NUM_THREADS %d\n total PI %f\n TOTAL_tickets %d\n TICKET SIZE %d\n", NUM_THREADS, TOTAL_PI, TOTAL_TICKETS, TICKET_LIST_SIZE);
     return 0;
 }
 
