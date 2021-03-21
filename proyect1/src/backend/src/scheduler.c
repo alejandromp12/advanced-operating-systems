@@ -1,37 +1,45 @@
 #include "include/scheduler.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 int _totalBaseTickets;
 
 
-static void initializeTickets(int *pTickets)
+static int initializeTickets(int *pTickets)
 {
 	if (pTickets == NULL)
 	{
 		printf("Error, initializeTickets(...) detected a Null pointer.\n");
+		return SCHEDULER_ERROR;
 	}
 
 	for (int i = 0; i < _totalBaseTickets; i++)
 	{
 		pTickets[i] = INVALID_TICKET;
 	}
+
+	return SCHEDULER_NO_ERROR;
 }
 
 
-void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets)
+int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, sigjmp_buf environment)
 {
 	//sanity check
-	if (pScheduler != NULL)
+	if (pScheduler == NULL)
 	{
-		printf("totalBaseTickets: %i, operationMode: %i\n", totalBaseTickets, mode);
-		pScheduler->mode = mode;
-		pScheduler->pNextWorker = NULL;
-		pScheduler->pPrevWorker = NULL;
-		_totalBaseTickets = totalBaseTickets;
-		initializeTickets(pTickets);
+		printf("Error, initializeScheduler(...) detected a Null pointer.\n");
+		return SCHEDULER_ERROR;
 	}
+
+	printf("totalBaseTickets: %i, operationMode: %i\n", totalBaseTickets, mode);
+	pScheduler->mode = mode;
+	pScheduler->pNextWorker = NULL;
+	pScheduler->pPrevWorker = NULL;
+	_totalBaseTickets = totalBaseTickets;
+	memcpy(&(pScheduler->environment), &environment, sizeof(sigjmp_buf));
+	return initializeTickets(pTickets);
 }
 
 
@@ -45,8 +53,7 @@ static int getRandomTicket(int *pTickets)
 	//use threshold if process is nice'd;
 	//update our running count of base tickets;
 
-	int attemps = 0;
-	int randomTicket = -1;
+	int randomTicket = SCHEDULER_ERROR;
 
 	//sanity check
 	if (pTickets == NULL)
@@ -55,24 +62,11 @@ static int getRandomTicket(int *pTickets)
 		return randomTicket;
 	}
 
-	// Intializes random number generator
-	time_t t;
-	srand((unsigned)time(&t));
-
-	int spinLotteryWheel = 1;
-	int ticket;
-	while ((spinLotteryWheel == 1) && (attemps < _totalBaseTickets))
+	// take some random position from the list (0 to _totalBaseTickets)
+	int ticket = rand() % _totalBaseTickets;
+	if (pTickets[ticket] == VALID_TICKET)
 	{
-		// take some random position from the list (0 to _totalBaseTickets)
-		ticket = rand() % _totalBaseTickets;
-		if (pTickets[ticket] == VALID_TICKET)
-		{
-			// stop lottery
-			spinLotteryWheel = 0;
-			randomTicket = ticket;
-		}
-
-		++attemps;
+		randomTicket = ticket;
 	}
 
 	printf("Random ticket: %i\n", randomTicket);
@@ -81,22 +75,30 @@ static int getRandomTicket(int *pTickets)
 }
 
 
-LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets)
+int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets)
 {
 	//sanity check
 	if ((pScheduler == NULL) || (pWorkers == NULL))
 	{
 		printf("Error, lotteryChooseNextWorker(...) detected a Null pointer.\n");
-		return ERROR;
+		return SCHEDULER_ERROR;
 	}
 
-	int winer = 0;
+	int winner = 0;
 	const int randomTicket = getRandomTicket(pTickets);
+	if (randomTicket == SCHEDULER_ERROR)
+	{
+		return SCHEDULER_ERROR;
+	}
+
+	// remove ticket from base to avoid get it again
+	pTickets[randomTicket] = INVALID_TICKET;
+
 	for (int i = 0; i < workers; i++)
 	{
 		if (&pWorkers[i] != NULL)
 		{
-			if (winer == 1)
+			if (winner == 1)
 			{
 				break;
 			}
@@ -104,7 +106,7 @@ LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorker
 			int totalWorkerTickets = (&pWorkers[i])->totalTickets;
 			for (int j = 0; j < totalWorkerTickets; j++)
 			{
-				if (winer == 1)
+				if (winner == 1)
 				{
 					break;
 				}
@@ -116,24 +118,23 @@ LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorker
 					pScheduler->pPrevWorker = pScheduler->pNextWorker;
 					printf("ThreadId %i won the lottery, with the number %i.\n", (&pWorkers[i])->threadId, (&pWorkers[i])->pTickets[j]);
 					pScheduler->pNextWorker = &pWorkers[i];
-
-					winer = 1;
+					winner = 1;
 				}
 			}
 		}
 	}
 
-	return NO_ERROR;
+	return SCHEDULER_NO_ERROR;
 }
 
 
-void invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTickets)
+int invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTickets)
 {
 	//sanity check
 	if ((pTicketsToRemove == NULL) || (pTickets == NULL))
 	{
 		printf("Error, invalidateTickets(...) detected a Null pointer.\n");
-		return;
+		return SCHEDULER_ERROR;
 	}
 
 	int ticketNum;
@@ -146,16 +147,18 @@ void invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTick
 			pTickets[ticketNum] = INVALID_TICKET;
 		}
 	}
+
+	return SCHEDULER_NO_ERROR;
 }
 
 
-void validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets)
+int validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets)
 {
 	//sanity check
 	if ((pTicketsToAdd == NULL) || (pTickets == NULL))
 	{
 		printf("Error, validateTickets(...) detected a Null pointer.\n");
-		return;
+		return SCHEDULER_ERROR;
 	}
 
 	int ticketNum;
@@ -168,6 +171,8 @@ void validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets)
 			pTickets[ticketNum] = VALID_TICKET;
 		}
 	}
+
+	return SCHEDULER_NO_ERROR;
 }
 
 
@@ -190,4 +195,66 @@ int haveValidTickets(int *pTickets)
 	}
 
 	return numValidTickets;
+}
+
+
+static void cpuHandler(thread *pWorker, scheduler *pScheduler)
+{
+	//sanity check
+	if ((pWorker == NULL) || (pScheduler == NULL))
+	{
+		printf("Error, cpuHandler(...) detected a Null pointer.\n");
+		return;
+	}
+
+	switch (pScheduler->mode)
+	{
+		case EXPROPRIATED_MODE:
+		{
+			printf("Expropiated mode.\n");
+			clock_t timeElapsed;
+			while (timeElapsed < pWorker->quantum)
+			{
+				timeElapsed = clock() - timeElapsed;
+			}
+			break;
+		}
+
+		case NON_EXPROPRIATED_MODE:
+		{
+			printf("Non Expropiated mode.\n");
+			break;
+		}
+
+		case INVALID_MODE:
+		default:
+			printf("Error, Unknown mode.\n");
+			break;
+	}
+}
+
+
+void prepareWorkersEnvironment(thread *pWorkers, scheduler *pScheduler, int numWorkers)
+{
+	//sanity check
+	if (pWorkers == NULL)
+	{
+		printf("Error, sleepWorker(...) detected a Null pointer.\n");
+		return;
+	}
+
+	for (int i = 0; i < numWorkers; i++)
+	{
+		if (sigsetjmp((&pWorkers[i])->environment, (&pWorkers[i])->threadId) == 0)
+		{
+			printf("Worker %i just went to sleep.\n", (&pWorkers[i])->threadId);
+		}
+		else
+		{
+			printf("DO THREAD WORK.\n");
+			cpuHandler(&pWorkers[i], pScheduler);
+			printf("Scheduler just woke up.\n");
+			siglongjmp(pScheduler->environment, 1);
+		}
+	}
 }

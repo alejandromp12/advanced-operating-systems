@@ -4,7 +4,7 @@ CC=gcc
 # compiler flags:
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
-CFLAGS=-c -I.
+CFLAGS=-c -I. -g -Wall
 LFLAGS=
 
 BUILD_DIR=build_tmp

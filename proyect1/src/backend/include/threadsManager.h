@@ -13,19 +13,20 @@ typedef struct
 	int quantum;
 	int piApprox; // PI value
 	int threadId;
-	sigjmp_buf sigjmpBuf;
+	sigjmp_buf environment;
 } thread; ///<
 
+
+typedef enum
+{
+	THREAD_NO_ERROR = 0,
+	THREAD_ERROR = -1,
+} ThreadsManagerResultEnum; ///<
+
 ///
-void populateWorker(thread *pWorker, int *pTickets, int totalTickets, int workLoad, int quantum, int threadId);
+int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int workLoad, int quantum, int threadId, sigjmp_buf environment);
 
 ///
 int updateWorkLoad(thread *pWorker, int newWorkLoad);
-
-///
-void sleepWorker(thread *pWorker);
-
-///
-void wakeupWorker(thread *pWorker);
 
 #endif

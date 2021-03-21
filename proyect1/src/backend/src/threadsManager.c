@@ -1,26 +1,33 @@
 #include "include/threadsManager.h"
 #include <stdlib.h>
+#include <string.h>
 
-void populateWorker(thread *pWorker, int *pTickets, int totalTickets, int workLoad, int quantum, int threadId)
+int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int workLoad, int quantum, int threadId, sigjmp_buf environment)
 {
 	//sanity check
-	if (pWorker != NULL)
+	if (pWorker == NULL)
 	{
-		printf("totalTickets: %i, workLoad: %i, quantum: %i, threadId: %i\n", totalTickets, workLoad, quantum, threadId);
-		pWorker->pTickets = pTickets;
-		pWorker->totalTickets = totalTickets;
-		pWorker->workLoad = workLoad;
-		pWorker->workLoadProgress = 0;
-		pWorker->quantum = quantum;
-		pWorker->piApprox = 0;
-		pWorker->threadId = threadId;
+		printf("Error, populateWorker(...) detected a Null pointer.\n");
+		return THREAD_ERROR;
 	}
+
+	printf("totalTickets: %i, workLoad: %i, quantum: %i, threadId: %i\n", totalTickets, workLoad, quantum, threadId);
+	pWorker->pTickets = pTickets;
+	pWorker->totalTickets = totalTickets;
+	pWorker->workLoad = workLoad;
+	pWorker->workLoadProgress = 0;
+	pWorker->quantum = quantum;
+	pWorker->piApprox = 0;
+	pWorker->threadId = threadId;
+	memcpy(&(pWorker->environment), &environment, sizeof(sigjmp_buf));
+
+	return THREAD_NO_ERROR;
 }
 
 
 int updateWorkLoad(thread *pWorker, int newWorkLoad)
 {
-	int currenWorkLoad = -1;
+	int currenWorkLoad = THREAD_ERROR;
 
 	//sanity check
 	if (pWorker == NULL)
@@ -32,31 +39,6 @@ int updateWorkLoad(thread *pWorker, int newWorkLoad)
 	pWorker->workLoadProgress += newWorkLoad;
 	currenWorkLoad = pWorker->workLoadProgress / pWorker->workLoad;
 
-	return (currenWorkLoad / 100);
+	return (currenWorkLoad * 100);
 }
 
-
-void sleepWorker(thread *pWorker)
-{
-	//sanity check
-	if (pWorker == NULL)
-	{
-		printf("Error, sleepWorker(...) detected a Null pointer.\n");
-		return;
-	}
-
-	sigsetjmp(pWorker->sigjmpBuf, 1);
-}
-
-
-void wakeupWorker(thread *pWorker)
-{
-	//sanity check
-	if (pWorker == NULL)
-	{
-		printf("Error, wakeupWorker(...) detected a Null pointer.\n");
-		return;
-	}
-
-	siglongjmp(pWorker->sigjmpBuf, 1);
-}

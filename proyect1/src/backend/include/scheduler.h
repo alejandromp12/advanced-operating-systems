@@ -1,19 +1,22 @@
 #ifndef SCHEDULER_FILE
 #define SCHEDULER_FILE
 
+#include <setjmp.h>
 #include <stdio.h>
 #include "threadsManager.h"
 
 typedef enum
 {
-	NO_ERROR = 0,
-	ERROR = 1
-} LotteryResultEnum; ///<
+	SCHEDULER_NO_ERROR = 0,
+	SCHEDULER_ERROR = -1,
+	LOTTERY_FINISHED = -2,
+} SchedulerResultEnum; ///<
 
 typedef enum
 {
 	EXPROPRIATED_MODE = 0,
-	NON_EXPROPRIATED_MODE = 1
+	NON_EXPROPRIATED_MODE = 1,
+	INVALID_MODE = 2
 } OperationModeEnum; ///<
 
 typedef enum
@@ -27,21 +30,26 @@ typedef struct
 	OperationModeEnum mode;
 	thread *pNextWorker;
 	thread *pPrevWorker;
+	int winnerTicket;
+	sigjmp_buf environment;
 } scheduler; ///<
 
 //
-void initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets);
+int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, sigjmp_buf environment);
 
 //
-LotteryResultEnum lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets);
+int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets);
 
 //
-void invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTickets);
+int invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTickets);
 
 //
-void validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets);
+int validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets);
 
 //
 int haveValidTickets(int *pTickets);
+
+//
+void prepareWorkersEnvironment(thread *pWorkers, scheduler *pScheduler, int numWorkers);
 
 #endif
