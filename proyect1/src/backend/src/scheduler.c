@@ -92,10 +92,6 @@ int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers
 		return SCHEDULER_ERROR;
 	}
 
-	// remove ticket from base to avoid get it again
-	pTickets[randomTicket] = INVALID_TICKET;
-	printf("Ticket %i invalidated.\n", randomTicket);
-
 	for (int i = 0; i < workers; i++)
 	{
 		if (&pWorkers[i] != NULL)
@@ -210,17 +206,23 @@ static void cpuHandler(thread *pWorker, scheduler *pScheduler)
 		return;
 	}
 
+	printf("Total PI  before to update it: %f\n", TOTAL_PI);
+
 	switch (pScheduler->mode)
 	{
 		case EXPROPRIATED_MODE:
 		{
 			printf("Expropiated mode.\n");
-			clock_t timeElapsed;
+			clock_t start = clock();
+			clock_t timeElapsed = 0;
 			while (timeElapsed < pWorker->quantum)
 			{
-				timeElapsed = clock() - timeElapsed;
 				piCalculate(pWorker, 0);
+				timeElapsed = clock() - start;
 			}
+
+			printf("Total PI updated: %f\n", TOTAL_PI);
+
 			break;
 		}
 
@@ -228,6 +230,9 @@ static void cpuHandler(thread *pWorker, scheduler *pScheduler)
 		{
 			printf("Non Expropiated mode.\n");
 			piCalculate(pWorker, 1);
+
+			printf("Total PI updated: %f\n", TOTAL_PI);
+
 			break;
 		}
 

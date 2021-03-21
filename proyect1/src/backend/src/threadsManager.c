@@ -73,13 +73,12 @@ void piCalculate(thread *pWorker, int isNonExpropiated)
 	{
 		if (pWorker->startTerm < conditionalIndex)
 		{
-			TOTAL_PI += 4 * (2 / ((4 * (double)pWorker->startTerm + 1) * (4 * (double)pWorker->startTerm + 3)));
-			pWorker->startTerm += 1;
+			termValue = 4 * (2 / ((4 * (double)pWorker->startTerm + 1) * (4 * (double)pWorker->startTerm + 3)));
+			TOTAL_PI += termValue;
+			++pWorker->startTerm;
 		}
 	}
 
 	pWorker->workLoadProgress += pWorker->workLoad * ( 1 / f);
-
-	printf("Total PI: %f\n", TOTAL_PI);
 }
 
