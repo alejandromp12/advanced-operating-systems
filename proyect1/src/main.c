@@ -41,6 +41,7 @@ void argumentsError()
 	exit(0);
 }
 
+
 void setTicketsList()
 {
 	TICKET_LIST_SIZE = TOTAL_TICKETS;
@@ -61,6 +62,7 @@ void removeElementTicketList(int index)
 	}
 	TICKET_LIST_SIZE -= 1;
 }
+
 
 void distributeTickets(int *threadTicket, int threadTotalTicket)
 {
@@ -210,7 +212,6 @@ void readArguments(int argc, char const *argv[])
 }
 
 
-
 static void lotteryThreads()
 {
 	if ((_pSystemScheduler == NULL) || (_pWorkers == NULL) || (_pTickets == NULL))
@@ -267,20 +268,30 @@ static void lotteryThreads()
 
 int main(int argc, char const *pArgv[])
 {
-	// Intializes time for random number generator
+	// Initializes time for random number generator
 	time_t t;
 	srand((unsigned)time(&t));
 
 	readArguments(argc, pArgv);
 
 	_pSystemScheduler = (scheduler*)malloc(sizeof(scheduler));
+	if (_pSystemScheduler == NULL)
+	{
+		printf("Error, main(...) detected a Null pointer.\n");
+		return 0;
+	}
+
+	// create scheduler environment
 	sigjmp_buf schedulerEnvironment;
+
+	// initilialize scheduler
 	if (initializeScheduler(_pSystemScheduler, EXPROPRIATION_MODE, _pTickets, TOTAL_TICKETS, NUM_THREADS, schedulerEnvironment) != SCHEDULER_NO_ERROR)
 	{
 		printf("Error, initializing scheduler.\n");
 		return 0;
 	}
 
+	// validate each ticket assigned to each worker in the main tickets list
 	for (int k = 0; k < NUM_THREADS; k++)
 	{
 		if (validateTickets((&_pWorkers[k])->pTickets, (&_pWorkers[k])->totalTickets, _pTickets) != SCHEDULER_NO_ERROR)
@@ -290,9 +301,13 @@ int main(int argc, char const *pArgv[])
 		}
 	}
 
+	// prepare the environment to each worker
 	prepareWorkersEnvironment(_pWorkers, _pSystemScheduler, NUM_THREADS);
+
+	// run lottery
 	lotteryThreads();
 
+	// clean up section
 	if (_pWorkers != NULL)
 	{
 		free(_pWorkers);
@@ -308,22 +323,10 @@ int main(int argc, char const *pArgv[])
 		free(_pSystemScheduler);
 	}
 
-	return 0;
-} 
-
-/*int main1(int argc, char const *argv[])
-{
-	time_t t;
-	srand((unsigned)time(&t));
-
-	readArguments(argc, argv);
-
-	for(int i = 0; i < NUM_THREADS; i++)
+	if (TICKET_LIST != NULL)
 	{
-		piCalculate(&_pWorkers[i]);
+		free(TICKET_LIST);
 	}
 
-	printf("EXPROPRIATION_MODE %d\n", EXPROPRIATION_MODE);
-	printf("NUM_THREADS %d\n total PI %f\n TOTAL_tickets %d\n TICKET SIZE %d\n", NUM_THREADS, TOTAL_PI, TOTAL_TICKETS, TICKET_LIST_SIZE);
 	return 0;
-}*/
+}
