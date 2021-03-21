@@ -21,6 +21,7 @@ int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int startTe
 	pWorker->quantum = quantum;
 	pWorker->piApprox = 0;
 	pWorker->threadId = threadId;
+	pWorker->isPlaying = 1;
 	memcpy(&(pWorker->environment), &environment, sizeof(sigjmp_buf));
 
 	return THREAD_NO_ERROR;
@@ -79,6 +80,13 @@ void piCalculate(thread *pWorker, int isNonExpropiated)
 		}
 	}
 
+	// update workload progress
 	pWorker->workLoadProgress += pWorker->workLoad * ( 1 / f);
+
+	// overflow controll
+	if (pWorker->workLoadProgress > pWorker->workLoad)
+	{
+		pWorker->workLoadProgress = pWorker->workLoad;
+	}
 }
 

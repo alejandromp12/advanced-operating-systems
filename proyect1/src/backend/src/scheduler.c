@@ -136,15 +136,12 @@ int invalidateTickets(int *pTicketsToRemove, int numTicketsToRemove, int *pTicke
 	}
 
 	int ticketNum;
-	for (int i = 0; i < _totalBaseTickets; i++)
+	for (int i = 0; i < numTicketsToRemove; i++)
 	{
-		for (int j = 0; j < numTicketsToRemove; j++)
-		{
-			// invalidate ticket
-			ticketNum = pTicketsToRemove[j];
-			pTickets[ticketNum] = INVALID_TICKET;
-			printf("Ticket %i invalidated.\n", ticketNum);
-		}
+		// invalidate ticket
+		ticketNum = pTicketsToRemove[i];
+		pTickets[ticketNum] = INVALID_TICKET;
+		printf("Ticket %i invalidated.\n", ticketNum);
 	}
 
 	return SCHEDULER_NO_ERROR;
@@ -161,14 +158,11 @@ int validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets)
 	}
 
 	int ticketNum;
-	for (int i = 0; i < _totalBaseTickets; i++)
+	for (int j = 0; j < numTicketsToAdd; j++)
 	{
-		for (int j = 0; j < numTicketsToAdd; j++)
-		{
-			// invalidate ticket
-			ticketNum = pTicketsToAdd[j];
-			pTickets[ticketNum] = VALID_TICKET;
-		}
+		// invalidate ticket
+		ticketNum = pTicketsToAdd[j];
+		pTickets[ticketNum] = VALID_TICKET;
 	}
 
 	return SCHEDULER_NO_ERROR;

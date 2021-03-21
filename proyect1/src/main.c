@@ -228,10 +228,14 @@ static void lotteryThreads()
 		if (pPreviousWorker != NULL)
 		{
 			// if it already finishes its work, the remove it
-			if (pPreviousWorker->workLoadProgress == pPreviousWorker->workLoad)
+			if ((pPreviousWorker->workLoadProgress == pPreviousWorker->workLoad) && (pPreviousWorker->isPlaying == 1))
 			{
 				// remove its tickest
-				if (invalidateTickets(pPreviousWorker->pTickets, pPreviousWorker->totalTickets, _pTickets)  != SCHEDULER_NO_ERROR)
+				if (invalidateTickets(pPreviousWorker->pTickets, pPreviousWorker->totalTickets, _pTickets) == SCHEDULER_NO_ERROR)
+				{
+					pPreviousWorker->isPlaying = 0;
+				}
+				else
 				{
 					stopLotteryThreads = 1;
 					continue;

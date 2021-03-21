@@ -16,6 +16,7 @@ typedef struct
 	int quantum;
 	int piApprox; // PI value
 	int threadId;
+	int isPlaying;
 	sigjmp_buf environment;
 } thread; ///<
 
