@@ -15,6 +15,9 @@ Guia para usar el programa:
 
 1. Buscar el archivo ejecutable llamado lottery_threads en el directorio src/bin/
 	
+	#instalar dependencias
+	sudo apt-get install libgtk-3-dev
+	
 	#compilar el programa
 	make clean; make
 
@@ -39,7 +42,7 @@ Guia para usar el programa:
 	./src/bin/lottery_threads -m 0 -t 5 t1 4 200 4  t2 5 300 4 t3 5 100 4 t4 2 70 2 t5 2 50 1
 	
 	
-// SALIDA DEL PROGRAMA
+*********************** SALIDA DEL PROGRAMA *********************
 
 El programa identifica cada thread con un numero (por ejemplo: Thread 1)
 

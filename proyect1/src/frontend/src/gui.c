@@ -92,6 +92,15 @@ void runGUI(int argc, char **argv, int threadNum) {
 	//Grid
     grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
+
+    //Margins
+    gtk_widget_set_margin_end(grid,25);
+    gtk_widget_set_margin_start(grid,25);
+    gtk_widget_set_margin_top(grid,10);
+    gtk_widget_set_margin_bottom(grid,10);
+
+    gtk_grid_set_column_spacing(GTK_GRID(grid),5);
+    gtk_grid_set_row_spacing(GTK_GRID(grid),10);
     
 
     //Total Progress Label
