@@ -114,7 +114,7 @@ void distributeTickets(int *threadTicket, int threadTotalTicket)
 	{
 		ticket = rand() % TICKET_LIST_SIZE;
 		threadTicket[k] = TICKET_LIST[ticket];
-		removeElementTicketList(ticket);/ [ 5]
+		removeElementTicketList(ticket);
 	}
 }
 
