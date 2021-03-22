@@ -180,16 +180,13 @@ gboolean time_handler(GtkWidget *widget) {
     //Sanity check
 	if (widget == NULL) return FALSE;
 
-	
-	/*
-	TOTAL_PI
-	scheduler next id
+	//printf("GUI ThreadId: %i \n", _pGuiThreadId);
 
-
-	*/
+	//Run Lottery
+	(*_ptrGuiLottery) ();
 
 	//Update the GUI information
-	updateGUI(3, 75, 3.1415, 85, 3.141526);
+	updateGUI(_pGuiThreadId, _pGuiThreadProgress, _pGuiPiApprox, _pGuiTotalProgress, _pGuiPiApprox);
 
 	//Unmark the previous running thread
 	if(_previousThread != 0)
@@ -198,10 +195,10 @@ gboolean time_handler(GtkWidget *widget) {
 	}
 
 	//Mark the current thread label in green
-	markCurrentThread(3, FALSE);
+	markCurrentThread(_pGuiThreadId, FALSE);
 
 	//Register as previous thread for the next cycle
-	_previousThread = 3;
+	_previousThread = _pGuiThreadId;
 
 	gtk_widget_queue_draw(widget);
 

@@ -27,3 +27,11 @@ void markCurrentThread(int threadId, gboolean unmark);
 void runGUI(int argc, char **argv, int threadNum);
 
 gboolean time_handler(GtkWidget *widget);
+
+
+//Pointers to update the GUI
+int _pGuiThreadId;
+int _pGuiThreadProgress;
+int _pGuiTotalProgress;
+float _pGuiPiApprox;
+void (*_ptrGuiLottery)();

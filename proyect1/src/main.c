@@ -309,6 +309,16 @@ int main(int argc, char const *pArgv[])
 	// run lottery
 	//lotteryThreads();
 
+	//Initialize GUI information
+	_pGuiThreadId = 1;
+	_pGuiThreadProgress = 0;
+	_pGuiTotalProgress = 0;
+	_pGuiPiApprox = 0;
+
+	//Get Callback function ready before starting GUI
+	void (*ptr)() = &lotteryThreads;
+	_ptrGuiLottery = ptr;
+
 	// run GUI
 	runGUI(argc, pArgv, NUM_THREADS);
 
