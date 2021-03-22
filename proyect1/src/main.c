@@ -21,6 +21,7 @@ int *TICKET_LIST;
 int *_pTickets;
 thread *_pWorkers;
 scheduler *_pSystemScheduler;
+sigjmp_buf *_pWorkerEnvironment;
 
 
 void argumentsError()
@@ -114,14 +115,13 @@ void readNumThreads(int index, char const *argv[])
 
 void createThread(int index, int counter, char const *argv[])
 {   
-	sigjmp_buf workerEnvironment;
 	int totalTickets = atoi(argv[index + 1]);
 	int workload = atoi(argv[index + 2]);
 	int quantum = atoi(argv[index + 3]);
 	int startTerm = TOTAL_TERM;
 	int *pTickets = (int*)malloc(totalTickets * sizeof(int));
 	distributeTickets(pTickets, totalTickets);
-	populateWorker(&_pWorkers[counter - 1], pTickets, totalTickets, startTerm, workload, quantum, counter, workerEnvironment); // pasar el buffer
+	populateWorker(&_pWorkers[counter - 1], pTickets, totalTickets, startTerm, workload, quantum, counter, _pWorkerEnvironment[counter - 1]); // pasar el buffer
 
 	TOTAL_TERM += (workload * UNIT_OF_WORK);
 	printf("CREATED THREAD %c!!\n", argv[index][1]);
@@ -160,6 +160,7 @@ void readAttriThreads(int index, int argc, char const *argv[])
 	if ((argc - index) ==  (NUM_THREADS * 4))
 	{
 		_pWorkers = (thread*)malloc(NUM_THREADS * sizeof(thread));
+		_pWorkerEnvironment = (sigjmp_buf*)malloc(NUM_THREADS * sizeof(sigjmp_buf));
 
 		int counter = 1;
 		TOTAL_TICKETS = 0; //global variable

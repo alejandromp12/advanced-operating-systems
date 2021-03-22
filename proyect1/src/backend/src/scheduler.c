@@ -244,18 +244,24 @@ void prepareWorkersEnvironment(thread *pWorkers, scheduler *pScheduler, int numW
 		return;
 	}
 
-	for (int i = 0; i < numWorkers; i++)
+	int i = 0;
+	int sigBuf;
+	while (i < numWorkers)
 	{
-		if (sigsetjmp((&pWorkers[i])->environment, (&pWorkers[i])->threadId) == 0)
+		sigBuf = sigsetjmp((&pWorkers[i])->environment, (&pWorkers[i])->threadId);
+		if (sigBuf == 0)
 		{
 			printf("Worker %i just went to sleep.\n", (&pWorkers[i])->threadId);
 		}
-		else
+		else if (sigBuf >= 1)
 		{
-			printf("DO THREAD WORK.\n");
-			cpuHandler(&pWorkers[i], pScheduler);
+			printf("Thread %i got back the control and it is about to take the CPU.\n", (&pWorkers[sigBuf - 1])->threadId);
+			cpuHandler(&pWorkers[sigBuf - 1], pScheduler);
+
 			printf("Scheduler just woke up.\n");
 			siglongjmp(pScheduler->environment, 1);
 		}
+
+		++i;
 	}
 }

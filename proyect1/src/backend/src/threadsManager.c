@@ -24,6 +24,7 @@ int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int startTe
 	pWorker->threadId = threadId;
 	pWorker->isPlaying = 1;
 	memcpy(&(pWorker->environment), &environment, sizeof(sigjmp_buf));
+	printf("totalTickets: %i, workLoad: %i, quantum: %i, threadId: %i, startTerm: %i\n", pWorker->totalTickets, pWorker->workLoad, pWorker->quantum, pWorker->threadId, pWorker->startTerm);
 
 	return THREAD_NO_ERROR;
 }
