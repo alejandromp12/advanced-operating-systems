@@ -166,7 +166,7 @@ void runGUI(int argc, char **argv, int threadNum) {
 	}
 	
     
-    g_timeout_add(1000, (GSourceFunc) time_handler, (gpointer) window);
+    g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
     
     gtk_widget_show_all(window);
     

@@ -23,7 +23,7 @@ typedef struct
 
 thread *WORKER_LIST; // threads 
 
-double TOTAL_PI; //PI Accumulated 
+double TOTAL_PI; //PI Accumulated
 
 typedef enum
 {
