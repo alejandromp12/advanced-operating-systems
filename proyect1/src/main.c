@@ -386,7 +386,7 @@ static void lotteryThreads()
 		{
 			tmp += (&_pWorkers[k])->workLoadProgress;
 		}
-		_pGuiTotalProgress = (tmp / TOTAL_WORKLOAD) * 100;
+		_pGuiTotalProgress = (tmp *100) / TOTAL_WORKLOAD;
 		_pGuiPiApprox = TOTAL_PI;
 	}
 }

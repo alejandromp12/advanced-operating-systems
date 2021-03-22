@@ -32,18 +32,18 @@ int populateWorker(thread *pWorker, int *pTickets, int totalTickets, int startTe
 
 int getWorkLoadProgressInPercentage(thread *pWorker)
 {
-	int currenWorkLoad = THREAD_ERROR;
+	int currentWorkLoad = THREAD_ERROR;
 
 	//sanity check
 	if (pWorker == NULL)
 	{
 		printf("Error, updateWorkLoad(...) detected a Null pointer.\n");
-		return currenWorkLoad;
+		return currentWorkLoad;
 	}
 
-	currenWorkLoad = pWorker->workLoadProgress / pWorker->workLoad;
+	currentWorkLoad = pWorker->workLoadProgress * 100 / pWorker->workLoad;
 
-	return (currenWorkLoad * 100);
+	return (currentWorkLoad);
 }
 
 
