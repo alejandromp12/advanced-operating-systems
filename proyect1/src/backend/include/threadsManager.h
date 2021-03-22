@@ -11,8 +11,9 @@ typedef struct
 	int *pTickets;
 	int totalTickets;
 	int startTerm;
+	int currTerm;
 	int workLoad; // total
-	int workLoadProgress; // current
+	double workLoadProgress; // current
 	int quantum;
 	int piApprox; // PI value
 	int threadId;

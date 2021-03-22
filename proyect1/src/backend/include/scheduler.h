@@ -29,7 +29,6 @@ typedef struct
 {
 	OperationModeEnum mode;
 	thread *pNextWorker;
-	thread *pPrevWorker;
 	int numWorkers;
 	sigjmp_buf environment;
 } scheduler; ///<

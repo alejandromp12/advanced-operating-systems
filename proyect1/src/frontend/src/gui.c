@@ -1,7 +1,7 @@
 
 #include "include/gui.h"
 
-threadStruct threadBank[];
+threadStruct threadBank[] = {};
 int _previousThread = 0;
 
 static GtkWidget *window;
