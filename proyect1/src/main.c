@@ -45,6 +45,45 @@ void argumentsError()
 }
 
 
+int readArgumentsFromFile(int argc, char  *argv[])
+{	
+	
+	char * filename = argv[2]; 
+	FILE * fp = fopen(filename, "r");
+	int b = 0;
+
+	if (fp == NULL) return 1; 
+	
+	char c;
+	char word[10];
+	int count = 0;
+	memset(word, '\0', sizeof(word));
+	while((c = fgetc(fp)) != EOF) 
+	{ 
+		if((c == ' ' || c == '\n') && b > 0) 
+		{ 
+			strcpy(&argv[count], word);
+			memset(word, '\0', sizeof(word));
+			++count;
+			b=0;
+		} 
+		else if(!(c == ' ' || c == '\n') ) 
+		{ 
+			
+			word[b] = c;
+			b++;
+
+		} 
+	} 
+	fclose(fp); 
+
+	return count;
+}
+
+
+
+
+
 void setTicketsList()
 {
 	TICKET_LIST_SIZE = TOTAL_TICKETS;
@@ -71,15 +110,15 @@ void distributeTickets(int *threadTicket, int threadTotalTicket)
 {
 	int ticket = 0;
 
-	for(int k = 0; k < threadTotalTicket; k++)  // [ 3, 4, 5]
+	for(int k = 0; k < threadTotalTicket; k++)  
 	{
 		ticket = rand() % TICKET_LIST_SIZE;
 		threadTicket[k] = TICKET_LIST[ticket];
-		removeElementTicketList(ticket);
+		removeElementTicketList(ticket);/ [ 5]
 	}
 }
 
-void readMode(int index, char const *argv[])
+void readMode(int index, char  *argv[])
 {
 	if ((!strcmp(argv[index], "--mode") || !strcmp(argv[index], "-m")) && (!strcmp(argv[index + 1], "0") || !strcmp(argv[index + 1], "1")))
 	{
@@ -93,7 +132,7 @@ void readMode(int index, char const *argv[])
 }
 
 
-void readNumThreads(int index, char const *argv[])
+void readNumThreads(int index, char  *argv[])
 {
 	if ((!strcmp(argv[index], "--threads") || !strcmp(argv[index], "-t")) && isdigit(*argv[index + 1]))
 	{
@@ -115,7 +154,7 @@ void readNumThreads(int index, char const *argv[])
 }
 
 
-void createThread(int index, int counter, char const *argv[])
+void createThread(int index, int counter, char  *argv[])
 {   
 	int totalTickets = atoi(argv[index + 1]);
 	int workload = atoi(argv[index + 2]);
@@ -131,7 +170,7 @@ void createThread(int index, int counter, char const *argv[])
 }
 
 
-void threadValidator(int index, int counter, char const *argv[])
+void threadValidator(int index, int counter, char  *argv[])
 {
 	char *nextThread = (char*)malloc(2 * sizeof(char));
 	sprintf(nextThread, "t%d", counter);
@@ -150,6 +189,11 @@ void threadValidator(int index, int counter, char const *argv[])
 			printf("Error thread attribute ==> -t%d <num_ticket:int> <workload:int> <quantum:int>\n\n", counter);
 			argumentsError();
 		}
+		else if(isdigit(*argv[k]) && (atoi(argv[k]) < 0 || atoi(argv[k]) > 100)  && EXPROPRIATION_MODE == NON_EXPROPRIATED_MODE)
+		{
+			printf("Error thread attribute in t%d ==> 0 < <quantum:int> < 100\n\n", counter);
+			argumentsError();
+		}
 		else if ((k - index) == 1)
 		{
 			TOTAL_TICKETS += atoi(argv[k]);
@@ -158,7 +202,7 @@ void threadValidator(int index, int counter, char const *argv[])
 }
 
 
-void readAttriThreads(int index, int argc, char const *argv[])
+void readAttriThreads(int index, int argc, char  *argv[])
 {
 	if ((argc - index) ==  (NUM_THREADS * 4))
 	{
@@ -194,11 +238,26 @@ void readAttriThreads(int index, int argc, char const *argv[])
 }
 
 
-void readArguments(int argc, char const *argv[])
+void readArguments(int argc, char  *argv[])
 {
 	int index = 1;
 	if (argc > 1)
-	{
+	{	
+		char arg_temp[50][10];
+
+		if(!strcmp(argv[1],"-f"))
+		{	
+			
+			argc = readArgumentsFromFile(argc, argv);
+			for(int i = 0; i < argc; i++)
+			{	
+				strcpy(arg_temp[i], &argv[i]);
+				argv[i]= arg_temp[i];
+			} 
+
+		}
+
+		
 		readMode(index, argv);
 		index += 2;
 
@@ -208,6 +267,8 @@ void readArguments(int argc, char const *argv[])
 		readAttriThreads(index, argc, argv);
 
 		TOTAL_PI = 0.0;
+		
+		
 	}
 	else
 	{
@@ -331,7 +392,7 @@ static void lotteryThreads()
 }
 
 
-int main(int argc, char const *pArgv[])
+int main(int argc, char  *pArgv[])
 {
 	// Initializes time for random number generator
 	time_t t;
