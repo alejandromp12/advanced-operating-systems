@@ -17,6 +17,7 @@ int EXPROPRIATION_MODE = -1;
 int TOTAL_TERM = 0;
 int TOTAL_TICKETS = 0;
 int TICKET_LIST_SIZE;
+int TOTAL_WORKLOAD = 0;
 
 int *TICKET_LIST;
 int *_pTickets;
@@ -123,6 +124,7 @@ void createThread(int index, int counter, char const *argv[])
 	int *pTickets = (int*)malloc(totalTickets * sizeof(int));
 	distributeTickets(pTickets, totalTickets);
 	populateWorker(&_pWorkers[counter - 1], pTickets, totalTickets, startTerm, workload, quantum, counter, _pWorkerEnvironment[counter - 1]); // pasar el buffer
+	TOTAL_WORKLOAD += workload;
 
 	TOTAL_TERM += (workload * UNIT_OF_WORK);
 	printf("CREATED THREAD %c!!\n", argv[index][1]);
@@ -214,6 +216,53 @@ void readArguments(int argc, char const *argv[])
 }
 
 
+static void cpuHandler(thread *pWorker)
+{
+	//sanity check
+	if ((pWorker == NULL) || (_pSystemScheduler == NULL))
+	{
+		printf("Error, cpuHandler(...) detected a Null pointer.\n");
+		return;
+	}
+
+	printf("Total PI  before to update it: %f\n", TOTAL_PI);
+
+	switch (_pSystemScheduler->mode)
+	{
+		case EXPROPRIATED_MODE:
+		{
+			printf("Expropiated mode.\n");
+			clock_t start = clock();
+			clock_t timeElapsed = 0;
+			while (timeElapsed < pWorker->quantum)
+			{
+				piCalculate(pWorker, 0);
+				timeElapsed = clock() - start;
+			}
+
+			printf("Total PI updated: %f\n", TOTAL_PI);
+
+			siglongjmp(pWorker->environment, pWorker->threadId);
+		}
+
+		case NON_EXPROPRIATED_MODE:
+		{
+			printf("Non Expropiated mode.\n");
+			piCalculate(pWorker, 1);
+
+			printf("Total PI updated: %f\n", TOTAL_PI);
+
+			siglongjmp(pWorker->environment, pWorker->threadId);
+		}
+
+		case INVALID_MODE:
+		default:
+			printf("Error, Unknown mode.\n");
+			siglongjmp(pWorker->environment, NUM_THREADS + 1);
+	}
+}
+
+
 static void lotteryThreads()
 {
 	if ((_pSystemScheduler == NULL) || (_pWorkers == NULL) || (_pTickets == NULL))
@@ -233,43 +282,51 @@ static void lotteryThreads()
 				return;
 			}
 
-			if (sigsetjmp(_pSystemScheduler->environment, 1) == 0)
+			int sigBuf = sigsetjmp(pCurrWorker->environment, pCurrWorker->threadId);
+			if (sigBuf == 0)
 			{
-				printf("Worker %i just woke up.\n", pCurrWorker->threadId);
-				siglongjmp(pCurrWorker->environment, pCurrWorker->threadId);
-				// if we reach here is because of there was an error
-				printf("Error context, remove me just for testing.\n");
+				_pGuiThreadProgress = getWorkLoadProgressInPercentage(pCurrWorker);
+				_pGuiThreadId = pCurrWorker->threadId;
+				printf("Thread %i is about to take the CPU.\n", pCurrWorker->threadId);
+				cpuHandler(pCurrWorker);
+			}
+			else if (sigBuf == (NUM_THREADS + 1))
+			{
+				printf("CONTEXT ERROR.\n");
 				return;
 			}
-			else
+			else if (sigBuf >= 1)
 			{
-				printf("Scheduler got back the control, remove me just for testing.\n");
+				printf("SYSTEM IS BACK, ID: %i.\n", sigBuf);
+				// verify if the worker has to be removed, we have to this before any attempt to playing again
+				if (pCurrWorker != NULL)
+				{
+					_pGuiThreadProgress = getWorkLoadProgressInPercentage(pCurrWorker);
+					printf("Worker %i current workload progress is: %i, of: %i, and its state in the lottery is: %i.\n",
+						   pCurrWorker->threadId,
+						   (int)pCurrWorker->workLoadProgress,
+						   pCurrWorker->workLoad,
+						   pCurrWorker->isPlaying);
+					// if it already finishes its work, the remove it
+					if ((pCurrWorker->workLoadProgress == (double)pCurrWorker->workLoad) && (pCurrWorker->isPlaying == 1))
+					{
+						// remove its tickest
+						if (invalidateTickets(pCurrWorker->pTickets, pCurrWorker->totalTickets, _pTickets) == SCHEDULER_NO_ERROR)
+						{
+							pCurrWorker->isPlaying = 0;
+						}
+					}
+				}
 			}
 		}
 
-		// verify if the worker has to be removed, we have to this before any attempt to playing again
-		thread *pCurrWorker = (thread*)_pSystemScheduler->pNextWorker;
-		if (pCurrWorker != NULL)
+		int tmp = 0;
+		for (int k = 0; k < NUM_THREADS; k++)
 		{
-			printf("Worker %i current workload progress is: %i, of: %i, and its state in the lottery is: %i.\n",
-				   pCurrWorker->threadId,
-				   (int)pCurrWorker->workLoadProgress,
-				   pCurrWorker->workLoad,
-				   pCurrWorker->isPlaying);
-			// if it already finishes its work, the remove it
-			if ((pCurrWorker->workLoadProgress == (double)pCurrWorker->workLoad) && (pCurrWorker->isPlaying == 1))
-			{
-				// remove its tickest
-				if (invalidateTickets(pCurrWorker->pTickets, pCurrWorker->totalTickets, _pTickets) == SCHEDULER_NO_ERROR)
-				{
-					pCurrWorker->isPlaying = 0;
-				}
-				else
-				{
-					return;
-				}
-			}
+			tmp += (&_pWorkers[k])->workLoadProgress;
 		}
+		_pGuiTotalProgress = (tmp / TOTAL_WORKLOAD) * 100;
+		_pGuiPiApprox = TOTAL_PI;
 	}
 }
 
@@ -289,11 +346,8 @@ int main(int argc, char const *pArgv[])
 		return 0;
 	}
 
-	// create scheduler environment
-	sigjmp_buf schedulerEnvironment;
-
 	// initilialize scheduler
-	if (initializeScheduler(_pSystemScheduler, EXPROPRIATION_MODE, _pTickets, TOTAL_TICKETS, NUM_THREADS, schedulerEnvironment) != SCHEDULER_NO_ERROR)
+	if (initializeScheduler(_pSystemScheduler, EXPROPRIATION_MODE, _pTickets, TOTAL_TICKETS, NUM_THREADS) != SCHEDULER_NO_ERROR)
 	{
 		printf("Error, initializing scheduler.\n");
 		return 0;
@@ -308,12 +362,6 @@ int main(int argc, char const *pArgv[])
 			return 0;
 		}
 	}
-
-	// prepare the environment to each worker
-	prepareWorkersEnvironment(_pWorkers, _pSystemScheduler, NUM_THREADS);
-
-	// run lottery
-	//lotteryThreads();
 
 	//Initialize GUI information
 	_pGuiThreadId = 1;

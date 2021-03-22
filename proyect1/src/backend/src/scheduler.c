@@ -24,7 +24,7 @@ static int initializeTickets(int *pTickets)
 }
 
 
-int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, int numWorkers, sigjmp_buf environment)
+int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, int numWorkers)
 {
 	//sanity check
 	if (pScheduler == NULL)
@@ -38,7 +38,6 @@ int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTic
 	pScheduler->pNextWorker = NULL;
 	pScheduler->numWorkers = numWorkers;
 	_totalBaseTickets = totalBaseTickets;
-	memcpy(&(pScheduler->environment), &environment, sizeof(sigjmp_buf));
 	return initializeTickets(pTickets);
 }
 
@@ -188,80 +187,3 @@ int haveValidTickets(int *pTickets)
 }
 
 
-static void cpuHandler(thread *pWorker, scheduler *pScheduler)
-{
-	//sanity check
-	if ((pWorker == NULL) || (pScheduler == NULL))
-	{
-		printf("Error, cpuHandler(...) detected a Null pointer.\n");
-		return;
-	}
-
-	printf("Total PI  before to update it: %f\n", TOTAL_PI);
-
-	switch (pScheduler->mode)
-	{
-		case EXPROPRIATED_MODE:
-		{
-			printf("Expropiated mode.\n");
-			clock_t start = clock();
-			clock_t timeElapsed = 0;
-			while (timeElapsed < pWorker->quantum)
-			{
-				piCalculate(pWorker, 0);
-				timeElapsed = clock() - start;
-			}
-
-			printf("Total PI updated: %f\n", TOTAL_PI);
-
-			break;
-		}
-
-		case NON_EXPROPRIATED_MODE:
-		{
-			printf("Non Expropiated mode.\n");
-			piCalculate(pWorker, 1);
-
-			printf("Total PI updated: %f\n", TOTAL_PI);
-
-			break;
-		}
-
-		case INVALID_MODE:
-		default:
-			printf("Error, Unknown mode.\n");
-			break;
-	}
-}
-
-
-void prepareWorkersEnvironment(thread *pWorkers, scheduler *pScheduler, int numWorkers)
-{
-	//sanity check
-	if (pWorkers == NULL)
-	{
-		printf("Error, sleepWorker(...) detected a Null pointer.\n");
-		return;
-	}
-
-	int i = 0;
-	int sigBuf;
-	while (i < numWorkers)
-	{
-		sigBuf = sigsetjmp((&pWorkers[i])->environment, (&pWorkers[i])->threadId);
-		if (sigBuf == 0)
-		{
-			printf("Worker %i just went to sleep.\n", (&pWorkers[i])->threadId);
-		}
-		else if (sigBuf >= 1)
-		{
-			printf("Thread %i got back the control and it is about to take the CPU.\n", (&pWorkers[sigBuf - 1])->threadId);
-			cpuHandler(&pWorkers[sigBuf - 1], pScheduler);
-
-			printf("Scheduler just woke up.\n");
-			siglongjmp(pScheduler->environment, 1);
-		}
-
-		++i;
-	}
-}

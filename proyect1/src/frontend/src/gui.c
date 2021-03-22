@@ -1,7 +1,7 @@
 
 #include "include/gui.h"
 
-threadStruct threadBank[] = {};
+threadStruct threadBank[];
 int _previousThread = 0;
 
 static GtkWidget *window;
@@ -122,8 +122,8 @@ void runGUI(int argc, char **argv, int threadNum) {
     for (int i=0; i<threadNum; i++)
     {
 		threadBank[i].threadId = i + 1;
-		threadBank[i].progress = 50;
-		threadBank[i].piApprox = 3.14;
+		threadBank[i].progress = 0;
+		threadBank[i].piApprox = 0;
 		
 		
 		//************************* Thread Id Label
