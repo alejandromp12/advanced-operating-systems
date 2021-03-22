@@ -121,7 +121,7 @@ void createThread(int index, int counter, char const *argv[])
 	int startTerm = TOTAL_TERM;
 	int *pTickets = (int*)malloc(totalTickets * sizeof(int));
 	distributeTickets(pTickets, totalTickets);
-	populateWorker(&_pWorkers[counter], pTickets, totalTickets, startTerm, workload, quantum, counter, workerEnvironment); // pasar el buffer
+	populateWorker(&_pWorkers[counter - 1], pTickets, totalTickets, startTerm, workload, quantum, counter, workerEnvironment); // pasar el buffer
 
 	TOTAL_TERM += (workload * UNIT_OF_WORK);
 	printf("CREATED THREAD %c!!\n", argv[index][1]);
@@ -161,7 +161,7 @@ void readAttriThreads(int index, int argc, char const *argv[])
 	{
 		_pWorkers = (thread*)malloc(NUM_THREADS * sizeof(thread));
 
-		int counter = 0;
+		int counter = 1;
 		TOTAL_TICKETS = 0; //global variable
 		for (int i = index; i < argc; i++)
 		{
@@ -171,7 +171,7 @@ void readAttriThreads(int index, int argc, char const *argv[])
 		}
 
 		setTicketsList();
-		counter = 0;
+		counter = 1;
 
 		for (int k = index; k < argc; k++)
 		{
@@ -223,26 +223,6 @@ static void lotteryThreads()
 	int stopLotteryThreads = 0;
 	while ((haveValidTickets(_pTickets) > 0) && (stopLotteryThreads == 0))
 	{
-		// verify if the worker has to be removed, we have to this before any attempt to playing again
-		thread *pPreviousWorker = (thread*)_pSystemScheduler->pPrevWorker;
-		if (pPreviousWorker != NULL)
-		{
-			// if it already finishes its work, the remove it
-			if ((pPreviousWorker->workLoadProgress == pPreviousWorker->workLoad) && (pPreviousWorker->isPlaying == 1))
-			{
-				// remove its tickest
-				if (invalidateTickets(pPreviousWorker->pTickets, pPreviousWorker->totalTickets, _pTickets) == SCHEDULER_NO_ERROR)
-				{
-					pPreviousWorker->isPlaying = 0;
-				}
-				else
-				{
-					stopLotteryThreads = 1;
-					continue;
-				}
-			}
-		}
-
 		if (lotteryChooseNextWorker(_pSystemScheduler, _pWorkers, _pSystemScheduler->numWorkers, _pTickets) == SCHEDULER_NO_ERROR)
 		{
 			thread *pCurrWorker = (thread*)_pSystemScheduler->pNextWorker;
@@ -264,6 +244,31 @@ static void lotteryThreads()
 			else
 			{
 				printf("Scheduler got back the control, remove me just for testing.\n");
+			}
+		}
+
+		// verify if the worker has to be removed, we have to this before any attempt to playing again
+		thread *pCurrWorker = (thread*)_pSystemScheduler->pNextWorker;
+		if (pCurrWorker != NULL)
+		{
+			printf("Worker %i current workload progress is: %i, of: %i, and its state in the lottery is: %i.\n",
+				   pCurrWorker->threadId,
+				   (int)pCurrWorker->workLoadProgress,
+				   pCurrWorker->workLoad,
+				   pCurrWorker->isPlaying);
+			// if it already finishes its work, the remove it
+			if ((pCurrWorker->workLoadProgress == (double)pCurrWorker->workLoad) && (pCurrWorker->isPlaying == 1))
+			{
+				// remove its tickest
+				if (invalidateTickets(pCurrWorker->pTickets, pCurrWorker->totalTickets, _pTickets) == SCHEDULER_NO_ERROR)
+				{
+					pCurrWorker->isPlaying = 0;
+				}
+				else
+				{
+					stopLotteryThreads = 1;
+					continue;
+				}
 			}
 		}
 	}

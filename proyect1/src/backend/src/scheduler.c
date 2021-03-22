@@ -36,7 +36,6 @@ int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTic
 	printf("totalBaseTickets: %i, operationMode: %i\n", totalBaseTickets, mode);
 	pScheduler->mode = mode;
 	pScheduler->pNextWorker = NULL;
-	pScheduler->pPrevWorker = NULL;
 	pScheduler->numWorkers = numWorkers;
 	_totalBaseTickets = totalBaseTickets;
 	memcpy(&(pScheduler->environment), &environment, sizeof(sigjmp_buf));
@@ -112,8 +111,6 @@ int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers
 				// check if we have a winner
 				if ((&pWorkers[i])->pTickets[j] == randomTicket)
 				{
-					// save the current worker as the prev one to keep a tracking
-					pScheduler->pPrevWorker = pScheduler->pNextWorker;
 					printf("ThreadId %i won the lottery, with the number %i.\n", (&pWorkers[i])->threadId, (&pWorkers[i])->pTickets[j]);
 					pScheduler->pNextWorker = &pWorkers[i];
 					winner = 1;
