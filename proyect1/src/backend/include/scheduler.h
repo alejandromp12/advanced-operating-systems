@@ -29,13 +29,11 @@ typedef struct
 {
 	OperationModeEnum mode;
 	thread *pNextWorker;
-	thread *pPrevWorker;
 	int numWorkers;
-	sigjmp_buf environment;
 } scheduler; ///<
 
 //
-int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, int numWorkers, sigjmp_buf environment);
+int initializeScheduler(scheduler *pScheduler, OperationModeEnum mode, int *pTickets, int totalBaseTickets, int numWorkers);
 
 //
 int lotteryChooseNextWorker(scheduler *pScheduler, thread *pWorkers, int workers, int *pTickets);
@@ -48,8 +46,5 @@ int validateTickets(int *pTicketsToAdd, int numTicketsToAdd, int *pTickets);
 
 //
 int haveValidTickets(int *pTickets);
-
-//
-void prepareWorkersEnvironment(thread *pWorkers, scheduler *pScheduler, int numWorkers);
 
 #endif
