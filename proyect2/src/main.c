@@ -24,7 +24,7 @@ int main(int argc, char  *argv[])
 
 	// simple test, just for review functionality
 	int bufferSize = 3;
-	if (!createSharedBuffer(bufferSize, "/home/alejandro/shared-buffer0"))
+	if (!createSharedBuffer(bufferSize, "/tmp/sharedBuffer0"))
 	{
 		printf("Error, creating shared buffer.\n");
 		return 1;
