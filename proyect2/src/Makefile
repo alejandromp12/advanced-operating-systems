@@ -5,16 +5,19 @@ CC=gcc
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
 CFLAGS=-I. -g -Wall
-LFLAGS=
+LFLAGS=-lrt -lpthread
 GTKLIB=`pkg-config --cflags --libs gtk+-3.0`
 
 
 BIN_DIR=bin
 LIB_BACKEND=backend/build_tmp/lib/libbackend.a
 LIB_GUI=frontend/build_tmp/lib/libgui.a
-APP=$(BIN_DIR)/product_consumer
+PRODUCER_APP=$(BIN_DIR)/producer
+TERMINATOR_APP=$(BIN_DIR)/terminator
+CONSUMER_APP=$(BIN_DIR)/consumer
+CREATOR_APP=$(BIN_DIR)/creator
 
-build: backend frontend $(APP)
+build: backend frontend $(CREATOR_APP) $(TERMINATOR_APP) $(CONSUMER_APP) $(PRODUCER_APP)
 
 .PHONY: backend frontend
 backend:
@@ -23,8 +26,17 @@ backend:
 frontend:
 	$(MAKE) -C $@
 
-$(APP): $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ main.c $(LIB_BACKEND) $(LIB_GUI) $(LFLAGS) $(GTKLIB)
+$(CREATOR_APP): $(BIN_DIR)
+	$(CC) $(CFLAGS) -DCREATOR_APP -o $@ main.c $(LIB_BACKEND) $(LIB_GUI) $(LFLAGS) $(GTKLIB)
+
+$(PRODUCER_APP): $(BIN_DIR)
+	$(CC) $(CFLAGS) -DPRODUCER_APP -o $@ main.c $(LIB_BACKEND) $(LFLAGS)
+
+$(CONSUMER_APP): $(BIN_DIR)
+	$(CC) $(CFLAGS) -DCONSUMER_APP -o $@ main.c $(LIB_BACKEND) $(LFLAGS)
+
+$(TERMINATOR_APP): $(BIN_DIR)
+	$(CC) $(CFLAGS) -DTERMINATOR_APP -o $@ main.c $(LIB_BACKEND) $(LFLAGS)
 
 $(BIN_DIR):
 	mkdir -p $@

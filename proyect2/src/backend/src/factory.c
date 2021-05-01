@@ -1,31 +1,54 @@
 #include "include/factory.h"
-#include <stdlib.h>
-#include <string.h>
-#include <sys/mman.h>
 
+#include "include/common.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
 // Creates the shared buffer
-int createSharedBuffer(int bufferSize, int bufferId)
+int createSharedBuffer(int bufferSize, char *bufferName)
 {
-	_pSharedBuffer = (sharedBuffer*)malloc(sizeof(sharedBuffer));
-	if (_pSharedBuffer == NULL)
+	int fileDescriptor = shm_open(bufferName, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
+	if (fileDescriptor == -1)
 	{
+		printf("Error, opening fileDescriptor %s, error code %d.\n", bufferName, errno);
 		return 0;
 	}
 
-	_pSharedBuffer->pBufferElements = (bufferElement*)mmap(NULL, bufferSize * sizeof(bufferElement), PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
-	if (_pSharedBuffer->pBufferElements == MAP_FAILED)
+	if (ftruncate(fileDescriptor, sizeof(sharedBuffer)))
 	{
+		printf("Error, trunkating fileDescriptor.\n");
+		return 0;
+	}
+
+	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, sizeof(sharedBuffer), PROT_READ|PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	if (pSharedBuffer == MAP_FAILED)
+	{
+		printf("Error, mmaping.\n");
+		return 0;
+	}
+
+	bufferElement *pBufferElements = (bufferElement*)malloc(bufferSize * sizeof(bufferElement));
+	if (pBufferElements == NULL)
+	{
+		printf("Error, pBufferElements is NULL.\n");
 		return 0;
 	}
 
 	for (int i = 0; i < bufferSize; i++)
 	{
-		(_pSharedBuffer->pBufferElements[i]).indexAvailable = 1;
+		pBufferElements[i].indexAvailable = 1;
+		pSharedBuffer->bufferElements[i] = pBufferElements[i];
 	}
 
-	_pSharedBuffer->size = bufferSize;
-	_pSharedBuffer->bufferId = bufferId;
+
+	pSharedBuffer->size = bufferSize;
+	strcpy(pSharedBuffer->bufferName, bufferName);
 
 	return 1;
 }

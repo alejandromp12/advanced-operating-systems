@@ -5,7 +5,7 @@ CC=gcc
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
 CFLAGS=-c -I. -g -Wall
-LFLAGS=
+LFLAGS=-lrt -lpthread
 
 BUILD_DIR=build_tmp
 BIN_DIR=$(BUILD_DIR)/bin
@@ -20,7 +20,7 @@ build: $(STATIC_COMPONENT)
 define BUILD_OBJECT
 .PHONY: $(1).o
 $(1).o: $(2).c $(BUILD_DIR) $(BIN_DIR) $(LIB_DIR)
-	$(CC) $(CFLAGS) $(2).c -o $$@
+	$(CC) $(CFLAGS) $(2).c -o $$@ $(LFLAGS)
 endef # BUILD_OBJECT
 
 # Build .o files
