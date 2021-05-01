@@ -1,4 +1,4 @@
 #ifndef CONSUMER_FILE
 #define CONSUMER_FILE
 
-#endif
+#endif // CONSUMER_FILE

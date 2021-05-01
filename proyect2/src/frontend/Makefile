@@ -9,7 +9,7 @@ LFLAGS=
 
 GTKLIB=`pkg-config --cflags --libs gtk+-3.0`
 
-BUILD_DIR=build
+BUILD_DIR=build_tmp
 BIN_DIR=$(BUILD_DIR)/bin
 LIB_DIR=$(BUILD_DIR)/lib
 STATIC_COMPONENT=$(LIB_DIR)/libgui.a

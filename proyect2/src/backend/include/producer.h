@@ -1,4 +1,4 @@
 #ifndef PRODUCER_FILE
 #define PRODUCER_FILE
 
-#endif
+#endif // PRODUCER_FILE
