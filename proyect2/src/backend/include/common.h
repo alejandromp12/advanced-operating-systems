@@ -4,7 +4,6 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #define STORAGE_ID "/tmp/sharedBuffer" // review ths location
 // sharedBuffer = 16, dataMessage = 264, bufferElement = 304, assumming 10 elements in the buffer
@@ -29,7 +28,7 @@ typedef struct
 typedef struct
 {
 	int size;
-	char bufferName[30];
+	char bufferName[50];
 	bufferElement bufferElements[];
 } sharedBuffer;
 

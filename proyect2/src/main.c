@@ -25,7 +25,7 @@ int main(int argc, char  *argv[])
 
 	// simple test, just for review functionality
 	int bufferSize = 3;
-	if (!createSharedBuffer(bufferSize, "/tmp/sharedBuffer0"))
+	if (!createSharedBuffer(bufferSize, STORAGE_ID))
 	{
 		printf("Error, creating shared buffer.\n");
 		return 1;
@@ -50,7 +50,7 @@ int main(int argc, char  *argv[])
 
 	struct tm tm;
 	strftime(data.date, sizeof(data.date), "%d %b %Y %H:%M", &tm);
-	tryWrite(data, "/tmp/sharedBuffer0");
+	tryWrite(data, STORAGE_ID);
     // ends
 
 	return 0;
@@ -74,7 +74,7 @@ int main(int argc, char  *argv[])
 	// simple test, just for review functionality
 	printf("TERMINATOR_APP.\n");
 
-	if (!removeBuffer("/tmp/sharedBuffer0"))
+	if (!cleanupBuffers())
 	{
 		printf("Error, removing buffer.\n");
 		return 1;
