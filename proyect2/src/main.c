@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "backend/include/consumer.h"
+#include "backend/include/common.h"
 #include "backend/include/factory.h"
 #include "backend/include/finisher.h"
 #include "backend/include/producer.h"

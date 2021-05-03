@@ -7,6 +7,8 @@
 #include <stdio.h>
 
 #define STORAGE_ID "/tmp/sharedBuffer" // review ths location
+// sharedBuffer = 16, dataMessage = 264, bufferElement = 304, assumming 10 elements in the buffer
+#define STORAGE_SIZE 5696
 
 typedef struct
 {
@@ -27,7 +29,7 @@ typedef struct
 typedef struct
 {
 	int size;
-	char *bufferName;
+	char bufferName[30];
 	bufferElement bufferElements[];
 } sharedBuffer;
 

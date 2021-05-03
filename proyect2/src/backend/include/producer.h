@@ -2,7 +2,6 @@
 #define PRODUCER_FILE
 
 #include <stdio.h>
-#include <stdlib.h>
 #include "common.h"
 
 void tryWrite(dataMessage message, char *bufferName);
