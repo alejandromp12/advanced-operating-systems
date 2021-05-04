@@ -22,18 +22,18 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
     sem_wait(&(pBuffElement->mutex));
 
     //critical section
-    pBuffElement->producerId = message.producerId;
-    strcpy(pBuffElement->date, message.date);
-    pBuffElement->key = message.key;
+    pBuffElement->data.producerId = message.producerId;
+    strcpy(pBuffElement->data.date, message.date);
+    pBuffElement->data.key = message.key;
 
     // no longer available
     pBuffElement->indexAvailable = 0;
 
     printf("==================================\n");
 	printf("Message written at index %d of the buffer %s.\n", bufferIndex, bufferName);
-	printf("Producer ID who wrote the message %i.\n", pBuffElement->producerId);
-	printf("Key of the message %i.\n", pBuffElement->key);
-	printf("Date of the message %s.\n", pBuffElement->date);
+	printf("Producer ID who wrote the message %i.\n", pBuffElement->data.producerId);
+	printf("Key of the message %i.\n", pBuffElement->data.key);
+	printf("Date of the message %s.\n", pBuffElement->data.date);
 	printf("==================================\n");
 
     //signal
@@ -53,23 +53,8 @@ void tryWrite(dataMessage message, char *bufferName)
 	}
 
 	// map shared memory to process address space
-	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, sizeof(sharedBuffer), PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, STORAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
 	if (pSharedBuffer == MAP_FAILED)
-	{
-		printf("Error, mmap() failed, error code %d.\n", errno);
-		return;
-	}
-
-	fileDescriptor = open(pSharedBuffer->childBufferName, O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	if (fileDescriptor == -1)
-	{
-		printf("Error, open() failed, error code %d.\n", errno);
-		return;
-	}
-
-	// map shared memory to process address space
-	bufferElement *pChildBuffer = (bufferElement*)mmap(NULL, sizeof(bufferElement), PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-	if (pChildBuffer == MAP_FAILED)
 	{
 		printf("Error, mmap() failed, error code %d.\n", errno);
 		return;
@@ -77,7 +62,7 @@ void tryWrite(dataMessage message, char *bufferName)
 
 	for (int i = 0; i < pSharedBuffer->size; i++)
 	{
-		if (!writeData(pChildBuffer, message, i, bufferName))
+		if (!writeData(&(pSharedBuffer->bufferElements[i]), message, i, bufferName))
 		{
 			continue;
 		}
