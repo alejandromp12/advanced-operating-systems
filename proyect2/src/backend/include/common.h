@@ -5,14 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define STORAGE_ID "/tmp/sharedBuffer" // review ths location
+#define SHARED_BUFFER_NAME "/tmp/sharedBuffer"
+#define BUFFER_ELEMENT_NAME "/tmp/bufferElement"
 // sharedBuffer = 16, dataMessage = 264, bufferElement = 304, assumming 10 elements in the buffer
 #define STORAGE_SIZE 5696
 
 typedef struct
 {
 	int producerId;
-	char date[255]; // see https://linux.die.net/man/3/strftime
+	char date[80];
 	int key;
 } dataMessage;
 
@@ -20,16 +21,23 @@ typedef struct
 typedef struct
 {
 	sem_t mutex;
-	dataMessage data;
+	int producerId;
+	char date[80];
+	int key;
 	int indexAvailable;
 } bufferElement;
 
 
 typedef struct
 {
+	int bufferId;
 	int size;
-	char bufferName[50];
-	bufferElement bufferElements[];
+	char sharedBufferName[50];
+	char childBufferName[50];
 } sharedBuffer;
+
+
+// Concatenates a char base name with an integer
+char *getBufferName(char *baseName, int id);
 
 #endif // COMMON_FILE

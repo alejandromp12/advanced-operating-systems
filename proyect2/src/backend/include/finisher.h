@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-int cleanupBuffers();
+int removeBuffer(char *bufferName);
 
 #endif // FINISHER_FILE

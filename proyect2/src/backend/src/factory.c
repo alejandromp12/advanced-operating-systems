@@ -11,7 +11,7 @@
 
 
 // Creates file and returns its descriptor
-int getFileDescriptor(char *bufferName)
+int createFileDescriptor(char *bufferName, int size)
 {
 	int fileDescriptor = creat(bufferName, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fileDescriptor == -1)
@@ -20,7 +20,7 @@ int getFileDescriptor(char *bufferName)
 		return -1;
 	}
 
-	if (ftruncate(fileDescriptor, STORAGE_SIZE) == -1)
+	if (ftruncate(fileDescriptor, size) == -1)
 	{
 		printf("Error, ftruncate() failed, error code %d.\n", errno);
 		return -1;
@@ -37,45 +37,62 @@ int getFileDescriptor(char *bufferName)
 }
 
 
-// Creates the shared buffer
-int createSharedBuffer(int bufferSize, char *bufferName)
+// Populates the shared buffer
+int populateSharedBuffer(int bufferSize, int bufferId)
 {
-	int fileDescriptor = getFileDescriptor(bufferName);
+
+}
+
+
+// Creates the shared buffer
+int createSharedBuffer(int bufferSize, int bufferId)
+{
+	char sharedBufferName[50];
+	strcpy(sharedBufferName, getBufferName(SHARED_BUFFER_NAME, bufferId));
+	int fileDescriptor = createFileDescriptor(sharedBufferName, sizeof(sharedBuffer));
 	if (fileDescriptor == -1)
 	{
 		printf("Error, getting fileDescriptor.\n");
 		return 0;
 	}
 
-	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, STORAGE_SIZE, PROT_WRITE | PROT_READ, MAP_SHARED, fileDescriptor, 0);
+	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, sizeof(sharedBuffer), PROT_WRITE | PROT_READ, MAP_SHARED, fileDescriptor, 0);
 	if (pSharedBuffer == MAP_FAILED)
 	{
 		printf("Error, mmap() failed, error code %d.\n", errno);
 		return 0;
 	}
 
-	bufferElement *pBufferElements = (bufferElement*)malloc(bufferSize * sizeof(bufferElement));
-	if (pBufferElements == NULL)
+	char childBufferName[50];
+	strcpy(childBufferName, getBufferName(BUFFER_ELEMENT_NAME, bufferId));
+	fileDescriptor = createFileDescriptor(childBufferName, sizeof(bufferElement));
+	if (fileDescriptor == -1)
 	{
-		printf("Error, pBufferElements is NULL.\n");
+		printf("Error, getting fileDescriptor.\n");
+		return 0;
+	}
+
+	bufferElement *pBufferElements = (bufferElement*)mmap(NULL, sizeof(bufferElement), PROT_WRITE | PROT_READ, MAP_SHARED, fileDescriptor, 0);
+	if (pBufferElements == MAP_FAILED)
+	{
+		printf("Error, mmap() failed, error code %d.\n", errno);
 		return 0;
 	}
 
 	for (int i = 0; i < bufferSize; i++)
 	{
 		pBufferElements[i].indexAvailable = 1;
-
-		if (sem_init(&pBufferElements[i].mutex, 1, 1) < 0)
+		if (sem_init(&(pBufferElements[i].mutex), 1, 1) < 0)
 		{
 			printf("Error, sem_init() failed at index: %d.\n", i);
 			return 0;
 		}
-
-		pSharedBuffer->bufferElements[i] = pBufferElements[i];
 	}
 
 	pSharedBuffer->size = bufferSize;
-	strcpy(pSharedBuffer->bufferName, bufferName);
+	pSharedBuffer->bufferId = bufferId;
+	strcpy(pSharedBuffer->sharedBufferName, sharedBufferName);
+	strcpy(pSharedBuffer->childBufferName, childBufferName);
 
 	return 1;
 }
