@@ -43,6 +43,33 @@ int main(int argc, char  *argv[])
 
 int main(int argc, char  *argv[])
 {
+	// sanity check
+	if (!argv)
+	{
+		printf("Error: argv is NULL.\n");
+		return 1;
+	}
+
+	int PRODUCER_ARGS_NUM = 3;
+
+	if (argc != PRODUCER_ARGS_NUM)
+	{
+		printf("Usage: $ %s Buffer_ID(int) Average_Time_To_Send(int)\n", argv[0]);
+		return 1;
+	}
+
+	int bufferId = atoi(argv[1]);
+	double averageTime = atoi(argv[2]);
+
+	double lambda = 1/averageTime;
+
+	// Intializes time for random number generator
+	time_t t;
+	srand((unsigned)time(&t));
+
+	int waitTime = 0;
+
+
 	// simple test, just for review functionality
 	printf("PRODUCER_APP.\n");
 	dataMessage data;
@@ -55,12 +82,19 @@ int main(int argc, char  *argv[])
 	infoTime = localtime(&rawTime);
 	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
-	int bufferId = 0;
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getBufferName(SHARED_BUFFER_NAME, bufferId));
 
-	tryWrite(data, sharedBufferName);
-    // ends
+    while (1)
+    {
+		waitTime = ceil(randomExponentialDistribution(lambda));
+		sleep(waitTime);
+
+		infoTime = localtime(&rawTime);
+		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
+		tryWrite(data, sharedBufferName);
+    }
+
 
 	return 0;
 }

@@ -4,6 +4,7 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define SHARED_BUFFER_NAME "/tmp/sharedBuffer"
 
@@ -40,5 +41,7 @@ typedef struct
 
 // Concatenates a char base name with an integer
 char *getBufferName(char *baseName, int id);
+
+double randomExponentialDistribution(double lambda);
 
 #endif // COMMON_FILE

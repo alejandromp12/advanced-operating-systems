@@ -13,3 +13,17 @@ char *getBufferName(char *baseName, int id)
 
 	return strcat(bufferName, intToString);
 }
+
+/**
+ * \brief Returns the random exponential distribution of a lambda value
+ *
+ * \param lambda, value between 0 and 1
+ *
+ * \return random exponential distribution of the lambda value passed
+ */
+double randomExponentialDistribution(double lambda)
+{
+	double intermediate = 0.0;
+	intermediate = rand() / (RAND_MAX + 1.0);
+	return -log(1 - intermediate) / lambda;
+}

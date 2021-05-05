@@ -5,7 +5,7 @@ CC=gcc
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
 CFLAGS=-c -I.
-LFLAGS=
+LFLAGS= -lm
 
 GTKLIB=`pkg-config --cflags --libs gtk+-3.0`
 

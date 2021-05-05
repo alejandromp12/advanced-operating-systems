@@ -5,7 +5,7 @@ CC=gcc
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
 CFLAGS=-c -I. -g -Wall
-LFLAGS=-lrt -lpthread
+LFLAGS=-lrt -lpthread -lm
 
 BUILD_DIR=build_tmp
 BIN_DIR=$(BUILD_DIR)/bin
