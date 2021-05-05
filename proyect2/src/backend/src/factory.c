@@ -10,6 +10,28 @@
 #include <sys/mman.h>
 
 
+// Inits counter struct
+int initializeCounter(productConsumer counter)
+{
+	counter.producers = 0;
+	counter.consumers = 0;
+
+	if (sem_init(&counter.producersMutex, 1, 1) < 0)
+	{
+		printf("Error, sem_init() failed.\n");
+		return 0;
+	}
+
+	if (sem_init(&counter.consumersMutex, 1, 1) < 0)
+	{
+		printf("Error, sem_init().\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+
 // Creates file and returns its descriptor
 int createFileDescriptor(char *bufferName, int size)
 {
@@ -53,6 +75,13 @@ int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, s
 	pSharedBuffer->size = bufferSize;
 	pSharedBuffer->id = bufferId;
 	strcpy(pSharedBuffer->name, sharedBufferName);
+
+	// initialize counter
+	if (!initializeCounter(pSharedBuffer->counter))
+	{
+		printf("Error, initializeCounter() failed.\n");
+		return 0;
+	}
 
 	return 1;
 }

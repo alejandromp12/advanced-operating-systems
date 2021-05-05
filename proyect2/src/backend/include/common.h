@@ -33,15 +33,45 @@ typedef struct
 
 typedef struct
 {
+	int producers;
+	int consumers;
+	sem_t producersMutex;
+	sem_t consumersMutex;
+} productConsumer;
+
+
+typedef struct
+{
 	int id;
 	int size;
 	char name[50];
+	productConsumer counter;
 	bufferElement bufferElements[MAX_BUFFER_ELEMENTS];
 } sharedBuffer;
+
+
+typedef enum
+{
+	PRODUCER_ROLE = 0,
+	CONSUMER_ROLE = 1,
+	NONE_ROLE
+} productConsumerRole;
+
+
+typedef enum
+{
+	DECREASE= 0,
+	INCREASE = 1
+} productConsumerAction;
+
 
 // Concatenates a char base name with an integer
 char *getBufferName(char *baseName, int id);
 
 double randomExponentialDistribution(double lambda);
+
+int getCounter(productConsumer counter, productConsumerRole role);
+
+void doActionToCounter(productConsumer counter, productConsumerRole role, productConsumerAction action);
 
 #endif // COMMON_FILE
