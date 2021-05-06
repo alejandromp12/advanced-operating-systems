@@ -39,47 +39,47 @@ int getProductConsumers(productConsumerRole role, char *bufferName)
 }
 
 
-int doActionToCounter(productConsumer counter, productConsumerRole role, productConsumerAction action)
+int doActionToCounter(sharedBuffer *pSharedBuffer, productConsumerRole role, productConsumerAction action)
 {
 	int result = -1;
 	switch (role)
 	{
 		case PRODUCER_ROLE:
 		{
-			sem_wait(&counter.producersMutex);
+			sem_wait(&(pSharedBuffer->counter.producersMutex));
 
 			if (action == INCREASE)
 			{
-				++counter.producers;
+				++(pSharedBuffer->counter.producers);
 			}
-			else if ((action == DECREASE) && (counter.producers > 0))
+			else if ((action == DECREASE) && (pSharedBuffer->counter.producers > 0))
 			{
-				--counter.producers;
+				--(pSharedBuffer->counter.producers);
 			}
 			
-			result = counter.producers;
+			result = pSharedBuffer->counter.producers;
 
-			sem_post(&counter.producersMutex);
+			sem_post(&(pSharedBuffer->counter.producersMutex));
 
 			break;
 		}
 
 		case CONSUMER_ROLE:
 		{
-			sem_wait(&counter.consumersMutex);
+			sem_wait(&(pSharedBuffer->counter.consumersMutex));
 
 			if (action == INCREASE)
 			{
-				++counter.consumers;
+				++(pSharedBuffer->counter.consumers);
 			}
-			else if ((action == DECREASE) && (counter.consumers > 0))
+			else if ((action == DECREASE) && (pSharedBuffer->counter.consumers > 0))
 			{
-				--counter.consumers;
+				--(pSharedBuffer->counter.consumers);
 			}
 
-			result = counter.consumers;
+			result = pSharedBuffer->counter.consumers;
 
-			sem_post(&counter.consumersMutex);
+			sem_post(&(pSharedBuffer->counter.consumersMutex));
 
 			break;
 		}
@@ -101,7 +101,7 @@ int addProductConsumer(productConsumerRole role, char *bufferName)
 		return -1;
 	}
 
-	return doActionToCounter(pSharedBuffer->counter, role, INCREASE);
+	return doActionToCounter(pSharedBuffer, role, INCREASE);
 }
 
 int removeProductConsumer(productConsumerRole role, char *bufferName)
@@ -113,7 +113,7 @@ int removeProductConsumer(productConsumerRole role, char *bufferName)
 		return -1;
 	}
 
-	return doActionToCounter(pSharedBuffer->counter, role, DECREASE);
+	return doActionToCounter(pSharedBuffer, role, DECREASE);
 }
 
 
