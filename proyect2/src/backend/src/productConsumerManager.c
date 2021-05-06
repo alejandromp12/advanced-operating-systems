@@ -1,7 +1,7 @@
 #include "include/productConsumerManager.h"
 #include "include/common.h"
 
-int getCounter(productConsumerRole role, char *bufferName)
+int getProductConsumers(productConsumerRole role, char *bufferName)
 {
 	// will be overwritten if needed
 	int count = -1;
@@ -92,7 +92,7 @@ int doActionToCounter(productConsumer counter, productConsumerRole role, product
 }
 
 
-int increaseCounter(productConsumerRole role, char *bufferName)
+int addProductConsumer(productConsumerRole role, char *bufferName)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -104,7 +104,7 @@ int increaseCounter(productConsumerRole role, char *bufferName)
 	return doActionToCounter(pSharedBuffer->counter, role, INCREASE);
 }
 
-int decreaseCounter(productConsumerRole role, char *bufferName)
+int removeProductConsumer(productConsumerRole role, char *bufferName)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -134,9 +134,13 @@ void logProductConsumerAction(char *bufferName, productConsumerRole role, int bu
 		    "Consumers alive: %d\n"
 		    "Producers alive: %d\n"
 		    "==================================",
-			(role == PRODUCER_ROLE) ? "produced" : "consumed", bufferIndex, bufferName, getCounter(CONSUMER_ROLE, bufferName), getCounter(PRODUCER_ROLE, bufferName));
+			(role == PRODUCER_ROLE) ? "produced" : "consumed",
+			bufferIndex,
+			bufferName,
+			getProductConsumers(CONSUMER_ROLE, bufferName),
+			getProductConsumers(PRODUCER_ROLE, bufferName));
 
 	doLogging(log, pSharedBuffer->counter);
 
-	printf("Message logged:\n%s\n", log);
+	//printf("Message logged:\n%s\n", log);
 }

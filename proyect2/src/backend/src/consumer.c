@@ -1,5 +1,5 @@
 #include "include/consumer.h"
-
+#include "include/productConsumerManager.h"
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -22,12 +22,12 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
     sem_wait(&(pBuffElement->mutex));
 
     //critical section
-    printf("**********************************\n");
+    printf("==================================\n");
 	printf("Message READ at index %d of the buffer %s.\n", bufferIndex, bufferName);
 	printf("Producer ID who wrote the message %i.\n", pBuffElement->data.producerId);
 	printf("Key of the message %i.\n", pBuffElement->data.key);
 	printf("Date of the message %s.\n", pBuffElement->data.date);
-	printf("**********************************\n");
+	printf("==================================\n");
 
 	//Cleaning?
 	//pBuffElement->data.producerId = message.producerId;
@@ -46,18 +46,10 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 
 void tryRead(char *bufferName)
 {
-	int fileDescriptor = open(bufferName, O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	if (fileDescriptor == -1)
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
 	{
-		printf("Error, open() failed, error code %d.\n", errno);
-		return;
-	}
-
-	// map shared memory to process address space
-	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, STORAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-	if (pSharedBuffer == MAP_FAILED)
-	{
-		printf("Error, mmap() failed, error code %d.\n", errno);
+		printf("Error, getSharedBuffer() failed.\n");
 		return;
 	}
 
@@ -69,6 +61,7 @@ void tryRead(char *bufferName)
 		}
 		else
 		{
+			logProductConsumerAction(bufferName, CONSUMER_ROLE, i);
 			return;
 		}
 	}

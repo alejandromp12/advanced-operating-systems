@@ -17,13 +17,11 @@ typedef enum
 } productConsumerAction;
 
 
-int increaseCounter(productConsumerRole role, char *bufferName);
+int addProductConsumer(productConsumerRole role, char *bufferName);
 
-int decreaseCounter(productConsumerRole role, char *bufferName);
+int removeProductConsumer(productConsumerRole role, char *bufferName);
 
-int getCounter(productConsumerRole role, char *bufferName);
-
-void logProducerAction();
+int getProductConsumers(productConsumerRole role, char *bufferName);
 
 void logProductConsumerAction(char *bufferName, productConsumerRole role, int bufferIndex);
 

@@ -13,6 +13,7 @@
 #include "backend/include/factory.h"
 #include "backend/include/finisher.h"
 #include "backend/include/producer.h"
+#include "backend/include/productConsumerManager.h"
 #if defined(CREATOR_APP)
 #include "frontend/include/gui.h"
 #endif
@@ -99,11 +100,13 @@ int main(int argc, char  *argv[])
 	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
 	char sharedBufferName[50];
-	strcpy(sharedBufferName, getBufferName(SHARED_BUFFER_NAME, bufferId));
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+
+	addProductConsumer(PRODUCER_ROLE, sharedBufferName);
 
     while (1)
     {
-		waitTime = ceil(randomExponentialDistribution(lambda));
+		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 
 		infoTime = localtime(&rawTime);
@@ -150,11 +153,13 @@ int main(int argc, char  *argv[])
     // ends
 
     char sharedBufferName[50];
-	strcpy(sharedBufferName, getBufferName(SHARED_BUFFER_NAME, bufferId));
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+
+	addProductConsumer(CONSUMER_ROLE, sharedBufferName);
 
 	while (1)
     {
-		waitTime = ceil(randomExponentialDistribution(lambda));
+		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 
 		tryRead(sharedBufferName);
@@ -188,7 +193,7 @@ int main(int argc, char  *argv[])
 	printf("TERMINATOR_APP.\n");
 
 	char sharedBufferName[50];
-	strcpy(sharedBufferName, getBufferName(SHARED_BUFFER_NAME, bufferId));
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 	if (!removeBuffer(sharedBufferName))
 	{
 		printf("Error, removing buffer.\n");
