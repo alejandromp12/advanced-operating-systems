@@ -11,22 +11,39 @@
 
 
 // Inits counter struct
-int initializeCounter(productConsumer counter)
+int initializeCounter(sharedBuffer *pSharedBuffer, int bufferId)
 {
-	counter.producers = 0;
-	counter.consumers = 0;
+	pSharedBuffer->counter.producers = 0;
+	pSharedBuffer->counter.consumers = 0;
 
-	if (sem_init(&counter.producersMutex, 1, 1) < 0)
+	if (sem_init(&(pSharedBuffer->counter.producersMutex), 1, 1) < 0)
 	{
 		printf("Error, sem_init() failed.\n");
 		return 0;
 	}
 
-	if (sem_init(&counter.consumersMutex, 1, 1) < 0)
+	if (sem_init(&(pSharedBuffer->counter.consumersMutex), 1, 1) < 0)
 	{
-		printf("Error, sem_init().\n");
+		printf("Error, sem_init() failed.\n");
 		return 0;
 	}
+
+	if (sem_init(&(pSharedBuffer->counter.loggingFileMutex), 1, 1) < 0)
+	{
+		printf("Error, sem_init() failed.\n");
+		return 0;
+	}
+
+	strcpy(pSharedBuffer->counter.loggingFileName, getFixedName(LOGGING_FILE_NAME, bufferId));
+
+	FILE *fp = fopen(pSharedBuffer->counter.loggingFileName, "w+");
+	if (fp == NULL)
+	{
+		printf("Error, fopen() failed.\n");
+		return 0;
+	}
+
+	fclose(fp);
 
 	return 1;
 }
@@ -77,7 +94,7 @@ int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, s
 	strcpy(pSharedBuffer->name, sharedBufferName);
 
 	// initialize counter
-	if (!initializeCounter(pSharedBuffer->counter))
+	if (!initializeCounter(pSharedBuffer, bufferId))
 	{
 		printf("Error, initializeCounter() failed.\n");
 		return 0;
@@ -91,7 +108,7 @@ int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, s
 int createSharedBuffer(int bufferSize, int bufferId)
 {
 	char sharedBufferName[50];
-	strcpy(sharedBufferName, getBufferName(SHARED_BUFFER_NAME, bufferId)); 
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId)); 
 	int fileDescriptor = createFileDescriptor(sharedBufferName, STORAGE_SIZE);
 	if (fileDescriptor == -1)
 	{

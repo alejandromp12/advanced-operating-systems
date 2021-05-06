@@ -1,9 +1,16 @@
 #include "include/common.h"
 
 #include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
+#include <sys/mman.h>
+
 
 // Concatenates a char base name with an integer
-char *getBufferName(char *baseName, int id)
+char *getFixedName(char *baseName, int id)
 {
 	char bufferName[50];
 	strcpy(bufferName, baseName);
@@ -15,14 +22,8 @@ char *getBufferName(char *baseName, int id)
 }
 
 
-/**
- * \brief Returns the random exponential distribution of a lambda value
- *
- * \param lambda, value between 0 and 1
- *
- * \return random exponential distribution of the lambda value passed
- */
-double randomExponentialDistribution(double lambda)
+// Returns the random exponential distribution of a lambda value
+double getRandomExponentialDistribution(double lambda)
 {
 	double intermediate = 0.0;
 	intermediate = rand() / (RAND_MAX + 1.0);
@@ -30,78 +31,42 @@ double randomExponentialDistribution(double lambda)
 }
 
 
-int getCounter(productConsumer counter, productConsumerRole role)
+void doLogging(char *text, productConsumer counter)
 {
-	// will be overwritten if needed
-	int count = -1;
-	switch (role)
+	sem_wait(&counter.loggingFileMutex);
+
+	FILE *fp = fopen(counter.loggingFileName, "a");
+	if (fp == NULL)
 	{
-		case PRODUCER_ROLE:
-		{
-			sem_wait(&counter.producersMutex);
-			count = counter.producers;
-			sem_post(&counter.producersMutex);
-			break;
-		}
-
-		case CONSUMER_ROLE:
-		{
-			sem_wait(&counter.consumersMutex);
-			count = counter.consumers;
-			sem_post(&counter.consumersMutex);
-			break;
-		}
-
-		case NONE_ROLE:
-		default:
-			break;
+		printf("Error, fopen() failed.\n");
+		return;
 	}
 
-	return count;
+	fputs(text, fp);
+	fputs("\n", fp);
+
+	fclose(fp);
+
+	sem_post(&counter.loggingFileMutex);
 }
 
 
-void doActionToCounter(productConsumer counter, productConsumerRole role, productConsumerAction action)
+sharedBuffer *getSharedBuffer(char *bufferName)
 {
-	switch (role)
+	int fileDescriptor = open(bufferName, O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (fileDescriptor == -1)
 	{
-		case PRODUCER_ROLE:
-		{
-			sem_wait(&counter.producersMutex);
-
-			if (action == INCREASE)
-			{
-				++counter.producers;
-			}
-			else if ((action == DECREASE) && (counter.producers > 0))
-			{
-				--counter.producers;
-			}
-
-			sem_post(&counter.producersMutex);
-
-			break;
-		}
-
-		case CONSUMER_ROLE:
-		{
-			sem_wait(&counter.consumersMutex);
-
-			if (action == INCREASE)
-			{
-				++counter.consumers;
-			}
-			else if ((action == DECREASE) && (counter.consumers > 0))
-			{
-				--counter.consumers;
-			}
-
-			sem_post(&counter.consumersMutex);
-
-			break;
-		}
-
-		default:
-			break;
+		printf("Error, open() failed, error code %d.\n", errno);
+		return NULL;
 	}
+
+	// map shared memory to process address space
+	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, STORAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
+	if (pSharedBuffer == MAP_FAILED)
+	{
+		printf("Error, mmap() failed, error code %d.\n", errno);
+		return NULL;
+	}
+
+	return pSharedBuffer;
 }

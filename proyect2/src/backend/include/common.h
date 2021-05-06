@@ -9,11 +9,12 @@
 #define SHARED_BUFFER_NAME "/tmp/sharedBuffer"
 
 // sharedBuffer = 16, dataMessage = 264, bufferElement = 304, assumming 10 elements in the buffer
-#define STORAGE_SIZE 5696
+#define STORAGE_SIZE 5696 // 5.5625MB
 
 #define MAX_BUFFER_ELEMENTS 100
 
-#define ARRAY_SIZE(arr) (sizeof((arr)) / sizeof((arr)[0]))
+#define LOGGING_FILE_NAME "/tmp/sharedBuffer.log."
+#define LOGGING_FILE_SIZE 5120 // 5MB
 
 typedef struct
 {
@@ -33,10 +34,12 @@ typedef struct
 
 typedef struct
 {
+	char loggingFileName[50];
 	int producers;
 	int consumers;
 	sem_t producersMutex;
 	sem_t consumersMutex;
+	sem_t loggingFileMutex;
 } productConsumer;
 
 
@@ -50,28 +53,15 @@ typedef struct
 } sharedBuffer;
 
 
-typedef enum
-{
-	PRODUCER_ROLE = 0,
-	CONSUMER_ROLE = 1,
-	NONE_ROLE
-} productConsumerRole;
-
-
-typedef enum
-{
-	DECREASE= 0,
-	INCREASE = 1
-} productConsumerAction;
-
-
 // Concatenates a char base name with an integer
-char *getBufferName(char *baseName, int id);
+char *getFixedName(char *baseName, int id);
 
-double randomExponentialDistribution(double lambda);
+double getRandomExponentialDistribution(double lambda);
 
-int getCounter(productConsumer counter, productConsumerRole role);
+void doLogging(char *text, productConsumer counter);
 
-void doActionToCounter(productConsumer counter, productConsumerRole role, productConsumerAction action);
+void sleepProcess(char *bufferName, int pid);
+
+sharedBuffer *getSharedBuffer(char *bufferName);
 
 #endif // COMMON_FILE

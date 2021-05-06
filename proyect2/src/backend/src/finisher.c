@@ -7,25 +7,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
-#include <regex.h>
 #include <sys/mman.h>
 
 
 // Removes a buffer
 int removeBuffer(char *bufferName)
 {
-	int fileDescriptor = open(bufferName, O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	if (fileDescriptor == -1)
-	{
-		printf("Error, open() failed, error code %d.\n", errno);
-		return 0;
-	}
-
 	// map shared memory to process address space
-	sharedBuffer *pSharedBuffer = (sharedBuffer*)mmap(NULL, STORAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-	if (pSharedBuffer == MAP_FAILED)
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
 	{
-		printf("Error, mmap() failed, error code %d.\n", errno);
+		printf("Error, getSharedBuffer() failed.\n");
 		return 0;
 	}
 
