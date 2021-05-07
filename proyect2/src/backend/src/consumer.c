@@ -1,5 +1,5 @@
 #include "include/consumer.h"
-#include "include/productConsumerManager.h"
+#include "include/producerConsumerManager.h"
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -61,7 +61,7 @@ void tryRead(char *bufferName)
 		}
 		else
 		{
-			logProductConsumerAction(bufferName, CONSUMER_ROLE, i);
+			logProducerConsumerAction(bufferName, CONSUMER_ROLE, i);
 			return;
 		}
 	}

@@ -1,5 +1,5 @@
 #include "include/producer.h"
-#include "include/productConsumerManager.h"
+#include "include/producerConsumerManager.h"
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -61,7 +61,7 @@ void tryWrite(dataMessage message, char *bufferName)
 		else
 		{
 			// perform logging of the process
-			logProductConsumerAction(bufferName, PRODUCER_ROLE, i);
+			logProducerConsumerAction(bufferName, PRODUCER_ROLE, i);
 
 			return;
 		}

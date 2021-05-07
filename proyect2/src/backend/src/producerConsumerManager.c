@@ -1,7 +1,7 @@
-#include "include/productConsumerManager.h"
+#include "include/producerConsumerManager.h"
 #include "include/common.h"
 
-int getProductConsumers(productConsumerRole role, char *bufferName)
+int getProducerConsumers(producerConsumerRole role, char *bufferName)
 {
 	// will be overwritten if needed
 	int count = -1;
@@ -39,7 +39,7 @@ int getProductConsumers(productConsumerRole role, char *bufferName)
 }
 
 
-int doActionToCounter(sharedBuffer *pSharedBuffer, productConsumerRole role, productConsumerAction action)
+int doActionToCounter(sharedBuffer *pSharedBuffer, producerConsumerRole role, producerConsumerAction action)
 {
 	int result = -1;
 	switch (role)
@@ -92,7 +92,7 @@ int doActionToCounter(sharedBuffer *pSharedBuffer, productConsumerRole role, pro
 }
 
 
-int addProductConsumer(productConsumerRole role, char *bufferName)
+int addProducerConsumer(producerConsumerRole role, char *bufferName)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -104,7 +104,7 @@ int addProductConsumer(productConsumerRole role, char *bufferName)
 	return doActionToCounter(pSharedBuffer, role, INCREASE);
 }
 
-int removeProductConsumer(productConsumerRole role, char *bufferName)
+int removeProducerConsumer(producerConsumerRole role, char *bufferName)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -117,7 +117,7 @@ int removeProductConsumer(productConsumerRole role, char *bufferName)
 }
 
 
-void logProductConsumerAction(char *bufferName, productConsumerRole role, int bufferIndex)
+void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int bufferIndex)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -137,8 +137,8 @@ void logProductConsumerAction(char *bufferName, productConsumerRole role, int bu
 			(role == PRODUCER_ROLE) ? "produced" : "consumed",
 			bufferIndex,
 			bufferName,
-			getProductConsumers(CONSUMER_ROLE, bufferName),
-			getProductConsumers(PRODUCER_ROLE, bufferName));
+			getProducerConsumers(CONSUMER_ROLE, bufferName),
+			getProducerConsumers(PRODUCER_ROLE, bufferName));
 
 	doLogging(log, pSharedBuffer->counter);
 

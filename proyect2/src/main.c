@@ -13,7 +13,7 @@
 #include "backend/include/factory.h"
 #include "backend/include/finisher.h"
 #include "backend/include/producer.h"
-#include "backend/include/productConsumerManager.h"
+#include "backend/include/producerConsumerManager.h"
 #if defined(CREATOR_APP)
 #include "frontend/include/gui.h"
 #endif
@@ -102,7 +102,7 @@ int main(int argc, char  *argv[])
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
-	addProductConsumer(PRODUCER_ROLE, sharedBufferName);
+	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
 
     while (1)
     {
@@ -155,7 +155,7 @@ int main(int argc, char  *argv[])
     char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
-	addProductConsumer(CONSUMER_ROLE, sharedBufferName);
+	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
 
 	while (1)
     {
