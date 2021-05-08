@@ -9,9 +9,8 @@ typedef struct
 	int pid;
 	char sharedBufferName[50];
 	int readIndex;
-	
 } consumerProcess; ///<
 
-void tryRead(consumerProcess *consumer);
+void tryRead(consumerProcess *pConsumer);
 
 #endif // CONSUMER_FILE

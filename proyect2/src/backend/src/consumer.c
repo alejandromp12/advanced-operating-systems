@@ -45,9 +45,9 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 }
 
 
-void tryRead(consumerProcess *consumer)
+void tryRead(consumerProcess *pConsumer)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(consumer ->sharedBufferName);
+	sharedBuffer *pSharedBuffer = getSharedBuffer(pConsumer->sharedBufferName);
 	if (pSharedBuffer == NULL)
 	{
 		printf("Error, getSharedBuffer() failed.\n");
@@ -56,28 +56,27 @@ void tryRead(consumerProcess *consumer)
 
 	int index;
 	int bufferSize = pSharedBuffer->size;
-	for (consumer ->readIndex; consumer ->readIndex % bufferSize < bufferSize; consumer ->readIndex++)
+	for (pConsumer->readIndex; (pConsumer->readIndex % bufferSize) < bufferSize; pConsumer->readIndex++)
 	{
-		index = consumer ->readIndex % bufferSize;
-		
-		if (!readData(&(pSharedBuffer->bufferElements[index]), index, consumer ->sharedBufferName))
+		index = pConsumer->readIndex % bufferSize;
+		if (!readData(&(pSharedBuffer->bufferElements[index]), index, pConsumer->sharedBufferName))
 		{
-			if (index == (bufferSize - 1))
+			if (isBufferEmpty(pSharedBuffer))
 			{
-				setProducerConsumerPIDState(consumer ->sharedBufferName, consumer ->pid, INACTIVE, CONSUMER_ROLE);
-				doProcess(consumer ->pid, STOP);
-				printf("CONSUMER with PID %i, just woke up.\n", consumer ->pid);
+				setProducerConsumerPIDState(pConsumer->sharedBufferName, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
+				doProcess(pConsumer->pid, STOP);
+				printf("CONSUMER with PID %i, just woke up.\n", pConsumer->pid);
 			}
 
 			continue;
 		}
 		else
 		{
-			logProducerConsumerAction(consumer ->sharedBufferName, CONSUMER_ROLE, index);
+			logProducerConsumerAction(pConsumer->sharedBufferName, CONSUMER_ROLE, index);
 
 			// wake up consumers
-			wakeup(consumer ->sharedBufferName, PRODUCER_ROLE);
-			consumer ->readIndex++; 
+			wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
+			pConsumer->readIndex++; 
 
 			return;
 		}

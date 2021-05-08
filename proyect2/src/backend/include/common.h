@@ -76,4 +76,8 @@ void doLogging(char *text, producerConsumerCounter counter);
 
 sharedBuffer *getSharedBuffer(char *bufferName);
 
+int isBufferFull(sharedBuffer *pSharedBuffer);
+
+int isBufferEmpty(sharedBuffer *pSharedBuffer);
+
 #endif // COMMON_FILE

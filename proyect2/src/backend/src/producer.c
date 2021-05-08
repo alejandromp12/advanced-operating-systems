@@ -44,9 +44,9 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
 }
 
 
-void tryWrite(dataMessage message, producerProcess *producer)
+void tryWrite(dataMessage message, producerProcess *pProducer)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(producer ->sharedBufferName);
+	sharedBuffer *pSharedBuffer = getSharedBuffer(pProducer->sharedBufferName);
 	if (pSharedBuffer == NULL)
 	{
 		printf("Error, getSharedBuffer() failed.\n");
@@ -55,17 +55,16 @@ void tryWrite(dataMessage message, producerProcess *producer)
 
 	int index;
 	int bufferSize = pSharedBuffer->size;
-	for (producer ->indexWrite; producer ->indexWrite % bufferSize < bufferSize; producer ->indexWrite++)
+	for (pProducer->indexWrite; (pProducer->indexWrite % bufferSize) < bufferSize; pProducer->indexWrite++)
 	{	
-		printf("---------index %i---------\n", producer ->indexWrite);
-		index = producer -> indexWrite % bufferSize;
-		if (!writeData(&(pSharedBuffer->bufferElements[index]), message, index, producer ->sharedBufferName))
+		index = pProducer->indexWrite % bufferSize;
+		if (!writeData(&(pSharedBuffer->bufferElements[index]), message, index, pProducer->sharedBufferName))
 		{
-			if (index == (bufferSize - 1))
+			if (isBufferFull(pSharedBuffer))
 			{
-				setProducerConsumerPIDState(producer ->sharedBufferName, producer ->pid, INACTIVE, PRODUCER_ROLE);
-				doProcess(producer ->pid, STOP);
-				printf("PRODUCER with PID %i, just woke up.\n", producer ->pid);
+				setProducerConsumerPIDState(pProducer->sharedBufferName, pProducer->pid, INACTIVE, PRODUCER_ROLE);
+				doProcess(pProducer->pid, STOP);
+				printf("PRODUCER with PID %i, just woke up.\n", pProducer->pid);
 			}
 
 			continue;
@@ -73,11 +72,11 @@ void tryWrite(dataMessage message, producerProcess *producer)
 		else
 		{
 			// perform logging of the process
-			logProducerConsumerAction(producer ->sharedBufferName, PRODUCER_ROLE, index);
+			logProducerConsumerAction(pProducer->sharedBufferName, PRODUCER_ROLE, index);
 
 			// wake up consumers
-			wakeup(producer ->sharedBufferName, CONSUMER_ROLE);
-			producer ->indexWrite++;
+			wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
+			pProducer->indexWrite++;
 			return;
 		}
 	}

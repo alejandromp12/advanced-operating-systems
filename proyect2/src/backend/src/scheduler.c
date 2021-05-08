@@ -5,34 +5,6 @@
 #include <signal.h>
 
 
-int bufferAvailableSpace(sharedBuffer *pSharedBuffer)
-{
-	int availableSpace = 0;
-	for (int i = 0; i < pSharedBuffer->size; i++)
-	{
-    	sem_wait(&(pSharedBuffer->bufferElements[i].mutex));
-    	if (pSharedBuffer->bufferElements[i].indexAvailable == 1)
-    	{
-    		++availableSpace;
-    	}
-    	sem_post(&(pSharedBuffer->bufferElements[i].mutex));
-	}
-
-    return availableSpace;
-}
-
-
-int isBufferFull(sharedBuffer *pSharedBuffer)
-{
-	return (pSharedBuffer->size == bufferAvailableSpace(pSharedBuffer));
-}
-
-
-int isBufferEmpty(sharedBuffer *pSharedBuffer)
-{
-	return (0 == bufferAvailableSpace(pSharedBuffer));
-}
-
 void wakeup(char *bufferName, producerConsumerRole role)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);

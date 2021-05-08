@@ -12,6 +12,6 @@ typedef struct
 
 } producerProcess; ///<
 
-void tryWrite(dataMessage message, producerProcess *producer);
+void tryWrite(dataMessage message, producerProcess *pProducer);
 
 #endif // PRODUCER_FILE
