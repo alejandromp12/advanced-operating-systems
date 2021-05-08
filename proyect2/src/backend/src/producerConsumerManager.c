@@ -135,7 +135,7 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 		    "Producers alive: %d\n"
 		    "==================================",
 			(role == PRODUCER_ROLE) ? "produced" : "consumed",
-			bufferIndex,
+			bufferIndex + 1,
 			bufferName,
 			getProducerConsumer(CONSUMER_ROLE, bufferName),
 			getProducerConsumer(PRODUCER_ROLE, bufferName));

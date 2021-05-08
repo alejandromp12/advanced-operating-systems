@@ -163,6 +163,7 @@ int main(int argc, char  *argv[])
 
 	consumerProcess consumer;
 	consumer.pid = getpid();
+	consumer.readIndex = 0;
 	strcpy(consumer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
@@ -173,7 +174,7 @@ int main(int argc, char  *argv[])
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 
-		tryRead(consumer);
+		tryRead(&consumer);
 	}
 
 	return 0;
