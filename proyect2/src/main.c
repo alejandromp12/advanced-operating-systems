@@ -90,19 +90,6 @@ int main(int argc, char  *argv[])
 
 	// simple test, just for review functionality
 	printf("PRODUCER_APP.\n");
-	char sharedBufferName[50];
-	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
-
-	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
-
-	dataMessage data;
-	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
-
-	time_t rawTime;
-	struct tm *infoTime;
-	time(&rawTime);
-	infoTime = localtime(&rawTime);
-	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
@@ -112,6 +99,14 @@ int main(int argc, char  *argv[])
 
 	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
 	insertProducerConsumerPIDToList(sharedBufferName, _producer.pid, PRODUCER_ROLE);
+
+	dataMessage data;
+	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
+	time_t rawTime;
+	struct tm *infoTime;
+	time(&rawTime);
+	infoTime = localtime(&rawTime);
+	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
     while (1)
     {
