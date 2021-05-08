@@ -10,12 +10,13 @@
 #include <sys/mman.h>
 
 // populates matrix
-void populatePIDsList(int pidsList[MAX_PIDS][MAX_STATES])
+void populatePIDsList(int pidsList[MAX_PIDS][MAX_STATES])					
 {
 	for (int i = 0; i < MAX_PIDS; i++)
 	{
 		pidsList[i][0] = NO_PID;
-		pidsList[0][i] = INACTIVE;
+		pidsList[i][1] = INACTIVE;
+		
 	}
 }
 

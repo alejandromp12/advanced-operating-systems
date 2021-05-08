@@ -13,7 +13,7 @@
 
 #define MAX_BUFFER_ELEMENTS 100
 #define MAX_PIDS 50
-#define MAX_STATES MAX_PIDS
+#define MAX_STATES 2
 #define NO_PID -1
 
 #define LOGGING_FILE_NAME "/tmp/sharedBuffer.log."

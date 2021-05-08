@@ -65,6 +65,8 @@ void doProcess(int pid, processAction action)
 
 		case KILL:
 		{
+			sigaction(SIGTERM, &sigact, NULL);
+			kill(pid, SIGTERM);
 			break;
 		}
 

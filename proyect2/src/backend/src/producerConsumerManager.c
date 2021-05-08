@@ -164,7 +164,7 @@ void setProducerConsumerPIDState(char *bufferName, int pid, producerConsumerPidS
 			{
 				if (pid == pSharedBuffer->PIDs.producersPIDs[i][0])
 				{
-					pSharedBuffer->PIDs.producersPIDs[0][i] = state;
+					pSharedBuffer->PIDs.producersPIDs[i][1] = state;
 					break;
 				}
 			}
@@ -181,7 +181,7 @@ void setProducerConsumerPIDState(char *bufferName, int pid, producerConsumerPidS
 			{
 				if (pid == pSharedBuffer->PIDs.consumersPIDs[i][0])
 				{
-					pSharedBuffer->PIDs.consumersPIDs[0][i] = state;
+					pSharedBuffer->PIDs.consumersPIDs[i][1] = state;
 					break;
 				}
 			}
@@ -215,7 +215,7 @@ void removeProducerConsumerPIDFromList(char *bufferName, int pid, producerConsum
 				if (pid == pSharedBuffer->PIDs.producersPIDs[i][0])
 				{
 					pSharedBuffer->PIDs.producersPIDs[i][0] = NO_PID;
-					pSharedBuffer->PIDs.producersPIDs[0][i] = INACTIVE;
+					pSharedBuffer->PIDs.producersPIDs[i][1] = INACTIVE;
 					break;
 				}
 			}
@@ -233,7 +233,7 @@ void removeProducerConsumerPIDFromList(char *bufferName, int pid, producerConsum
 				if (pid == pSharedBuffer->PIDs.consumersPIDs[i][0])
 				{
 					pSharedBuffer->PIDs.consumersPIDs[i][0] = NO_PID;
-					pSharedBuffer->PIDs.consumersPIDs[0][i] = INACTIVE;
+					pSharedBuffer->PIDs.consumersPIDs[i][1] = INACTIVE;
 					break;
 				}
 			}
@@ -267,7 +267,7 @@ void insertProducerConsumerPIDToList(char *bufferName, int pid, producerConsumer
 				if (NO_PID == pSharedBuffer->PIDs.producersPIDs[i][0])
 				{
 					pSharedBuffer->PIDs.producersPIDs[i][0] = pid;
-					pSharedBuffer->PIDs.consumersPIDs[0][i] = ACTIVE;
+					pSharedBuffer->PIDs.consumersPIDs[i][1] = ACTIVE;
 					break;
 				}
 			}
@@ -285,7 +285,7 @@ void insertProducerConsumerPIDToList(char *bufferName, int pid, producerConsumer
 				if (NO_PID == pSharedBuffer->PIDs.consumersPIDs[i][0])
 				{
 					pSharedBuffer->PIDs.consumersPIDs[i][0] = pid;
-					pSharedBuffer->PIDs.consumersPIDs[0][i] = ACTIVE;
+					pSharedBuffer->PIDs.consumersPIDs[i][1] = ACTIVE;
 					break;
 				}
 			}
@@ -310,7 +310,7 @@ int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumer
 
 			for (int i = 0; i < MAX_PIDS; i++)
 			{
-				if (INACTIVE == pSharedBuffer->PIDs.producersPIDs[0][i])
+				if (INACTIVE == pSharedBuffer->PIDs.producersPIDs[i][1])
 				{
 					pid = pSharedBuffer->PIDs.producersPIDs[i][0];
 					break;
@@ -327,7 +327,7 @@ int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumer
 
 			for (int i = 0; i < MAX_PIDS; i++)
 			{
-				if (INACTIVE == pSharedBuffer->PIDs.consumersPIDs[0][i])
+				if (INACTIVE == pSharedBuffer->PIDs.consumersPIDs[i][1])
 				{
 					pid = pSharedBuffer->PIDs.consumersPIDs[i][0];
 					break;

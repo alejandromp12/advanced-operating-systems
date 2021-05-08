@@ -207,6 +207,16 @@ int main(int argc, char  *argv[])
 
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+	if (!killProducer(sharedBufferName))
+	{
+		printf("Error, kill producer.\n");
+		return 1;
+	}
+	if (!killConsumer(sharedBufferName))
+	{
+		printf("Error, kill consumer.\n");
+		return 1;
+	}
 	if (!removeBuffer(sharedBufferName))
 	{
 		printf("Error, removing buffer.\n");
