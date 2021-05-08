@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include "common.h"
 
-void tryRead(char *bufferName);
+typedef struct
+{
+	int pid;
+	char sharedBufferName[50];
+} consumerProcess; ///<
+
+void tryRead();
+
+consumerProcess _consumer;
 
 #endif // CONSUMER_FILE

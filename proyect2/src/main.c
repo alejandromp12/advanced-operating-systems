@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
 
 #include "backend/include/consumer.h"
 #include "backend/include/common.h"
@@ -39,7 +41,6 @@ int main(int argc, char  *argv[])
 
 	int bufferId = atoi(argv[1]);
 	int bufferSize = atoi(argv[2]);
-
 
 	printf("CREATOR_APP.\n");
 
@@ -103,6 +104,14 @@ int main(int argc, char  *argv[])
 	infoTime = localtime(&rawTime);
 	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
+	char sharedBufferName[50];
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+
+	strcpy(_producer.sharedBufferName, sharedBufferName);
+	_producer.pid = getpid();
+
+	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
+	insertProducerConsumerPIDToList(sharedBufferName, _producer.pid, PRODUCER_ROLE);
 
     while (1)
     {
@@ -112,7 +121,7 @@ int main(int argc, char  *argv[])
 		infoTime = localtime(&rawTime);
 		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 		data.key = rand() % 5;
-		tryWrite(data, sharedBufferName);
+		tryWrite(data);
     }
 
 
@@ -156,14 +165,18 @@ int main(int argc, char  *argv[])
     char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
+	strcpy(_consumer.sharedBufferName, sharedBufferName);
+	_consumer.pid = getpid();
+
 	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
+	insertProducerConsumerPIDToList(sharedBufferName, _consumer.pid, CONSUMER_ROLE);
 
 	while (1)
     {
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 
-		tryRead(sharedBufferName);
+		tryRead();
 	}
 
 	return 0;

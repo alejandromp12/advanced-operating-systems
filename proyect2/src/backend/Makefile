@@ -12,8 +12,8 @@ BIN_DIR=$(BUILD_DIR)/bin
 LIB_DIR=$(BUILD_DIR)/lib
 STATIC_COMPONENT=$(LIB_DIR)/libbackend.a
 SRC_DIR=src
-OBJECT_FILES=$(BIN_DIR)/producer.o $(BIN_DIR)/consumer.o $(BIN_DIR)/finisher.o $(BIN_DIR)/factory.o $(BIN_DIR)/common.o $(BIN_DIR)/producerConsumerManager.o
-FILE_NAMES=producer consumer finisher factory common producerConsumerManager
+OBJECT_FILES=$(BIN_DIR)/producer.o $(BIN_DIR)/consumer.o $(BIN_DIR)/finisher.o $(BIN_DIR)/factory.o $(BIN_DIR)/common.o $(BIN_DIR)/producerConsumerManager.o $(BIN_DIR)/scheduler.o
+FILE_NAMES=producer consumer finisher factory common producerConsumerManager scheduler
 
 build: $(STATIC_COMPONENT)
 

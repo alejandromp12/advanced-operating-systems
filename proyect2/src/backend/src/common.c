@@ -31,7 +31,7 @@ double getRandomExponentialDistribution(double lambda)
 }
 
 
-void doLogging(char *text, productConsumer counter)
+void doLogging(char *text, producerConsumerCounter counter)
 {
 	sem_wait(&counter.loggingFileMutex);
 

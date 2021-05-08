@@ -1,5 +1,6 @@
 #include "include/consumer.h"
 #include "include/producerConsumerManager.h"
+#include "include/scheduler.h"
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -44,24 +45,39 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 }
 
 
-void tryRead(char *bufferName)
+void tryRead()
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	sharedBuffer *pSharedBuffer = getSharedBuffer(_consumer.sharedBufferName);
 	if (pSharedBuffer == NULL)
 	{
 		printf("Error, getSharedBuffer() failed.\n");
 		return;
 	}
 
-	for (int i = 0; i < pSharedBuffer->size; i++)
+	int reset = 0;
+	int bufferSize = pSharedBuffer->size;
+	for (int i = 0; i < bufferSize; i++)
 	{
-		if (!readData(&(pSharedBuffer->bufferElements[i]), i, bufferName))
+		i = reset ? 0 : i;
+		reset = 0;
+		if (!readData(&(pSharedBuffer->bufferElements[i]), i, _consumer.sharedBufferName))
 		{
+			if (i == (bufferSize - 1))
+			{
+				setProducerConsumerPIDState(_consumer.sharedBufferName, _consumer.pid, INACTIVE, CONSUMER_ROLE);
+				doProcess(_consumer.pid, STOP);
+				reset = 1;
+				printf("AMP --- TESTING 2 tryRead ---.\n");
+			}
+
 			continue;
 		}
 		else
 		{
-			logProducerConsumerAction(bufferName, CONSUMER_ROLE, i);
+			logProducerConsumerAction(_consumer.sharedBufferName, CONSUMER_ROLE, i);
+
+			// wake up consumers
+			wakeup(_consumer.sharedBufferName, PRODUCER_ROLE);
 			return;
 		}
 	}

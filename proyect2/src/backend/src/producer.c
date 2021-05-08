@@ -1,4 +1,5 @@
 #include "include/producer.h"
+#include "include/scheduler.h"
 #include "include/producerConsumerManager.h"
 #include <string.h>
 #include <fcntl.h>
@@ -43,26 +44,40 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
 }
 
 
-void tryWrite(dataMessage message, char *bufferName)
+void tryWrite(dataMessage message)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	sharedBuffer *pSharedBuffer = getSharedBuffer(_producer.sharedBufferName);
 	if (pSharedBuffer == NULL)
 	{
 		printf("Error, getSharedBuffer() failed.\n");
 		return;
 	}
 
-	for (int i = 0; i < pSharedBuffer->size; i++)
+	int reset = 0;
+	int bufferSize = pSharedBuffer->size;
+	for (int i = 0; i < bufferSize; i++)
 	{
-		if (!writeData(&(pSharedBuffer->bufferElements[i]), message, i, bufferName))
+		i = reset ? 0 : i;
+		reset = 0;
+		if (!writeData(&(pSharedBuffer->bufferElements[i]), message, i, _producer.sharedBufferName))
 		{
+			if (i == (bufferSize - 1))
+			{
+				setProducerConsumerPIDState(_producer.sharedBufferName, _producer.pid, INACTIVE, PRODUCER_ROLE);
+				doProcess(_producer.pid, STOP);
+				reset = 1;
+				printf("AMP --- TESTING 2 tryWrite ---.\n");
+			}
+
 			continue;
 		}
 		else
 		{
 			// perform logging of the process
-			logProducerConsumerAction(bufferName, PRODUCER_ROLE, i);
+			logProducerConsumerAction(_producer.sharedBufferName, PRODUCER_ROLE, i);
 
+			// wake up consumers
+			wakeup(_producer.sharedBufferName, CONSUMER_ROLE);
 			return;
 		}
 	}

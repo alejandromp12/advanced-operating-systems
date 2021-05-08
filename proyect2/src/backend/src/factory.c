@@ -9,6 +9,38 @@
 #include <limits.h>
 #include <sys/mman.h>
 
+// populates matrix
+void populatePIDsList(int pidsList[MAX_PIDS][MAX_STATES])
+{
+	for (int i = 0; i < MAX_PIDS; i++)
+	{
+		pidsList[i][0] = NO_PID;
+		pidsList[0][i] = INACTIVE;
+	}
+}
+
+
+// Inits producer-consumer lists
+int initializeProducersConsumersPIDs(sharedBuffer *pSharedBuffer)
+{
+	if (sem_init(&(pSharedBuffer->PIDs.producersPIDsMutex), 1, 1) < 0)
+	{
+		printf("Error, sem_init() failed.\n");
+		return 0;
+	}
+
+	if (sem_init(&(pSharedBuffer->PIDs.consumersPIDsMutex), 1, 1) < 0)
+	{
+		printf("Error, sem_init() failed.\n");
+		return 0;
+	}
+
+	populatePIDsList(pSharedBuffer->PIDs.producersPIDs);
+	populatePIDsList(pSharedBuffer->PIDs.consumersPIDs);
+
+	return 1;
+}
+
 
 // Inits counter struct
 int initializeCounter(sharedBuffer *pSharedBuffer, int bufferId)
@@ -97,6 +129,13 @@ int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, s
 	if (!initializeCounter(pSharedBuffer, bufferId))
 	{
 		printf("Error, initializeCounter() failed.\n");
+		return 0;
+	}
+
+	// initialize pids list
+	if (!initializeProducersConsumersPIDs(pSharedBuffer))
+	{
+		printf("Error, initializeProducersConsumersPIDs() failed.\n");
 		return 0;
 	}
 

@@ -1,5 +1,5 @@
 #include "include/producerConsumerManager.h"
-#include "include/common.h"
+
 
 int getProducerConsumer(producerConsumerRole role, char *bufferName)
 {
@@ -143,4 +143,204 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 	doLogging(log, pSharedBuffer->counter);
 
 	//printf("Message logged:\n%s\n", log);
+}
+
+void setProducerConsumerPIDState(char *bufferName, int pid, producerConsumerPidState state, producerConsumerRole role)
+{
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return;
+	}
+
+	switch (role)
+	{
+		case PRODUCER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.producersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (pid == pSharedBuffer->PIDs.producersPIDs[i][0])
+				{
+					pSharedBuffer->PIDs.producersPIDs[0][i] = state;
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.producersPIDsMutex));
+			break;
+		}
+
+		case CONSUMER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (pid == pSharedBuffer->PIDs.consumersPIDs[i][0])
+				{
+					pSharedBuffer->PIDs.consumersPIDs[0][i] = state;
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+			break;
+		}
+
+		default:
+			break;
+	}
+}
+
+void removeProducerConsumerPIDFromList(char *bufferName, int pid, producerConsumerRole role)
+{
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return;
+	}
+
+	switch (role)
+	{
+		case PRODUCER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.producersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (pid == pSharedBuffer->PIDs.producersPIDs[i][0])
+				{
+					pSharedBuffer->PIDs.producersPIDs[i][0] = NO_PID;
+					pSharedBuffer->PIDs.producersPIDs[0][i] = INACTIVE;
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.producersPIDsMutex));
+			break;
+		}
+
+		case CONSUMER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (pid == pSharedBuffer->PIDs.consumersPIDs[i][0])
+				{
+					pSharedBuffer->PIDs.consumersPIDs[i][0] = NO_PID;
+					pSharedBuffer->PIDs.consumersPIDs[0][i] = INACTIVE;
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+			break;
+		}
+
+		default:
+			break;
+	}
+}
+
+void insertProducerConsumerPIDToList(char *bufferName, int pid, producerConsumerRole role)
+{
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return;
+	}
+
+	switch (role)
+	{
+		case PRODUCER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.producersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (NO_PID == pSharedBuffer->PIDs.producersPIDs[i][0])
+				{
+					pSharedBuffer->PIDs.producersPIDs[i][0] = pid;
+					pSharedBuffer->PIDs.consumersPIDs[0][i] = ACTIVE;
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.producersPIDsMutex));
+			break;
+		}
+
+		case CONSUMER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (NO_PID == pSharedBuffer->PIDs.consumersPIDs[i][0])
+				{
+					pSharedBuffer->PIDs.consumersPIDs[i][0] = pid;
+					pSharedBuffer->PIDs.consumersPIDs[0][i] = ACTIVE;
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+			break;
+		}
+
+		default:
+			break;
+	}
+}
+
+int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumerRole role)
+{
+	int pid = -1; // will be overwritten if needed
+	switch (role)
+	{
+		case PRODUCER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.producersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (INACTIVE == pSharedBuffer->PIDs.producersPIDs[0][i])
+				{
+					pid = pSharedBuffer->PIDs.producersPIDs[i][0];
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.producersPIDsMutex));
+			break;
+		}
+
+		case CONSUMER_ROLE:
+		{
+			sem_wait(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+
+			for (int i = 0; i < MAX_PIDS; i++)
+			{
+				if (INACTIVE == pSharedBuffer->PIDs.consumersPIDs[0][i])
+				{
+					pid = pSharedBuffer->PIDs.consumersPIDs[i][0];
+					break;
+				}
+			}
+
+			sem_post(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	return pid;
 }

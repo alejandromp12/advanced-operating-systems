@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include "common.h"
 
-void tryWrite(dataMessage message, char *bufferName);
+typedef struct
+{
+	int pid;
+	char sharedBufferName[50];
+} producerProcess; ///<
+
+void tryWrite(dataMessage message);
+
+producerProcess _producer;
 
 #endif // PRODUCER_FILE
