@@ -1,7 +1,7 @@
 #include "include/producerConsumerManager.h"
 #include "include/common.h"
 
-int getProducerConsumers(producerConsumerRole role, char *bufferName)
+int getProducerConsumer(producerConsumerRole role, char *bufferName)
 {
 	// will be overwritten if needed
 	int count = -1;
@@ -137,8 +137,8 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 			(role == PRODUCER_ROLE) ? "produced" : "consumed",
 			bufferIndex,
 			bufferName,
-			getProducerConsumers(CONSUMER_ROLE, bufferName),
-			getProducerConsumers(PRODUCER_ROLE, bufferName));
+			getProducerConsumer(CONSUMER_ROLE, bufferName),
+			getProducerConsumer(PRODUCER_ROLE, bufferName));
 
 	doLogging(log, pSharedBuffer->counter);
 

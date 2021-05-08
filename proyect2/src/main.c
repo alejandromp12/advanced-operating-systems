@@ -92,11 +92,10 @@ int main(int argc, char  *argv[])
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
-	addProductConsumer(PRODUCER_ROLE, sharedBufferName);
+	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
 
 	dataMessage data;
-	data.producerId = getProductConsumers(PRODUCER_ROLE, sharedBufferName);
-	data.key = 3;
+	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
 
 	time_t rawTime;
 	struct tm *infoTime;
@@ -112,6 +111,7 @@ int main(int argc, char  *argv[])
 
 		infoTime = localtime(&rawTime);
 		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
+		data.key = rand() % 5;
 		tryWrite(data, sharedBufferName);
     }
 
