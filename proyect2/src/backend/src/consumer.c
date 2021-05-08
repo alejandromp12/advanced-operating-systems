@@ -54,19 +54,16 @@ void tryRead(consumerProcess consumer)
 		return;
 	}
 
-	int reset = 0;
 	int bufferSize = pSharedBuffer->size;
 	for (int i = 0; i < bufferSize; i++)
 	{
-		i = reset ? 0 : i;
-		reset = 0;
 		if (!readData(&(pSharedBuffer->bufferElements[i]), i, consumer.sharedBufferName))
 		{
 			if (i == (bufferSize - 1))
 			{
 				setProducerConsumerPIDState(consumer.sharedBufferName, consumer.pid, INACTIVE, CONSUMER_ROLE);
 				doProcess(consumer.pid, STOP);
-				reset = 1;
+				i = 0;
 				printf("CONSUMER with PID %i, just woke up.\n", consumer.pid);
 			}
 

@@ -53,19 +53,16 @@ void tryWrite(dataMessage message, producerProcess producer)
 		return;
 	}
 
-	int reset = 0;
 	int bufferSize = pSharedBuffer->size;
 	for (int i = 0; i < bufferSize; i++)
 	{
-		i = reset ? 0 : i;
-		reset = 0;
 		if (!writeData(&(pSharedBuffer->bufferElements[i]), message, i, producer.sharedBufferName))
 		{
 			if (i == (bufferSize - 1))
 			{
 				setProducerConsumerPIDState(producer.sharedBufferName, producer.pid, INACTIVE, PRODUCER_ROLE);
 				doProcess(producer.pid, STOP);
-				reset = 1;
+				i = 0;
 				printf("PRODUCER with PID %i, just woke up.\n", producer.pid);
 			}
 
