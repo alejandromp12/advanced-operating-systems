@@ -59,8 +59,7 @@ void tryRead(consumerProcess *consumer)
 	for (consumer ->readIndex; consumer ->readIndex % bufferSize < bufferSize; consumer ->readIndex++)
 	{
 		index = consumer ->readIndex % bufferSize;
-		printf("---------index %i---------\n", consumer ->readIndex);
-
+		
 		if (!readData(&(pSharedBuffer->bufferElements[index]), index, consumer ->sharedBufferName))
 		{
 			if (index == (bufferSize - 1))

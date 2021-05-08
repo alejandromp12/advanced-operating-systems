@@ -8,8 +8,10 @@ typedef struct
 {
 	int pid;
 	char sharedBufferName[50];
+	int indexWrite;
+
 } producerProcess; ///<
 
-void tryWrite(dataMessage message, producerProcess producer);
+void tryWrite(dataMessage message, producerProcess *producer);
 
 #endif // PRODUCER_FILE

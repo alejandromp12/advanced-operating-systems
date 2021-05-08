@@ -96,6 +96,7 @@ int main(int argc, char  *argv[])
 
 	producerProcess producer;
 	producer.pid = getpid();
+	producer.indexWrite = 0;
 	strcpy(producer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
@@ -117,7 +118,7 @@ int main(int argc, char  *argv[])
 		infoTime = localtime(&rawTime);
 		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 		data.key = rand() % 5;
-		tryWrite(data, producer);
+		tryWrite(data, &producer);
     }
 
 
