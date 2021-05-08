@@ -10,8 +10,6 @@ typedef struct
 	char sharedBufferName[50];
 } producerProcess; ///<
 
-void tryWrite(dataMessage message);
-
-producerProcess _producer;
+void tryWrite(dataMessage message, producerProcess producer);
 
 #endif // PRODUCER_FILE

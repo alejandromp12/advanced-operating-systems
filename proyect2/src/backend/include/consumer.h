@@ -10,8 +10,6 @@ typedef struct
 	char sharedBufferName[50];
 } consumerProcess; ///<
 
-void tryRead();
-
-consumerProcess _consumer;
+void tryRead(consumerProcess consumer);
 
 #endif // CONSUMER_FILE

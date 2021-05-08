@@ -75,14 +75,28 @@ void doProcess(int pid, processAction action)
 	sigact.sa_flags = 0;
 	sigact.sa_handler = NULL;
 
-	if (action == STOP)
+	switch (action)
 	{
-		sigaction(SIGSTOP, &sigact, NULL);
-		kill(pid, SIGSTOP);
-	}
-	else
-	{
-		sigaction(SIGCONT, &sigact, NULL);
-		kill(pid, SIGCONT);
+		case STOP:
+		{
+			sigaction(SIGSTOP, &sigact, NULL);
+			kill(pid, SIGSTOP);
+			break;
+		}
+
+		case CONTINUE:
+		{
+			sigaction(SIGCONT, &sigact, NULL);
+			kill(pid, SIGCONT);
+			break;
+		}
+
+		case KILL:
+		{
+			break;
+		}
+
+		default:
+			break;
 	}
 }

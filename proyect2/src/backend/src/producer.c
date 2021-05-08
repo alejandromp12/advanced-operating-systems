@@ -44,9 +44,9 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
 }
 
 
-void tryWrite(dataMessage message)
+void tryWrite(dataMessage message, producerProcess producer)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(_producer.sharedBufferName);
+	sharedBuffer *pSharedBuffer = getSharedBuffer(producer.sharedBufferName);
 	if (pSharedBuffer == NULL)
 	{
 		printf("Error, getSharedBuffer() failed.\n");
@@ -59,14 +59,14 @@ void tryWrite(dataMessage message)
 	{
 		i = reset ? 0 : i;
 		reset = 0;
-		if (!writeData(&(pSharedBuffer->bufferElements[i]), message, i, _producer.sharedBufferName))
+		if (!writeData(&(pSharedBuffer->bufferElements[i]), message, i, producer.sharedBufferName))
 		{
 			if (i == (bufferSize - 1))
 			{
-				setProducerConsumerPIDState(_producer.sharedBufferName, _producer.pid, INACTIVE, PRODUCER_ROLE);
-				doProcess(_producer.pid, STOP);
+				setProducerConsumerPIDState(producer.sharedBufferName, producer.pid, INACTIVE, PRODUCER_ROLE);
+				doProcess(producer.pid, STOP);
 				reset = 1;
-				printf("AMP --- TESTING 2 tryWrite ---.\n");
+				printf("PRODUCER with PID %i, just woke up.\n", producer.pid);
 			}
 
 			continue;
@@ -74,10 +74,10 @@ void tryWrite(dataMessage message)
 		else
 		{
 			// perform logging of the process
-			logProducerConsumerAction(_producer.sharedBufferName, PRODUCER_ROLE, i);
+			logProducerConsumerAction(producer.sharedBufferName, PRODUCER_ROLE, i);
 
 			// wake up consumers
-			wakeup(_producer.sharedBufferName, CONSUMER_ROLE);
+			wakeup(producer.sharedBufferName, CONSUMER_ROLE);
 			return;
 		}
 	}

@@ -45,9 +45,9 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 }
 
 
-void tryRead()
+void tryRead(consumerProcess consumer)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(_consumer.sharedBufferName);
+	sharedBuffer *pSharedBuffer = getSharedBuffer(consumer.sharedBufferName);
 	if (pSharedBuffer == NULL)
 	{
 		printf("Error, getSharedBuffer() failed.\n");
@@ -60,24 +60,24 @@ void tryRead()
 	{
 		i = reset ? 0 : i;
 		reset = 0;
-		if (!readData(&(pSharedBuffer->bufferElements[i]), i, _consumer.sharedBufferName))
+		if (!readData(&(pSharedBuffer->bufferElements[i]), i, consumer.sharedBufferName))
 		{
 			if (i == (bufferSize - 1))
 			{
-				setProducerConsumerPIDState(_consumer.sharedBufferName, _consumer.pid, INACTIVE, CONSUMER_ROLE);
-				doProcess(_consumer.pid, STOP);
+				setProducerConsumerPIDState(consumer.sharedBufferName, consumer.pid, INACTIVE, CONSUMER_ROLE);
+				doProcess(consumer.pid, STOP);
 				reset = 1;
-				printf("AMP --- TESTING 2 tryRead ---.\n");
+				printf("CONSUMER with PID %i, just woke up.\n", consumer.pid);
 			}
 
 			continue;
 		}
 		else
 		{
-			logProducerConsumerAction(_consumer.sharedBufferName, CONSUMER_ROLE, i);
+			logProducerConsumerAction(consumer.sharedBufferName, CONSUMER_ROLE, i);
 
 			// wake up consumers
-			wakeup(_consumer.sharedBufferName, PRODUCER_ROLE);
+			wakeup(consumer.sharedBufferName, PRODUCER_ROLE);
 			return;
 		}
 	}

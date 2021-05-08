@@ -8,7 +8,8 @@
 typedef enum
 {
 	STOP = 0,
-	CONTINUE = 1
+	CONTINUE = 1,
+	KILL = 2
 } processAction;
 
 void doProcess(int pid, processAction action);

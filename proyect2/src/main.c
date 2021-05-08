@@ -94,11 +94,12 @@ int main(int argc, char  *argv[])
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
-	strcpy(_producer.sharedBufferName, sharedBufferName);
-	_producer.pid = getpid();
+	producerProcess producer;
+	producer.pid = getpid();
+	strcpy(producer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
-	insertProducerConsumerPIDToList(sharedBufferName, _producer.pid, PRODUCER_ROLE);
+	insertProducerConsumerPIDToList(sharedBufferName, producer.pid, PRODUCER_ROLE);
 
 	dataMessage data;
 	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
@@ -116,7 +117,7 @@ int main(int argc, char  *argv[])
 		infoTime = localtime(&rawTime);
 		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 		data.key = rand() % 5;
-		tryWrite(data);
+		tryWrite(data, producer);
     }
 
 
@@ -160,18 +161,19 @@ int main(int argc, char  *argv[])
     char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
-	strcpy(_consumer.sharedBufferName, sharedBufferName);
-	_consumer.pid = getpid();
+	consumerProcess consumer;
+	consumer.pid = getpid();
+	strcpy(consumer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
-	insertProducerConsumerPIDToList(sharedBufferName, _consumer.pid, CONSUMER_ROLE);
+	insertProducerConsumerPIDToList(sharedBufferName, consumer.pid, CONSUMER_ROLE);
 
 	while (1)
     {
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 
-		tryRead();
+		tryRead(consumer);
 	}
 
 	return 0;
