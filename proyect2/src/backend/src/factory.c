@@ -163,6 +163,8 @@ int createSharedBuffer(int bufferSize, int bufferId)
 		return 0;
 	}
 
+	pSharedBuffer ->killFlag = START_SYSTEM; // SYSTEM IS RUNNING
+
 	if (!populateSharedBuffer(bufferSize, bufferId, sharedBufferName, pSharedBuffer))
 	{
 		printf("Error, populateSharedBuffer() failed.\n");

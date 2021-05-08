@@ -97,6 +97,7 @@ int main(int argc, char  *argv[])
 	producerProcess producer;
 	producer.pid = getpid();
 	producer.indexWrite = 0;
+	producer.writtenMessage = 0;
 	strcpy(producer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
@@ -165,6 +166,7 @@ int main(int argc, char  *argv[])
 	consumerProcess consumer;
 	consumer.pid = getpid();
 	consumer.readIndex = 0;
+	consumer.readMessage = 0;
 	strcpy(consumer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
@@ -212,16 +214,16 @@ int main(int argc, char  *argv[])
 		printf("Error, kill producer.\n");
 		return 1;
 	}
-	if (!killConsumer(sharedBufferName))
-	{
-		printf("Error, kill consumer.\n");
-		return 1;
-	}
+
+	// temp
+	printf("Press Enter to Continue:");  
+	getchar();
 	if (!removeBuffer(sharedBufferName))
 	{
 		printf("Error, removing buffer.\n");
 		return 1;
 	}
+	
     // ends
 
 	return 0;

@@ -11,7 +11,25 @@
 #include <semaphore.h>
 
 
-int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
+
+void logConsumerTermination(consumerProcess *pConsumer, int key)
+{
+	printf("==================================\n");
+	printf("Consumer with pid %i is dead by read message with key %i ==> pid %i % 5 = key %i\n", pConsumer ->pid, key, pConsumer ->pid, key);
+	printf("Consumer read %i messages from the mailbox\n", pConsumer ->readMessage);
+	printf("==================================\n");
+}
+
+void xkillConsumer(consumerProcess *pConsumer)
+{
+	removeProducerConsumer(CONSUMER_ROLE, pConsumer ->sharedBufferName);
+	removeProducerConsumerPIDFromList(pConsumer ->sharedBufferName, pConsumer ->pid, CONSUMER_ROLE);
+	exit(0);
+}
+
+
+
+int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, consumerProcess *pConsumer)
 {
 	int semValue;
     if ((pBuffElement->indexAvailable != 0) || (sem_getvalue(&(pBuffElement->mutex), &semValue) < 0) || (semValue == 0))
@@ -20,6 +38,8 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 		return 0;
     }
 
+	int killConsumer;
+	int key;
     sem_wait(&(pBuffElement->mutex));
 
     //critical section
@@ -30,6 +50,7 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 	printf("Date of the message %s.\n", pBuffElement->data.date);
 	printf("==================================\n");
 
+
 	//Cleaning?
 	//pBuffElement->data.producerId = message.producerId;
     //strcpy(pBuffElement->data.date, message.date);
@@ -37,9 +58,19 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName)
 
     // now available
     pBuffElement->indexAvailable = 1;
-
+	
+	killConsumer = pBuffElement ->data.key == (pConsumer ->pid % 5) ? KILL_CONSUMER: NO_KILL_CONSUMER;
+	key = pBuffElement ->data.key;
     //signal
     sem_post(&(pBuffElement->mutex));
+
+	pConsumer ->readMessage++;
+
+	if(killConsumer == KILL_CONSUMER)
+	{
+		logConsumerTermination(pConsumer, key);
+		return KILL_CONSUMER;
+	}
 
     return 1;
 }
@@ -59,7 +90,9 @@ void tryRead(consumerProcess *pConsumer)
 	for (pConsumer->readIndex; (pConsumer->readIndex % bufferSize) < bufferSize; pConsumer->readIndex++)
 	{
 		index = pConsumer->readIndex % bufferSize;
-		if (!readData(&(pSharedBuffer->bufferElements[index]), index, pConsumer->sharedBufferName))
+		int readDataReturn = readData(&(pSharedBuffer->bufferElements[index]), index, pConsumer->sharedBufferName, pConsumer);
+		
+		if (!readDataReturn)
 		{
 			if (isBufferEmpty(pSharedBuffer))
 			{
@@ -74,6 +107,7 @@ void tryRead(consumerProcess *pConsumer)
 		{
 			logProducerConsumerAction(pConsumer->sharedBufferName, CONSUMER_ROLE, index);
 
+			if(readDataReturn == KILL_CONSUMER) xkillConsumer(pConsumer);
 			// wake up consumers
 			wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
 			pConsumer->readIndex++; 

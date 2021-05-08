@@ -26,6 +26,8 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
     pBuffElement->data.producerId = message.producerId;
     strcpy(pBuffElement->data.date, message.date);
     pBuffElement->data.key = message.key;
+	
+	pBuffElement->data.killFlag = NO_PID;
 
     // no longer available
     pBuffElement->indexAvailable = 0;
@@ -43,6 +45,21 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
     return 1;
 }
 
+void logProducerTermination(producerProcess *pProducer)
+{
+	printf("==================================\n");
+	printf("Producer with pid %i is dead by termination flag\n", pProducer ->pid);
+	printf("Producer putted %i messages in the mailbox\n", pProducer ->writtenMessage);
+	printf("==================================\n");
+}
+
+void xkillProducer(producerProcess *pProducer)
+{
+	removeProducerConsumer(PRODUCER_ROLE, pProducer ->sharedBufferName);
+	removeProducerConsumerPIDFromList(pProducer ->sharedBufferName, pProducer ->pid, PRODUCER_ROLE);
+	logProducerTermination(pProducer);
+	exit(0);
+}
 
 void tryWrite(dataMessage message, producerProcess *pProducer)
 {
@@ -53,13 +70,17 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 		return;
 	}
 
+	if(pSharedBuffer ->killFlag == TERMINATE_SYSTEM) xkillProducer(pProducer);
+
 	int index;
 	int bufferSize = pSharedBuffer->size;
 	for (pProducer->indexWrite; (pProducer->indexWrite % bufferSize) < bufferSize; pProducer->indexWrite++)
 	{	
 		index = pProducer->indexWrite % bufferSize;
 		if (!writeData(&(pSharedBuffer->bufferElements[index]), message, index, pProducer->sharedBufferName))
-		{
+		{	
+			if(pSharedBuffer ->killFlag == TERMINATE_SYSTEM) xkillProducer(pProducer);
+
 			if (isBufferFull(pSharedBuffer))
 			{
 				setProducerConsumerPIDState(pProducer->sharedBufferName, pProducer->pid, INACTIVE, PRODUCER_ROLE);
@@ -68,12 +89,14 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 			}
 
 			continue;
+
 		}
 		else
 		{
 			// perform logging of the process
 			logProducerConsumerAction(pProducer->sharedBufferName, PRODUCER_ROLE, index);
 
+			pProducer ->writtenMessage++;
 			// wake up consumers
 			wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
 			pProducer->indexWrite++;

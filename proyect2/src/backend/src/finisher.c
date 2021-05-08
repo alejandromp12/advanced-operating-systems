@@ -47,49 +47,16 @@ int killProducer(char *bufferName)
 		return 0;
 	}
 
-	sem_wait(&(pSharedBuffer->PIDs.producersPIDsMutex));
-
-	int pid;
-	for (int i = 0; i < MAX_PIDS; i++)
-	{
-		if (pSharedBuffer->PIDs.producersPIDs[i][0] != NO_PID)
-		{
-			pid = pSharedBuffer->PIDs.producersPIDs[i][0];
-			doProcess(pid, KILL);
-			removeProducerConsumerPIDFromList(bufferName, pid, PRODUCER_ROLE);
-		}
-	}
-
-	sem_post(&(pSharedBuffer->PIDs.producersPIDsMutex));
+	pSharedBuffer ->killFlag = TERMINATE_SYSTEM; //SYSTEM WILL END
+	// LOG  of this !!! 
+	wakeup(bufferName, PRODUCER_ROLE);
 
 	return 1;
 }
 
 int killConsumer(char *bufferName)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
-	if (pSharedBuffer == NULL)
-	{
-		printf("Error, getSharedBuffer() failed.\n");
-		return 0;
-	}
 
-	sem_wait(&(pSharedBuffer->PIDs.consumersPIDsMutex));
-
-	int pid;
-	for (int i = 0; i < MAX_PIDS; i++)
-	{
-		if (pSharedBuffer->PIDs.consumersPIDs[i][0] != NO_PID)
-		{
-			pid = pSharedBuffer->PIDs.consumersPIDs[i][0];
-			doProcess(pid, KILL);
-			removeProducerConsumerPIDFromList(bufferName, pid, CONSUMER_ROLE);
-		}
-	}
-
-	sem_post(&(pSharedBuffer->PIDs.consumersPIDsMutex));
-
-	return 1;
 }
 
 

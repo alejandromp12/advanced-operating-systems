@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define TERMINATE_SYSTEM 0
+#define START_SYSTEM 1
+#define KILL_CONSUMER 20
+#define NO_KILL_CONSUMER 10
+
 #define SHARED_BUFFER_NAME "/tmp/sharedBuffer"
 
 // sharedBuffer = 16, dataMessage = 264, bufferElement = 304, assumming 10 elements in the buffer
@@ -24,6 +29,8 @@ typedef struct
 	int producerId;
 	char date[80];
 	int key;
+	int killFlag;
+
 } dataMessage;
 
 typedef struct
@@ -31,6 +38,7 @@ typedef struct
 	sem_t mutex;
 	dataMessage data;
 	int indexAvailable;
+
 } bufferElement;
 
 typedef struct
@@ -59,6 +67,9 @@ typedef struct
 	producerConsumerCounter counter;
 	producerConsumePIDs PIDs;
 	bufferElement bufferElements[MAX_BUFFER_ELEMENTS];
+	int killFlag;
+	
+
 } sharedBuffer;
 
 typedef enum
