@@ -56,7 +56,7 @@ int killProducer(char *bufferName)
 
 int killConsumer(char *bufferName)
 {
-
+	
 }
 
 
