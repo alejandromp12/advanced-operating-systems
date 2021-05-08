@@ -89,8 +89,13 @@ int main(int argc, char  *argv[])
 
 	// simple test, just for review functionality
 	printf("PRODUCER_APP.\n");
+	char sharedBufferName[50];
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+
+	addProductConsumer(PRODUCER_ROLE, sharedBufferName);
+
 	dataMessage data;
-	data.producerId = 80;
+	data.producerId = getProductConsumers(PRODUCER_ROLE, sharedBufferName);
 	data.key = 3;
 
 	time_t rawTime;
@@ -99,10 +104,6 @@ int main(int argc, char  *argv[])
 	infoTime = localtime(&rawTime);
 	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
-	char sharedBufferName[50];
-	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
-
-	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
 
     while (1)
     {
