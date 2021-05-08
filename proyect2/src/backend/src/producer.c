@@ -30,7 +30,7 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
     pBuffElement->indexAvailable = 0;
 
     printf("==================================\n");
-	printf("Message WRITE at index %d of the buffer %s.\n", bufferIndex, bufferName);
+	printf("Message WRITE at index %d of the buffer %s.\n", bufferIndex + 1, bufferName);
 	printf("Producer ID who wrote the message %i.\n", pBuffElement->data.producerId);
 	printf("Key of the message %i.\n", pBuffElement->data.key);
 	printf("Date of the message %s.\n", pBuffElement->data.date);
