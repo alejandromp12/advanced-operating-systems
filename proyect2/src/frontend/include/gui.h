@@ -19,6 +19,8 @@
 	
 // } threadStruct; ///< Struct to handle threads information
 
+#define MAX_PIDS_GUI 50
+
 typedef struct
 {
 	GtkWidget *indexLabel;
@@ -27,6 +29,9 @@ typedef struct
 	GtkWidget *keyLabel;
 	
 } bufferElementStruct; ///< Struct to handle threads information
+
+
+bufferElementStruct buffer[MAX_PIDS_GUI];
 
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);

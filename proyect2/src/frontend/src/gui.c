@@ -2,7 +2,6 @@
 #include "include/gui.h"
 #include <gtk/gtk.h>
 
-bufferElementStruct buffer[50];
 
 GtkBuilder *builder;
 GtkWidget *window;
@@ -137,7 +136,7 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 
 	for(int i = 0 ; i < bufferSize; i++)
 	{	
-		gtk_grid_insert_column((bufferGrid), i);
+		gtk_grid_insert_column(GTK_GRID(bufferGrid), i);
 		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].indexLabel, i, 0, 1 ,1);
 	}
 			
@@ -191,4 +190,11 @@ gboolean time_handler(GtkWidget *widget) {
 void exit_app()
 {
 	gtk_main_quit();
+}
+
+
+
+
+updateGui{
+
 }
