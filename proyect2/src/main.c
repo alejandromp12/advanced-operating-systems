@@ -51,6 +51,8 @@ int main(int argc, char  *argv[])
 		return 1;
 	}
 
+	runGUI(argc, argv, bufferSize);
+
 	while (1);
 
     // ends

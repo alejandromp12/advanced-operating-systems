@@ -7,7 +7,6 @@
     <property name="title" translatable="yes">Producer-Consumer</property>
     <property name="default_width">540</property>
     <property name="default_height">650</property>
-    <signal name="destroy" handler="exit_app" swapped="no"/>
     <child>
       <placeholder/>
     </child>
@@ -17,7 +16,7 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkLabel" id="ProductConsumerLabel">
+          <object class="GtkLabel" id="TitleLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">Producer-Consumer</property>
@@ -33,7 +32,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="CountersBox">
+          <object class="GtkBox" id="CounterBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="margin_top">5</property>
@@ -55,7 +54,7 @@
               <object class="GtkLabel" id="ConsumerCounter">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Counters: 0</property>
+                <property name="label" translatable="yes">Consumers: 0</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -74,105 +73,10 @@
           <object class="GtkBox" id="BufferBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="margin_left">25</property>
-            <property name="margin_right">25</property>
-            <property name="margin_top">10</property>
-            <property name="margin_bottom">100</property>
             <property name="orientation">vertical</property>
+            <property name="homogeneous">True</property>
             <child>
-              <object class="GtkLabel" id="BufferStartLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Buffer Start</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkGrid" id="BufferGrid">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="row_spacing">2</property>
-                <property name="column_spacing">2</property>
-                <property name="row_homogeneous">True</property>
-                <property name="column_homogeneous">True</property>
-                <child>
-                  <object class="GtkLabel" id="IndexLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Index</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="PidLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">PID</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="DateLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Date</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="KeyLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Key</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="BufferEndLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Buffer End</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -202,7 +106,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="AgendaScrollWindow">
+              <object class="GtkScrolledWindow" id="LogScrollWindow">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_left">25</property>
@@ -212,7 +116,7 @@
                 <property name="hscrollbar_policy">never</property>
                 <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkViewport" id="AgendaViewport">
+                  <object class="GtkViewport" id="LogViewport">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>

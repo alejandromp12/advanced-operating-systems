@@ -1,181 +1,179 @@
 
 #include "include/gui.h"
 
-threadStruct threadBank[];
-int _previousThread = 0;
+bufferElementStruct buffer[];
 
-static GtkWidget *window;
-static GtkWidget *grid;
-static GtkWidget *totalProgressLabel;
-static GtkWidget *totalProgressBar;
-static GtkWidget *totalPercentageLabel;
-static GtkWidget *totalPiApproxLabel;
+GtkBuilder *builder;
+GtkWidget *window;
+GtkWidget *bufferBox;
+GtkWidget *generalBox;
+GtkWidget *counterBox;
+GtkWidget *logBox;
+GtkWidget *logScrollWindow;
+GtkWidget *logViewport;
 
-void setPercentageLabel(int progress, GtkWidget *label)
-{
-	char percentageString[4];
-	sprintf(percentageString, "%d", progress);
-	strncat(percentageString, "\%", 1);
-	gtk_label_set_text(GTK_LABEL(label), percentageString);
-}
+GtkWidget *titleLabel;
+GtkWidget *producerCounterLabel;
+GtkWidget *consumerCounterLabel;
 
-void setProgressBar(int progress, GtkWidget *bar)
-{
-	float percentageFloat = (float)progress / 100;
-	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (bar), percentageFloat);
-}
+// static GtkWidget *totalProgressLabel;
+// static GtkWidget *totalProgressBar;
+// static GtkWidget *totalPercentageLabel;
+// static GtkWidget *totalPiApproxLabel;
 
-void setPiApproxLabel(float piApprox, GtkWidget *label)
-{
-	char piApproxString[10];
-	sprintf(piApproxString, "%f", piApprox);
-	char piApproxText[] = "Pi: ";
-	strncat(piApproxText, piApproxString, 10);
-	gtk_label_set_text(GTK_LABEL(label), piApproxText);
-}
+// void setPercentageLabel(int progress, GtkWidget *label)
+// {
+// 	char percentageString[4];
+// 	sprintf(percentageString, "%d", progress);
+// 	strncat(percentageString, "\%", 1);
+// 	gtk_label_set_text(GTK_LABEL(label), percentageString);
+// }
 
-void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox)
-{
-	int i = threadId - 1;
-	threadBank[i].progress = progress;
-	threadBank[i].piApprox = piApprox;
+// void setProgressBar(int progress, GtkWidget *bar)
+// {
+// 	float percentageFloat = (float)progress / 100;
+// 	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (bar), percentageFloat);
+// }
+
+// void setPiApproxLabel(float piApprox, GtkWidget *label)
+// {
+// 	char piApproxString[10];
+// 	sprintf(piApproxString, "%f", piApprox);
+// 	char piApproxText[] = "Pi: ";
+// 	strncat(piApproxText, piApproxString, 10);
+// 	gtk_label_set_text(GTK_LABEL(label), piApproxText);
+// }
+
+// void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox)
+// {
+// 	int i = threadId - 1;
+// 	threadBank[i].progress = progress;
+// 	threadBank[i].piApprox = piApprox;
 	
-	// Thread Pi Approximate
-	setPiApproxLabel(threadBank[i].piApprox, threadBank[i].piApproxLabel);
+// 	// Thread Pi Approximate
+// 	setPiApproxLabel(threadBank[i].piApprox, threadBank[i].piApproxLabel);
 		
-	// Thread Percentage Label
-	setPercentageLabel(threadBank[i].progress, threadBank[i].progressLabel);
+// 	// Thread Percentage Label
+// 	setPercentageLabel(threadBank[i].progress, threadBank[i].progressLabel);
 			
-	// Thread Progress Bar
-	setProgressBar(threadBank[i].progress, threadBank[i].progressBar);
+// 	// Thread Progress Bar
+// 	setProgressBar(threadBank[i].progress, threadBank[i].progressBar);
 		
-	// Total Percentage Label
-	setPercentageLabel(totalProgress, totalPercentageLabel);
+// 	// Total Percentage Label
+// 	setPercentageLabel(totalProgress, totalPercentageLabel);
 
-	// Total Progress Bar
-	setProgressBar(totalProgress, totalProgressBar);
+// 	// Total Progress Bar
+// 	setProgressBar(totalProgress, totalProgressBar);
 
-	// Total Pi Approimate
-	setPiApproxLabel(totalPiApprox, totalPiApproxLabel);
-}
-
-void markCurrentThread(int threadId, gboolean unmark)
-{
-	char id[2];
-	sprintf(id, "%d", threadId);
-	char labelId[] = "Thread ";
-	strncat(labelId, id, 2);
-
-	char *format = "<span foreground=\"#00dd00\">\%s</span>";
-	if(unmark)
-	{
-		format = "<span foreground=\"#000000\">\%s</span>";
-	}
-	
-	char *markup;
-	
-	markup = g_markup_printf_escaped (format, labelId);
-	gtk_label_set_markup (GTK_LABEL (threadBank[threadId-1].threadIdLabel), markup);
-	g_free (markup);
-}
+// 	// Total Pi Approimate
+// 	setPiApproxLabel(totalPiApprox, totalPiApproxLabel);
+// }
 
 
-void runGUI(int argc, char **argv, int threadNum) {
+void runGUI(int argc, char *argv[], int bufferSize) {
+    
     
     gtk_init(&argc, &argv);
 
-	//Window
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    builder = gtk_builder_new();
+    gtk_builder_add_from_file(builder, "src/frontend/glade_files/gladeGUI.glade", NULL);
+    gtk_builder_connect_signals(builder, NULL);
+
+    window = GTK_WIDGET(gtk_builder_get_object(builder,"MyWindow"));
+    gtk_builder_connect_signals(builder, NULL);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+	generalBox = GTK_WIDGET(gtk_builder_get_object(builder,"MyBox"));
+	gtk_builder_connect_signals(builder, NULL);
 
-	//Grid
-    grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid);
+	counterBox = GTK_WIDGET(gtk_builder_get_object(builder,"CounterBox"));
+	gtk_builder_connect_signals(builder, NULL);
 
-    //Margins
-    gtk_widget_set_margin_end(grid,25);
-    gtk_widget_set_margin_start(grid,25);
-    gtk_widget_set_margin_top(grid,10);
-    gtk_widget_set_margin_bottom(grid,10);
+	bufferBox = GTK_WIDGET(gtk_builder_get_object(builder,"BufferBox"));
+	gtk_builder_connect_signals(builder, NULL);
 
-    gtk_grid_set_column_spacing(GTK_GRID(grid),5);
-    gtk_grid_set_row_spacing(GTK_GRID(grid),10);
-    
+	logBox = GTK_WIDGET(gtk_builder_get_object(builder,"LogBox"));
+	gtk_builder_connect_signals(builder, NULL);
 
-    //Total Progress Label
-    totalProgressLabel = gtk_label_new("Total Progress");
-    gtk_grid_attach(GTK_GRID(grid), totalProgressLabel, 0, 0, 1, 1);
-    
 
-    //Total Progress Bar
-    totalProgressBar = gtk_progress_bar_new ();
-    gtk_grid_attach(GTK_GRID(grid), totalProgressBar, 0, 1, 1, 1);
-    gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (totalProgressBar), 0);
-    
-    
-    //Total Percentage
-    totalPercentageLabel = gtk_label_new("");
-    gtk_grid_attach(GTK_GRID(grid), totalPercentageLabel, 1, 1, 1, 1);
-    setPercentageLabel(0, totalPercentageLabel);
-    
+	logScrollWindow = GTK_WIDGET(gtk_builder_get_object(builder,"LogScrollWindow"));
+	gtk_builder_connect_signals(builder, NULL);
 
-    //Total Pi Approximate
-    totalPiApproxLabel = gtk_label_new("");
-    gtk_grid_attach(GTK_GRID(grid), totalPiApproxLabel, 1, 0, 1, 1);
-    setPiApproxLabel(0, totalPiApproxLabel);
+
+	logViewport = GTK_WIDGET(gtk_builder_get_object(builder,"LogViewport"));
+	gtk_builder_connect_signals(builder, NULL);
+
+
+	titleLabel = GTK_WIDGET(gtk_builder_get_object(builder,"TitleLabel"));
+	gtk_builder_connect_signals(builder, NULL);
+
+
+	producerCounterLabel = GTK_WIDGET(gtk_builder_get_object(builder,"ProducerCounter"));
+	gtk_builder_connect_signals(builder, NULL);
+
+
+	consumerCounterLabel = GTK_WIDGET(gtk_builder_get_object(builder,"ConsumerCounter"));
+	gtk_builder_connect_signals(builder, NULL);
+
+
+    //grid
+    //bufferGrid = GTK_WIDGET(gtk_builder_get_object(builder,"BufferGrid"));
+    //bufferGrid = gtk_grid_new();
+
+    //GtkWidget *gridContainer = GTK_WIDGET(gtk_builder_get_object(builder,"GridContainer"));
+    //gtk_builder_connect_signals(builder, NULL);
+    //gtk_container_add(GTK_CONTAINER (window), bufferGrid);
+
+    gtk_label_set_text(GTK_LABEL(producerCounterLabel), "Hola");
     
     
-    //Add the thread widgets
-    int rowCount = 2;
-    for (int i=0; i<threadNum; i++)
-    {
-		threadBank[i].threadId = i + 1;
-		threadBank[i].progress = 0;
-		threadBank[i].piApprox = 0;
+    //Add the buffer widgets
+    for (int i=0; i<bufferSize; i++)
+    {	
+		//gtk_grid_insert_row(GTK_GRID(bufferGrid), i);
+		GtkWidget *dummy = gtk_label_new("Hola2");
+
+		//************************* Index Label
+		//char index[2];
+		//sprintf(index, "%d", i);
 		
+		//buffer[i].indexLabel = gtk_label_new(index);
+		//bufferGrid->insert_row(i);
+		//gtk_grid_attach(GTK_GRID(bufferGrid), dummy, i, 0, 1, 1);
+		//bufferGrid->attach(buffer[i].indexLabel, 0, i, 1, 1);
+
+		//gtk_box_reorder_child(GTK_BOX(bufferBox), dummy, i);
+		gtk_container_add(GTK_CONTAINER (bufferBox), dummy);
 		
-		//************************* Thread Id Label
-		char id[2];
-		sprintf(id, "%d", i+1);
-		char labelId[] = "Thread ";
-		strncat(labelId, id, 2);
+		// //************************* PID Label
+		// char pid[2];
+		// sprintf(pid, "%d", 0);
 		
-		threadBank[i].threadIdLabel = gtk_label_new(labelId);
-		gtk_grid_attach(GTK_GRID(grid), threadBank[i].threadIdLabel, 0, rowCount, 1, 1);
+		// buffer[i].producerIdLabel = gtk_label_new(pid);
+		// gtk_grid_attach(GTK_GRID(bufferGrid), dummy, 1, i, 1, 1);
+
+
+		// //************************* Date Label
+		// char date[2];
+		// sprintf(date, "%d", 0);
 		
+		// buffer[i].dateLabel = gtk_label_new(date);
+		// gtk_grid_attach(GTK_GRID(bufferGrid), dummy, 2, i, 1, 1);
+
+		// //************************* Key Label
+		// char key[2];
+		// sprintf(key, "%d", 0);
 		
-		//************************* Thread Pi Approximate
-		
-		char piApproxString[10];
-		sprintf(piApproxString, "%f", threadBank[i].piApprox);
-		char piApproxText[] = "Pi: ";
-		strncat(piApproxText, piApproxString, 10);
-		threadBank[i].piApproxLabel = gtk_label_new(piApproxText);
-		gtk_grid_attach(GTK_GRID(grid), threadBank[i].piApproxLabel, 1, rowCount, 1, 1);
-		rowCount++;
-		
-		//************************* Thread Progress Label
-		char percentageString[4];
-		sprintf(percentageString, "%d", threadBank[i].progress);
-		strncat(percentageString, "\%", 1);
-		
-		threadBank[i].progressLabel = gtk_label_new(percentageString);
-		gtk_grid_attach(GTK_GRID(grid), threadBank[i].progressLabel, 1, rowCount, 1, 1);
-		
-		
-		//************************* Thread Progress Bar
-		
-		float percentageFloat = (float)threadBank[i].progress / 100;
-		threadBank[i].progressBar = gtk_progress_bar_new ();
-		gtk_grid_attach(GTK_GRID(grid), threadBank[i].progressBar, 0, rowCount, 1, 1);
-		gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (threadBank[i].progressBar), percentageFloat);
-		rowCount++;
+		// buffer[i].keyLabel = gtk_label_new(key);
+		// gtk_grid_attach(GTK_GRID(bufferGrid), dummy, 3, i, 1, 1);
 		
 	}
 	
     
-    g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
+    //g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
+
+    
+    g_object_unref(builder);
     
     gtk_widget_show_all(window);
     
@@ -192,24 +190,17 @@ gboolean time_handler(GtkWidget *widget) {
 	//printf("GUI ThreadId: %i \n", _pGuiThreadId);
 
 	//Run Lottery
-	(*_ptrGuiLottery) ();
+	//(*_ptrGuiLottery) ();
 
 	//Update the GUI information
-	updateGUI(_pGuiThreadId, _pGuiThreadProgress, _pGuiPiApprox, _pGuiTotalProgress, _pGuiPiApprox);
-
-	//Unmark the previous running thread
-	if(_previousThread != 0)
-	{
-		markCurrentThread(_previousThread, TRUE);
-	}
-
-	//Mark the current thread label in green
-	markCurrentThread(_pGuiThreadId, FALSE);
-
-	//Register as previous thread for the next cycle
-	_previousThread = _pGuiThreadId;
+	//updateGUI(_pGuiThreadId, _pGuiThreadProgress, _pGuiPiApprox, _pGuiTotalProgress, _pGuiPiApprox);
 
 	gtk_widget_queue_draw(widget);
 
 	return TRUE;
+}
+
+void exit_app()
+{
+	gtk_main_quit();
 }

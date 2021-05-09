@@ -7,7 +7,7 @@ CC=gcc
 CFLAGS=-c -I.
 LFLAGS= -lm
 
-GTKLIB=`pkg-config --cflags --libs gtk+-3.0`
+GTKLIB= -Wall `pkg-config --cflags --libs gtk+-3.0` -export-rdynamic
 
 BUILD_DIR=build_tmp
 BIN_DIR=$(BUILD_DIR)/bin
