@@ -31,7 +31,7 @@ typedef struct
 } bufferElementStruct; ///< Struct to handle threads information
 
 
-bufferElementStruct buffer[MAX_PIDS_GUI];
+bufferElementStruct bufferGUI[MAX_PIDS_GUI];
 
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
