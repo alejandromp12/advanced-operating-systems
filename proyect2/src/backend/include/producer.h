@@ -10,7 +10,6 @@ typedef struct
 	char sharedBufferName[50];
 	int indexWrite;
 	int writtenMessage;
-
 } producerProcess; ///<
 
 void tryWrite(dataMessage message, producerProcess *pProducer);

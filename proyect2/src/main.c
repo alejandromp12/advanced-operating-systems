@@ -211,11 +211,6 @@ int main(int argc, char  *argv[])
 
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
-	if (!killProducer(sharedBufferName))
-	{
-		printf("Error, kill producer.\n");
-		return 1;
-	}
 
 	if (!killConsumer(sharedBufferName))
 	{
@@ -223,7 +218,13 @@ int main(int argc, char  *argv[])
 		return 1;
 	}
 
-	// temp
+	if (!killProducer(sharedBufferName))
+	{
+		printf("Error, kill producer.\n");
+		return 1;
+	}
+
+	// logic to wait for all before to remove the buffer
 	printf("Press Enter to Continue:");  
 	getchar();
 	if (!removeBuffer(sharedBufferName))

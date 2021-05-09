@@ -11,7 +11,6 @@ typedef struct
 	int readIndex;
 	int readMessage;
 	int killerPID;
-
 } consumerProcess; ///<
 
 void tryRead(consumerProcess *pConsumer);

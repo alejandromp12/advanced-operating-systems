@@ -20,7 +20,6 @@ void populatePIDsList(int pidsList[MAX_PIDS][MAX_STATES])
 	}
 }
 
-
 // Inits producer-consumer lists
 int initializeProducersConsumersPIDs(sharedBuffer *pSharedBuffer)
 {

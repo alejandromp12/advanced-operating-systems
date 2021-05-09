@@ -32,7 +32,6 @@ typedef struct
 	int key;
 	int killFlag;
 	int killerPID;
-
 } dataMessage;
 
 typedef struct
@@ -40,7 +39,6 @@ typedef struct
 	sem_t mutex;
 	dataMessage data;
 	int indexAvailable;
-
 } bufferElement;
 
 typedef struct
@@ -71,8 +69,6 @@ typedef struct
 	bufferElement bufferElements[MAX_BUFFER_ELEMENTS];
 	int killFlag;
 	int killerPID;
-	
-
 } sharedBuffer;
 
 typedef enum

@@ -48,15 +48,15 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
 void logProducerTermination(producerProcess *pProducer)
 {
 	printf("==================================\n");
-	printf("Producer with pid %i killed due to termination flag\n", pProducer ->pid);
-	printf("Producer putted %i messages in the mailbox\n", pProducer ->writtenMessage);
+	printf("Producer with pid %i killed due to termination flag\n", pProducer->pid);
+	printf("Producer put %i messages in the mailbox\n", pProducer->writtenMessage);
 	printf("==================================\n");
 }
 
 void xkillProducer(producerProcess *pProducer)
 {
-	removeProducerConsumer(PRODUCER_ROLE, pProducer ->sharedBufferName);
-	removeProducerConsumerPIDFromList(pProducer ->sharedBufferName, pProducer ->pid, PRODUCER_ROLE);
+	removeProducerConsumer(PRODUCER_ROLE, pProducer->sharedBufferName);
+	removeProducerConsumerPIDFromList(pProducer->sharedBufferName, pProducer->pid, PRODUCER_ROLE);
 	logProducerTermination(pProducer);
 	exit(0);
 }
@@ -70,7 +70,10 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 		return;
 	}
 
-	if(pSharedBuffer ->killFlag == TERMINATE_SYSTEM) xkillProducer(pProducer);
+	if (pSharedBuffer->killFlag == TERMINATE_SYSTEM)
+	{
+		xkillProducer(pProducer);
+	}
 
 	int index;
 	int bufferSize = pSharedBuffer->size;
@@ -79,16 +82,15 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 		index = pProducer->indexWrite % bufferSize;
 		if (!writeData(&(pSharedBuffer->bufferElements[index]), message, index, pProducer->sharedBufferName))
 		{	
-			if(pSharedBuffer ->killFlag == TERMINATE_SYSTEM) 
+			if (pSharedBuffer->killFlag == TERMINATE_SYSTEM) 
 			{
 				xkillProducer(pProducer);
 			}
 
 			if (isBufferFull(pSharedBuffer))
 			{
-				setProducerConsumerPIDState(pProducer->sharedBufferName, pProducer->pid, INACTIVE, PRODUCER_ROLE);
-
 				wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
+				setProducerConsumerPIDState(pProducer->sharedBufferName, pProducer->pid, INACTIVE, PRODUCER_ROLE);
 				doProcess(pProducer->pid, STOP);
 				
 				printf("PRODUCER with PID %i, just woke up.\n", pProducer->pid);
@@ -102,7 +104,7 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 			// perform logging of the process
 			logProducerConsumerAction(pProducer->sharedBufferName, PRODUCER_ROLE, index);
 
-			pProducer ->writtenMessage++;
+			pProducer->writtenMessage++;
 			// wake up consumers
 			wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
 			pProducer->indexWrite++;
