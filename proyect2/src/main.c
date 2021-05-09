@@ -240,7 +240,6 @@ int main(int argc, char  *argv[])
 		waitCondition = 0;
 		if (killProducers(sharedBufferName) == 1)
 		{
-			sleep(1);
 			//wakeup(sharedBufferName, PRODUCER_ROLE);
 			waitCondition = (producersStillAlive(sharedBufferName) == 1) ? 1 : 0;
 		}

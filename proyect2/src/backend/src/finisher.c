@@ -126,6 +126,7 @@ int killProducers(char *bufferName)
 
 	// wake up poducers to they read the message written by terminator
 	wakeup2(pSharedBuffer, PRODUCER_ROLE);
+	usleep(500000);
 
 	return 1;
 }
@@ -169,7 +170,7 @@ int killConsumers(char *bufferName)
 			{
 				// wake up consumers to they read the message written by terminator
 				wakeup2(pSharedBuffer, CONSUMER_ROLE);
-				sleep(1);
+				usleep(500000);
 			}
 		}
 	}
