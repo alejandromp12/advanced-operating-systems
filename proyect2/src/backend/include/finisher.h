@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 int removeBuffer(char *bufferName);
-int killProducer(char *bufferName);
-int killConsumer(char *bufferName);
+int killProducers(char *bufferName);
+int killConsumers(char *bufferName);
 
 #endif // FINISHER_FILE

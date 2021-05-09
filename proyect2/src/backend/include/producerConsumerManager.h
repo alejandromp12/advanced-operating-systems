@@ -28,10 +28,13 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 
 int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumerRole role);
 
-void setProducerConsumerPIDState(char *bufferName, int pid, producerConsumerPidState state, producerConsumerRole role);
+void setProducerConsumerPIDState(sharedBuffer *pSharedBuffer, int pid, producerConsumerPidState state, producerConsumerRole role);
 
 void removeProducerConsumerPIDFromList(char *bufferName, int pid, producerConsumerRole role);
 
 void insertProducerConsumerPIDToList(char *bufferName, int pid, producerConsumerRole role);
+
+int consumersStillAlive(char *bufferName);
+int producersStillAlive(char *bufferName);
 
 #endif // PRODUCER_CONSUMER_MANAGER_FILE

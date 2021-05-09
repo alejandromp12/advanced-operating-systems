@@ -145,12 +145,11 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 	//printf("Message logged:\n%s\n", log);
 }
 
-void setProducerConsumerPIDState(char *bufferName, int pid, producerConsumerPidState state, producerConsumerRole role)
+void setProducerConsumerPIDState(sharedBuffer *pSharedBuffer, int pid, producerConsumerPidState state, producerConsumerRole role)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
 	{
-		printf("Error, getSharedBuffer() failed.\n");
+		printf("Error, pSharedBuffer is NULL.\n");
 		return;
 	}
 
@@ -343,4 +342,56 @@ int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumer
 	}
 
 	return pid;
+}
+
+
+int producersStillAlive(char *bufferName)
+{
+	int processesAlive = 1;
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return processesAlive;
+	}
+
+	processesAlive = 0;
+	sem_wait(&(pSharedBuffer->PIDs.producersPIDsMutex));
+	for (int i = 0; i < MAX_PIDS; i++)
+	{
+		if (NO_PID != pSharedBuffer->PIDs.producersPIDs[i][0])
+		{
+			processesAlive = 1;
+			break;
+		}
+	}
+	sem_post(&(pSharedBuffer->PIDs.producersPIDsMutex));
+
+	return processesAlive;
+}
+
+
+int consumersStillAlive(char *bufferName)
+{
+	int processesAlive = 1;
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return processesAlive;
+	}
+
+	processesAlive = 0;
+	sem_wait(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+	for (int i = 0; i < MAX_PIDS; i++)
+	{
+		if (NO_PID != pSharedBuffer->PIDs.consumersPIDs[i][0])
+		{
+			processesAlive = 1;
+			break;
+		}
+	}
+	sem_post(&(pSharedBuffer->PIDs.consumersPIDsMutex));
+
+	return processesAlive;
 }

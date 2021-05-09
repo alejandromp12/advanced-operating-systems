@@ -90,7 +90,7 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 			if (isBufferFull(pSharedBuffer))
 			{
 				wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
-				setProducerConsumerPIDState(pProducer->sharedBufferName, pProducer->pid, INACTIVE, PRODUCER_ROLE);
+				setProducerConsumerPIDState(pSharedBuffer, pProducer->pid, INACTIVE, PRODUCER_ROLE);
 				doProcess(pProducer->pid, STOP);
 				
 				printf("PRODUCER with PID %i, just woke up.\n", pProducer->pid);

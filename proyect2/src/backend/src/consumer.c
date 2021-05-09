@@ -129,7 +129,7 @@ void tryRead(consumerProcess *pConsumer)
 				}
 
 				wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
-				setProducerConsumerPIDState(pConsumer->sharedBufferName, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
+				setProducerConsumerPIDState(pSharedBuffer, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
 				doProcess(pConsumer->pid, STOP);
 				printf("CONSUMER with PID %i, just woke up.\n", pConsumer->pid);
 			}

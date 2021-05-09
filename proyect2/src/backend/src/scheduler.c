@@ -5,12 +5,11 @@
 #include <signal.h>
 
 
-void wakeup(char *bufferName, producerConsumerRole role)
+void wakeup2(sharedBuffer *pSharedBuffer, producerConsumerRole role)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
 	{
-		printf("Error, getSharedBuffer() failed.\n");
+		printf("Error, pSharedBuffer is NULL.\n");
 		return;
 	}
 
@@ -26,7 +25,7 @@ void wakeup(char *bufferName, producerConsumerRole role)
 
 				if (pid != -1)
 				{
-					setProducerConsumerPIDState(bufferName, pid, ACTIVE, (role == PRODUCER_ROLE) ? PRODUCER_ROLE : CONSUMER_ROLE);
+					setProducerConsumerPIDState(pSharedBuffer, pid, ACTIVE, (role == PRODUCER_ROLE) ? PRODUCER_ROLE : CONSUMER_ROLE);
 					doProcess(pid, CONTINUE);
 				}
 			}
@@ -36,6 +35,18 @@ void wakeup(char *bufferName, producerConsumerRole role)
 		default:
 			break;
 	}
+}
+
+void wakeup(char *bufferName, producerConsumerRole role)
+{
+	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return;
+	}
+
+	wakeup2(pSharedBuffer, role);
 }
 
 void doProcess(int pid, processAction action)

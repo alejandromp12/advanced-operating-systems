@@ -16,4 +16,6 @@ void doProcess(int pid, processAction action);
 
 void wakeup(char *bufferName, producerConsumerRole role);
 
+void wakeup2(sharedBuffer *pSharedBuffer, producerConsumerRole role);
+
 #endif // SCHEDULER_FILE

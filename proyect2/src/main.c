@@ -16,6 +16,7 @@
 #include "backend/include/finisher.h"
 #include "backend/include/producer.h"
 #include "backend/include/producerConsumerManager.h"
+#include "backend/include/scheduler.h"
 #if defined(CREATOR_APP)
 #include "frontend/include/gui.h"
 #endif
@@ -93,6 +94,13 @@ int main(int argc, char  *argv[])
 
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+	
+	struct stat buffer;
+	if (stat(sharedBufferName, &buffer) != 0)
+	{
+		printf("Error, buffer %s does not exist.\n", sharedBufferName);
+		return 1;
+	}
 
 	producerProcess producer;
 	producer.pid = getpid();
@@ -164,6 +172,13 @@ int main(int argc, char  *argv[])
     char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
+	struct stat buffer;
+	if (stat(sharedBufferName, &buffer) != 0)
+	{
+		printf("Error, buffer %s does not exist.\n", sharedBufferName);
+		return 1;
+	}
+
 	consumerProcess consumer;
 	consumer.pid = getpid();
 	consumer.readIndex = 0;
@@ -212,27 +227,42 @@ int main(int argc, char  *argv[])
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
-	if (!killConsumer(sharedBufferName))
+	struct stat buffer;
+	if (stat(sharedBufferName, &buffer) != 0)
 	{
-		printf("Error, kill consumer.\n");
+		printf("Error, buffer %s does not exist.\n", sharedBufferName);
 		return 1;
 	}
 
-	if (!killProducer(sharedBufferName))
+	int waitCondition = 1;
+	do
 	{
-		printf("Error, kill producer.\n");
-		return 1;
-	}
+		waitCondition = 0;
+		if (killProducers(sharedBufferName) == 1)
+		{
+			sleep(1);
+			//wakeup(sharedBufferName, PRODUCER_ROLE);
+			waitCondition = (producersStillAlive(sharedBufferName) == 1) ? 1 : 0;
+		}
+	} while (waitCondition);
 
-	// logic to wait for all before to remove the buffer
-	printf("Press Enter to Continue:");  
-	getchar();
+	waitCondition = 1;
+	do
+	{
+		waitCondition = 0;
+		if (killConsumers(sharedBufferName) == 1)
+		{
+			//wakeup(sharedBufferName, CONSUMER_ROLE);
+			waitCondition = (consumersStillAlive(sharedBufferName) == 1) ? 1 : 0;
+		}
+	} while (waitCondition);
+
 	if (!removeBuffer(sharedBufferName))
 	{
 		printf("Error, removing buffer.\n");
 		return 1;
 	}
-	
+
     // ends
 
 	return 0;

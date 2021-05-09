@@ -47,12 +47,11 @@ int writeDataTerminateMessage(bufferElement *pBuffElement, dataMessage message, 
     return 1;
 }
 
-int tryWriteTerminateMessage(dataMessage message, char *bufferName, int index, int terminatorPid)
+int tryWriteTerminateMessage(dataMessage message, sharedBuffer *pSharedBuffer, int index, int terminatorPid)
 {
-	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
 	{
-		printf("Error, getSharedBuffer() failed.\n");
+		printf("Error, pSharedBuffer is NULL.\n");
 		return -1;
 	}
 
@@ -60,14 +59,11 @@ int tryWriteTerminateMessage(dataMessage message, char *bufferName, int index, i
 	for (index; index % bufferSize < bufferSize; index++)
 	{	
 		index = index % bufferSize;
-		if (!writeDataTerminateMessage(&(pSharedBuffer->bufferElements[index]), message, index, bufferName))
+		if (!writeDataTerminateMessage(&(pSharedBuffer->bufferElements[index]), message, index, pSharedBuffer->name))
 		{
 			if (isBufferFull(pSharedBuffer))
 			{
-				// wake up consumers to they read the message written by terminator
-				wakeup(bufferName, CONSUMER_ROLE);
-				//doProcess(terminatorPid, STOP);
-				//printf("Terminator with PID %i, just woke up.\n", terminatorPid);
+				return 0;
 			}
 
 			continue;
@@ -78,7 +74,7 @@ int tryWriteTerminateMessage(dataMessage message, char *bufferName, int index, i
 			printf("Terminator with PID %i, left a message for consumer with PID %i.\n", terminatorPid, message.killFlag);
 
 			// wake up consumers to they read the message written by terminator
-			wakeup(bufferName, CONSUMER_ROLE);
+			//wakeup(bufferName, CONSUMER_ROLE);
 
 			index++;
 			return 1;
@@ -115,7 +111,7 @@ int removeBuffer(char *bufferName)
 }
 
 
-int killProducer(char *bufferName)
+int killProducers(char *bufferName)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -129,12 +125,12 @@ int killProducer(char *bufferName)
 	// LOG  of this !!! 
 
 	// wake up poducers to they read the message written by terminator
-	wakeup(bufferName, PRODUCER_ROLE);
+	wakeup2(pSharedBuffer, PRODUCER_ROLE);
 
 	return 1;
 }
 
-int killConsumer(char *bufferName)
+int killConsumers(char *bufferName)
 {
 	sharedBuffer *pSharedBuffer = getSharedBuffer(bufferName);
 	if (pSharedBuffer == NULL)
@@ -142,7 +138,7 @@ int killConsumer(char *bufferName)
 		printf("Error, getSharedBuffer() failed.\n");
 		return 0;
 	}
-	
+
 	//for(int i= 0; i < MAX_PIDS; i++)
 	//{
 	//	printf("[%i][%i]\n", pSharedBuffer ->PIDs.consumersPIDs[i][0], pSharedBuffer ->PIDs.consumersPIDs[i][1]);
@@ -152,7 +148,6 @@ int killConsumer(char *bufferName)
 	int terminatorPid = getpid();
 	int consumerPid = -1;
 	int loopCondition = 1;
-	int writeResult = 0;
 
 	dataMessage data;
 	data.producerId = 0;
@@ -167,16 +162,14 @@ int killConsumer(char *bufferName)
 		if (NO_PID != consumerPid)
 		{
 			data.killFlag = consumerPid;
-			loopCondition = 1;
-			while (loopCondition)
+
+			infoTime = localtime(&rawTime);
+			strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
+			if (tryWriteTerminateMessage(data, pSharedBuffer, &index, terminatorPid) == 0)
 			{
-				infoTime = localtime(&rawTime);
-				strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
-				writeResult = tryWriteTerminateMessage(data, bufferName, &index, terminatorPid);
-				if ((writeResult == -1) || (writeResult == 1))
-				{
-					loopCondition = 0;
-				}
+				// wake up consumers to they read the message written by terminator
+				wakeup2(pSharedBuffer, CONSUMER_ROLE);
+				sleep(1);
 			}
 		}
 	}
