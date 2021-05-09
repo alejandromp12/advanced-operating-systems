@@ -1,11 +1,15 @@
 
 #include "include/gui.h"
+#include <gtk/gtk.h>
 
-bufferElementStruct buffer[];
+bufferElementStruct buffer[50];
 
 GtkBuilder *builder;
 GtkWidget *window;
-GtkWidget *bufferBox;
+
+GtkWidget *bufferScrollWindowGrid;
+GtkWidget *bufferViewGrid;
+GtkWidget *bufferGrid;
 GtkWidget *generalBox;
 GtkWidget *counterBox;
 GtkWidget *logBox;
@@ -89,7 +93,14 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 	counterBox = GTK_WIDGET(gtk_builder_get_object(builder,"CounterBox"));
 	gtk_builder_connect_signals(builder, NULL);
 
-	bufferBox = GTK_WIDGET(gtk_builder_get_object(builder,"BufferBox"));
+
+	bufferScrollWindowGrid = GTK_WIDGET(gtk_builder_get_object(builder,"BufferScrollWindowGrid"));
+	gtk_builder_connect_signals(builder, NULL);
+
+	bufferViewGrid = GTK_WIDGET(gtk_builder_get_object(builder,"BufferViewGrid"));
+	gtk_builder_connect_signals(builder, NULL);
+
+	bufferGrid = GTK_WIDGET(gtk_builder_get_object(builder,"BufferGrid"));
 	gtk_builder_connect_signals(builder, NULL);
 
 	logBox = GTK_WIDGET(gtk_builder_get_object(builder,"LogBox"));
@@ -116,67 +127,35 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 	gtk_builder_connect_signals(builder, NULL);
 
 
-    //grid
-    //bufferGrid = GTK_WIDGET(gtk_builder_get_object(builder,"BufferGrid"));
-    //bufferGrid = gtk_grid_new();
-
-    //GtkWidget *gridContainer = GTK_WIDGET(gtk_builder_get_object(builder,"GridContainer"));
-    //gtk_builder_connect_signals(builder, NULL);
-    //gtk_container_add(GTK_CONTAINER (window), bufferGrid);
-
-    gtk_label_set_text(GTK_LABEL(producerCounterLabel), "Hola");
-    
-    
-    GtkWidget *bufferStartLabel = gtk_label_new("Buffer Start");
-    gtk_container_add(GTK_CONTAINER (bufferBox), bufferStartLabel);
-
     //Add the buffer widgets
-    for (int i=0; i<bufferSize; i++)
-    {	
-		//gtk_grid_insert_row(GTK_GRID(bufferGrid), i);
-		//GtkWidget *dummy = gtk_label_new("Hola2");
-		gtk_container_add(GTK_CONTAINER (bufferBox), buffer[i].indexLabel);
-
-		//************************* Index Label
-		char index[2];
-		sprintf(index, "%d", i);
-		
-		buffer[i].indexLabel = gtk_label_new(index);
-		//bufferGrid->insert_row(i);
-		//gtk_grid_attach(GTK_GRID(bufferGrid), dummy, i, 0, 1, 1);
-		//bufferGrid->attach(buffer[i].indexLabel, 0, i, 1, 1);
-
-		//gtk_box_reorder_child(GTK_BOX(bufferBox), dummy, i);
-		gtk_container_add(GTK_CONTAINER (bufferBox), buffer[i].indexLabel);
-		
-		// //************************* PID Label
-		// char pid[2];
-		// sprintf(pid, "%d", 0);
-		
-		// buffer[i].producerIdLabel = gtk_label_new(pid);
-		// gtk_grid_attach(GTK_GRID(bufferGrid), dummy, 1, i, 1, 1);
-
-
-		// //************************* Date Label
-		// char date[2];
-		// sprintf(date, "%d", 0);
-		
-		// buffer[i].dateLabel = gtk_label_new(date);
-		// gtk_grid_attach(GTK_GRID(bufferGrid), dummy, 2, i, 1, 1);
-
-		// //************************* Key Label
-		// char key[2];
-		// sprintf(key, "%d", 0);
-		
-		// buffer[i].keyLabel = gtk_label_new(key);
-		// gtk_grid_attach(GTK_GRID(bufferGrid), dummy, 3, i, 1, 1);
-		
+	char *tmp;
+	for(int i = 0 ; i < bufferSize; i++)
+	{	
+		sprintf(tmp, "Hola  %i \n soy alguien que esta pasando%i \n", i, i);
+		buffer[i].indexLabel = gtk_label_new(tmp);
 	}
 
-	GtkWidget *bufferEndLabel = gtk_label_new("Buffer End");
-    gtk_container_add(GTK_CONTAINER (bufferBox), bufferEndLabel);
+	for(int i = 0 ; i < bufferSize; i++)
+	{	
+		gtk_grid_insert_column((bufferGrid), i);
+		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].indexLabel, i, 0, 1 ,1);
+	}
+			
+		
 
-    gtk_label_set_text(GTK_LABEL(buffer[2].indexLabel), "Hola");
+	/* GtkWidget *tmp = gtk_label_new("Holaaaa");
+
+	gtk_grid_insert_column(GTK_GRID(bufferGrid), 1);
+	gtk_grid_attach(GTK_GRID(bufferGrid), tmp, 0, 1, 1 ,1);
+
+	GtkWidget *tmp2 = gtk_label_new("Holaaaa");
+
+	gtk_grid_insert_column(GTK_GRID(bufferGrid), 2);
+	gtk_grid_attach(GTK_GRID(bufferGrid), tmp, 0, 2, 1 ,1); */
+		
+	
+
+
 	
     
     //g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
