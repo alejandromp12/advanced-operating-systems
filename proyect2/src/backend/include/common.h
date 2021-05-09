@@ -39,6 +39,7 @@ typedef struct
 	sem_t mutex;
 	dataMessage data;
 	int indexAvailable;
+
 } bufferElement;
 
 typedef struct
