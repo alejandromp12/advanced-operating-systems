@@ -23,6 +23,23 @@
 
 #if defined(CREATOR_APP)
 
+void updateBufferElementGUI(int bufferSize)
+{	
+	char tmp[100];
+	time_t t;
+	srand((unsigned)time(&t));
+
+	for(int i = 0; i < bufferSize; i++)
+	{	
+		sprintf(tmp, "random %i", rand() % 10);
+		gtk_label_set_text(GTK_LABEL(bufferGUI[i].indexLabel), tmp);
+		gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), tmp);
+		gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), tmp);
+		gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), tmp);
+	}
+}
+
+
 int main(int argc, char  *argv[])
 {
 	// sanity check

@@ -130,28 +130,28 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 	for(int i = 0 ; i < bufferSize; i++)
 	{	
 		sprintf(tmp, "%i \n", i);
-		buffer[i].indexLabel = gtk_label_new(tmp);
+		bufferGUI[i].indexLabel = gtk_label_new(tmp);
 
 		sprintf(tmp, "%i \n", 0);
-		buffer[i].producerIdLabel = gtk_label_new(tmp);
+		bufferGUI[i].producerIdLabel = gtk_label_new(tmp);
 
 		sprintf(tmp, "%i \n", 0);
-		buffer[i].dateLabel = gtk_label_new(tmp);
+		bufferGUI[i].dateLabel = gtk_label_new(tmp);
 
 		sprintf(tmp, "%i \n", 0);
-		buffer[i].keyLabel = gtk_label_new(tmp);
+		bufferGUI[i].keyLabel = gtk_label_new(tmp);
 	}
 
 	for(int i = 0 ; i < bufferSize; i++)
 	{	
 		gtk_grid_insert_column(GTK_GRID(bufferGrid), i);
-		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].indexLabel, i, 0, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].indexLabel, i, 0, 1 ,1);
 
-		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].producerIdLabel, i, 1, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].producerIdLabel, i, 1, 1 ,1);
 
-		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].dateLabel, i, 2, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].dateLabel, i, 2, 1 ,1);
 
-		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].keyLabel, i, 3, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].keyLabel, i, 3, 1 ,1);
 	}
 			
 		
@@ -204,11 +204,4 @@ gboolean time_handler(GtkWidget *widget) {
 void exit_app()
 {
 	gtk_main_quit();
-}
-
-
-
-
-updateGui{
-
 }
