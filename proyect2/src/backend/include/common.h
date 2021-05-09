@@ -9,6 +9,7 @@
 #define TERMINATE_SYSTEM 0
 #define START_SYSTEM 1
 #define KILL_CONSUMER 20
+#define KILL_CONSUMER_BY_TERMINATOR 30
 #define NO_KILL_CONSUMER 10
 
 #define SHARED_BUFFER_NAME "/tmp/sharedBuffer"
@@ -30,6 +31,7 @@ typedef struct
 	char date[80];
 	int key;
 	int killFlag;
+	int killerPID;
 
 } dataMessage;
 
@@ -68,6 +70,7 @@ typedef struct
 	producerConsumePIDs PIDs;
 	bufferElement bufferElements[MAX_BUFFER_ELEMENTS];
 	int killFlag;
+	int killerPID;
 	
 
 } sharedBuffer;

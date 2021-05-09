@@ -119,6 +119,7 @@ int main(int argc, char  *argv[])
 		infoTime = localtime(&rawTime);
 		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 		data.key = rand() % 5;
+		data.killerPID = NO_PID;
 		tryWrite(data, &producer);
     }
 
@@ -167,6 +168,7 @@ int main(int argc, char  *argv[])
 	consumer.pid = getpid();
 	consumer.readIndex = 0;
 	consumer.readMessage = 0;
+	consumer.killerPID = 0;
 	strcpy(consumer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
@@ -212,6 +214,12 @@ int main(int argc, char  *argv[])
 	if (!killProducer(sharedBufferName))
 	{
 		printf("Error, kill producer.\n");
+		return 1;
+	}
+
+	if (!killConsumer(sharedBufferName))
+	{
+		printf("Error, kill consumer.\n");
 		return 1;
 	}
 

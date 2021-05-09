@@ -20,8 +20,17 @@ void logConsumerTermination(consumerProcess *pConsumer, int key)
 	printf("==================================\n");
 }
 
+void logConsumerTerminationByTerminator(consumerProcess *pConsumer)
+{
+	printf("==================================\n");
+	printf("Consumer with pid %i killed due to termination message", pConsumer ->pid);
+	printf("Consumer read %i messages from the mailbox\n", pConsumer ->readMessage);
+	printf("==================================\n");
+}
+
 void xkillConsumer(consumerProcess *pConsumer)
 {
+	logConsumerTerminationByTerminator(pConsumer);
 	removeProducerConsumer(CONSUMER_ROLE, pConsumer ->sharedBufferName);
 	removeProducerConsumerPIDFromList(pConsumer ->sharedBufferName, pConsumer ->pid, CONSUMER_ROLE);
 	exit(0);
@@ -39,8 +48,18 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, con
     }
 
 	int killConsumer;
+	int killConsumerByTerminator;
 	int key;
     sem_wait(&(pBuffElement->mutex));
+
+	if(pBuffElement ->data.killFlag != NO_PID && pBuffElement ->data.killFlag != pConsumer ->pid)
+	{
+		printf("Warning, not possible to read in the shared buffer because message is for another consumer (Dead message).\n");
+		sem_post(&(pBuffElement->mutex));
+
+		return 0;
+	}
+
 
     //critical section
     printf("==================================\n");
@@ -61,10 +80,22 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, con
 	
 	killConsumer = pBuffElement ->data.key == (pConsumer ->pid % 5) ? KILL_CONSUMER: NO_KILL_CONSUMER;
 	key = pBuffElement ->data.key;
+	killConsumerByTerminator = pBuffElement ->data.killFlag;
+
+	if(pBuffElement ->data.killerPID != NO_PID)
+	{
+		pConsumer ->killerPID = pBuffElement ->data.killerPID;
+	}
+	
     //signal
     sem_post(&(pBuffElement->mutex));
 
 	pConsumer ->readMessage++;
+	
+	if(killConsumerByTerminator == pConsumer ->pid)
+	{
+		return KILL_CONSUMER_BY_TERMINATOR;
+	}
 
 	if(killConsumer == KILL_CONSUMER)
 	{
@@ -95,7 +126,9 @@ void tryRead(consumerProcess *pConsumer)
 		if (!readDataReturn)
 		{
 			if (isBufferEmpty(pSharedBuffer))
-			{
+			{	
+				if(pSharedBuffer ->killerPID != NO_PID) doProcess(pSharedBuffer ->killerPID, CONTINUE);
+
 				setProducerConsumerPIDState(pConsumer->sharedBufferName, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
 				doProcess(pConsumer->pid, STOP);
 				printf("CONSUMER with PID %i, just woke up.\n", pConsumer->pid);
@@ -107,9 +140,17 @@ void tryRead(consumerProcess *pConsumer)
 		{
 			logProducerConsumerAction(pConsumer->sharedBufferName, CONSUMER_ROLE, index);
 
+			if(readDataReturn == KILL_CONSUMER_BY_TERMINATOR) 
+			{
+				//doProcess(pConsumer ->killerPID, CONTINUE);
+				xkillConsumer(pConsumer);
+				
+			}
 			if(readDataReturn == KILL_CONSUMER) xkillConsumer(pConsumer);
-			// wake up consumers
+			
+			// wake up producer
 			wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
+
 			pConsumer->readIndex++; 
 
 			return;

@@ -48,7 +48,7 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
 void logProducerTermination(producerProcess *pProducer)
 {
 	printf("==================================\n");
-	printf("Producer with pid %i is dead by termination flag\n", pProducer ->pid);
+	printf("Producer with pid %i killed due to termination flag\n", pProducer ->pid);
 	printf("Producer putted %i messages in the mailbox\n", pProducer ->writtenMessage);
 	printf("==================================\n");
 }
@@ -79,12 +79,18 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 		index = pProducer->indexWrite % bufferSize;
 		if (!writeData(&(pSharedBuffer->bufferElements[index]), message, index, pProducer->sharedBufferName))
 		{	
-			if(pSharedBuffer ->killFlag == TERMINATE_SYSTEM) xkillProducer(pProducer);
+			if(pSharedBuffer ->killFlag == TERMINATE_SYSTEM) 
+			{
+				xkillProducer(pProducer);
+			}
 
 			if (isBufferFull(pSharedBuffer))
 			{
 				setProducerConsumerPIDState(pProducer->sharedBufferName, pProducer->pid, INACTIVE, PRODUCER_ROLE);
+
+				wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
 				doProcess(pProducer->pid, STOP);
+				
 				printf("PRODUCER with PID %i, just woke up.\n", pProducer->pid);
 			}
 

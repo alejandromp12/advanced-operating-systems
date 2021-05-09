@@ -164,6 +164,7 @@ int createSharedBuffer(int bufferSize, int bufferId)
 	}
 
 	pSharedBuffer ->killFlag = START_SYSTEM; // SYSTEM IS RUNNING
+	pSharedBuffer ->killerPID = NO_PID; // TERMINATOR DOES NOT EXIST
 
 	if (!populateSharedBuffer(bufferSize, bufferId, sharedBufferName, pSharedBuffer))
 	{

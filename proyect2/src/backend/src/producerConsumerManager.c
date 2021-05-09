@@ -310,7 +310,7 @@ int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumer
 
 			for (int i = 0; i < MAX_PIDS; i++)
 			{
-				if (INACTIVE == pSharedBuffer->PIDs.producersPIDs[i][1])
+				if (INACTIVE == pSharedBuffer->PIDs.producersPIDs[i][1] && pSharedBuffer->PIDs.producersPIDs[i][0] != -1)
 				{
 					pid = pSharedBuffer->PIDs.producersPIDs[i][0];
 					break;
@@ -327,7 +327,7 @@ int getInActiveProducerConsumerPID(sharedBuffer *pSharedBuffer, producerConsumer
 
 			for (int i = 0; i < MAX_PIDS; i++)
 			{
-				if (INACTIVE == pSharedBuffer->PIDs.consumersPIDs[i][1])
+				if (INACTIVE == pSharedBuffer->PIDs.consumersPIDs[i][1] && pSharedBuffer->PIDs.consumersPIDs[i][0] != -1 )
 				{
 					pid = pSharedBuffer->PIDs.consumersPIDs[i][0];
 					break;

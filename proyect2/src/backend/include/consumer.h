@@ -10,6 +10,7 @@ typedef struct
 	char sharedBufferName[50];
 	int readIndex;
 	int readMessage;
+	int killerPID;
 
 } consumerProcess; ///<
 
