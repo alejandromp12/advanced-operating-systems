@@ -161,16 +161,16 @@ void runGUI(int argc, char *argv[], int bufferId) {
 
 
 
-	for(int i = 1 ; i <= _bufferSizeGUI; i++)
+	for(int i = 0 ; i < _bufferSizeGUI; i++)
 	{	
-		gtk_grid_insert_column(GTK_GRID(bufferGrid), i);
-		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].indexLabel, i, 0, 1 ,1);
+		gtk_grid_insert_column(GTK_GRID(bufferGrid), i+1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].indexLabel, i+1, 0, 1 ,1);
 
-		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].producerIdLabel, i, 1, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].producerIdLabel, i+1, 1, 1 ,1);
 
-		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].dateLabel, i, 2, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].dateLabel, i+1, 2, 1 ,1);
 
-		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].keyLabel, i, 3, 1 ,1);
+		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].keyLabel, i+1, 3, 1 ,1);
 	}
 			
 		
