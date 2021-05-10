@@ -111,9 +111,17 @@ int createFileDescriptor(char *bufferName, int size)
 // Populates the shared buffer
 int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, sharedBuffer *pSharedBuffer)
 {
+	dataMessage tmp;
+	strcpy(tmp.date,"");
+	tmp.key = NO_PID;
+	tmp.producerId = NO_PID;
+
 	for (int i = 0; i < bufferSize; i++)
-	{
+	{	
+		
 		pSharedBuffer->bufferElements[i].indexAvailable = 1;
+		pSharedBuffer->bufferElements[i].data = tmp;
+
 		if (sem_init(&(pSharedBuffer->bufferElements[i].mutex), 1, 1) < 0)
 		{
 			printf("Error, sem_init() failed at index: %d.\n", i);

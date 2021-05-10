@@ -29,19 +29,42 @@ void updateBufferElementGUI()
 	char tmp[100];
 	time_t t;
 	srand((unsigned)time(&t));
-	char sharedBufferName[50];
 
+	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, _bufferId));
+
 	sharedBuffer *pSharedBuffer = getSharedBuffer(sharedBufferName);
 
 	for(int i = 0; i < _bufferSizeGUI; i++)
 	{	
-		sprintf(tmp, "random %i", rand() % 10);
-		//gtk_label_set_text(GTK_LABEL(bufferGUI[i].indexLabel), tmp);
-		gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), tmp);
-		gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), tmp);
-		gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), tmp);
+		if(pSharedBuffer->bufferElements[i].data.producerId == -1)
+			gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), "No PID");
+
+		else{
+			sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.producerId);
+			gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), tmp);
+		}
+
+		if(strcmp(pSharedBuffer->bufferElements[i].data.date, "") == 0)
+			gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), "No Date");
+
+		else{
+			sprintf(tmp, "%s", pSharedBuffer->bufferElements[i].data.date);
+			gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), tmp);
+		}
+
+		if(pSharedBuffer->bufferElements[i].data.key == -1)
+			gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), "No Key");
+
+		else{
+			sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.key);
+			gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), tmp);
+		}
+
+
+		sprintf(tmp, "");
 	}
+
 }
 
 
@@ -140,7 +163,7 @@ int main(int argc, char  *argv[])
 	insertProducerConsumerPIDToList(sharedBufferName, producer.pid, PRODUCER_ROLE);
 
 	dataMessage data;
-	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
+	data.producerId = producer.pid;
 	time_t rawTime;
 	struct tm *infoTime;
 	time(&rawTime);
