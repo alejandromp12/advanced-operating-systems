@@ -24,6 +24,8 @@
 
 #if defined(CREATOR_APP)
 
+char _sharedBufferName[50];
+sharedBuffer *_pSharedBuffer;
 
 void updateBufferElementGUI()
 {	
@@ -31,44 +33,42 @@ void updateBufferElementGUI()
 	time_t t;
 	srand((unsigned)time(&t));
 
-	char sharedBufferName[50];
-	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, _bufferId));
-
 	struct stat buffer;
-	if (!stat(sharedBufferName, &buffer))
+	if (!stat(_sharedBufferName, &buffer) && (_pSharedBuffer != NULL))
 	{
-		sharedBuffer *pSharedBuffer = getSharedBuffer(sharedBufferName);
 		for(int i = 0; i < _bufferSizeGUI; i++)
 		{	
-			if (pSharedBuffer->bufferElements[i].data.producerId == -1)
+			sem_wait(&(_pSharedBuffer->bufferElements[i].mutex));
+			if (_pSharedBuffer->bufferElements[i].data.producerId == -1)
 			{
 				gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), "No PID");
 			}
 			else
 			{
-				sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.producerId);
+				sprintf(tmp, "%i", _pSharedBuffer->bufferElements[i].data.producerId);
 				gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), tmp);
 			}
 
-			if (strcmp(pSharedBuffer->bufferElements[i].data.date, "") == 0)
+			if (strcmp(_pSharedBuffer->bufferElements[i].data.date, "") == 0)
 			{
 				gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), "No Date");
 			}
 			else
 			{
-				sprintf(tmp, "%s", pSharedBuffer->bufferElements[i].data.date);
+				sprintf(tmp, "%s", _pSharedBuffer->bufferElements[i].data.date);
 				gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), tmp);
 			}
 
-			if (pSharedBuffer->bufferElements[i].data.key == -1)
+			if (_pSharedBuffer->bufferElements[i].data.key == -1)
 			{
 				gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), "No Key");
 			}
 			else
 			{
-				sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.key);
+				sprintf(tmp, "%i", _pSharedBuffer->bufferElements[i].data.key);
 				gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), tmp);
 			}
+			sem_post(&(_pSharedBuffer->bufferElements[i].mutex));
 
 			sprintf(tmp, "");
 		}
@@ -108,6 +108,14 @@ int main(int argc, char  *argv[])
 	_ptrUpdateGUI = ptr;
 	_bufferSizeGUI = bufferSize;
 	_bufferId = bufferId;
+
+	strcpy(_sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
+	_pSharedBuffer = getSharedBuffer(_sharedBufferName);
+	if (_pSharedBuffer == NULL)
+	{
+		printf("Error, getSharedBuffer() failed.\n");
+		return 1;
+	}
 
 	runGUI(argc, argv, bufferId);
 
@@ -188,6 +196,7 @@ int main(int argc, char  *argv[])
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 		time(&rawTime);
+
 		infoTime = localtime(&rawTime);
 		strftime(data.date, sizeof(data.date), "%x - %X", infoTime);
 		data.key = rand() % 5;
@@ -324,6 +333,8 @@ int main(int argc, char  *argv[])
 		}
 	} while (waitCondition);
 
+
+	logTerminatorAction(sharedBufferName, 0, NULL, REMOVE_SHARED_BUFFER);
 	if (!removeBuffer(sharedBufferName))
 	{
 		printf("Error, removing buffer.\n");

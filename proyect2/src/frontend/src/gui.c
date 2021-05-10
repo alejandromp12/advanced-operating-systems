@@ -190,7 +190,7 @@ void runGUI(int argc, char *argv[], int bufferId) {
 
 	
     
-    g_timeout_add(10, (GSourceFunc) time_handler, (gpointer) window);
+    g_timeout_add(1, (GSourceFunc) time_handler, (gpointer) window);
 
     
     g_object_unref(builder);

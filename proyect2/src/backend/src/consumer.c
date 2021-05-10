@@ -41,7 +41,7 @@ void logConsumerStatistics(consumerProcess *pConsumer, sharedBuffer *pSharedBuff
 	double consumerProgramElapsedTime = (endTime.tv_sec - pConsumer->startTime.tv_sec) * 1e6;
 	consumerProgramElapsedTime = (consumerProgramElapsedTime + (endTime.tv_usec - pConsumer->startTime.tv_usec)) * 1e-6;
 	// perform logging of the process
-	char log[250];
+	char log[400];
 	sprintf(log,
 		    "==================================\n"
 		    "CUNSUMER statistics\n"
