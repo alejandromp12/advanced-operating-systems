@@ -73,6 +73,16 @@ void updateBufferElementGUI()
 			sprintf(tmp, "");
 		}
 
+		sem_wait(&(_pSharedBuffer->counter.producersMutex));
+		sprintf(tmp, "Producers: %i",_pSharedBuffer->counter.producers);
+		gtk_label_set_text(GTK_LABEL(producerCounterLabel), tmp);
+		sem_post(&(_pSharedBuffer->counter.producersMutex));
+
+		sem_wait(&(_pSharedBuffer->counter.consumersMutex));
+		sprintf(tmp, "Consumers: %i",_pSharedBuffer->counter.consumers);
+		gtk_label_set_text(GTK_LABEL(consumerCounterLabel), tmp);
+		sem_post(&(_pSharedBuffer->counter.consumersMutex));
+
 		char logFileData[LOGGING_FILE_SIZE];
 	    getLogFileData(_pSharedBuffer, logFileData);
 
