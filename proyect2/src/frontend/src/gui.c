@@ -126,19 +126,33 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 	consumerCounterLabel = GTK_WIDGET(gtk_builder_get_object(builder,"ConsumerCounter"));
 	gtk_builder_connect_signals(builder, NULL);
 
-
     //Add the buffer widgets
-	char *tmp;
+	char tmp[100];
 	for(int i = 0 ; i < bufferSize; i++)
 	{	
-		sprintf(tmp, "Hola  %i \n soy alguien que esta pasando%i \n", i, i);
+		sprintf(tmp, "%i \n", i);
 		buffer[i].indexLabel = gtk_label_new(tmp);
+
+		sprintf(tmp, "%i \n", 0);
+		buffer[i].producerIdLabel = gtk_label_new(tmp);
+
+		sprintf(tmp, "%i \n", 0);
+		buffer[i].dateLabel = gtk_label_new(tmp);
+
+		sprintf(tmp, "%i \n", 0);
+		buffer[i].keyLabel = gtk_label_new(tmp);
 	}
 
 	for(int i = 0 ; i < bufferSize; i++)
 	{	
-		gtk_grid_insert_column((bufferGrid), i);
+		gtk_grid_insert_column(GTK_GRID(bufferGrid), i);
 		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].indexLabel, i, 0, 1 ,1);
+
+		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].producerIdLabel, i, 1, 1 ,1);
+
+		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].dateLabel, i, 2, 1 ,1);
+
+		gtk_grid_attach(GTK_GRID(bufferGrid), buffer[i].keyLabel, i, 3, 1 ,1);
 	}
 			
 		

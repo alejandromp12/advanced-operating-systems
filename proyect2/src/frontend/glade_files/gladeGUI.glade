@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkWindow" id="MyWindow">
-    <property name="can-focus">False</property>
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">Producer-Consumer</property>
-    <property name="default-width">540</property>
-    <property name="default-height">650</property>
+    <property name="default_width">540</property>
+    <property name="default_height">650</property>
+    <child>
+      <placeholder/>
+    </child>
     <child>
       <object class="GtkBox" id="MyBox">
         <property name="visible">True</property>
-        <property name="can-focus">False</property>
+        <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkLabel" id="TitleLabel">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Producer-Consumer</property>
             <attributes>
               <attribute name="font-desc" value="Sans Bold 10"/>
@@ -31,14 +34,14 @@
         <child>
           <object class="GtkBox" id="CounterBox">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="margin-top">5</property>
-            <property name="margin-bottom">5</property>
+            <property name="can_focus">False</property>
+            <property name="margin_top">5</property>
+            <property name="margin_bottom">5</property>
             <property name="homogeneous">True</property>
             <child>
               <object class="GtkLabel" id="ProducerCounter">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Producers: 0</property>
               </object>
               <packing>
@@ -50,7 +53,7 @@
             <child>
               <object class="GtkLabel" id="ConsumerCounter">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Consumers: 0</property>
               </object>
               <packing>
@@ -69,28 +72,30 @@
         <child>
           <object class="GtkScrolledWindow" id="BufferScrollWindowGrid">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="margin-bottom">48</property>
-            <property name="shadow-type">in</property>
+            <property name="can_focus">True</property>
+            <property name="margin_left">15</property>
+            <property name="margin_right">15</property>
+            <property name="margin_bottom">48</property>
+            <property name="shadow_type">in</property>
             <child>
               <object class="GtkViewport" id="BufferViewGrid">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <child>
-                  <!-- n-columns=1 n-rows=1 -->
                   <object class="GtkGrid" id="BufferGrid">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <placeholder/>
-                    </child>
+                    <property name="can_focus">False</property>
+                    <property name="row_spacing">5</property>
+                    <property name="column_spacing">5</property>
+                    <property name="row_homogeneous">True</property>
+                    <property name="column_homogeneous">True</property>
                   </object>
                 </child>
               </object>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
@@ -98,12 +103,12 @@
         <child>
           <object class="GtkBox" id="LogBox">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkLabel" id="LogLabel">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Log</property>
                 <attributes>
                   <attribute name="font-desc" value="Sans Bold 10"/>
@@ -118,17 +123,17 @@
             <child>
               <object class="GtkScrolledWindow" id="LogScrollWindow">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="margin-left">25</property>
-                <property name="margin-right">25</property>
-                <property name="margin-top">10</property>
-                <property name="margin-bottom">10</property>
-                <property name="hscrollbar-policy">never</property>
-                <property name="shadow-type">in</property>
+                <property name="can_focus">True</property>
+                <property name="margin_left">25</property>
+                <property name="margin_right">25</property>
+                <property name="margin_top">10</property>
+                <property name="margin_bottom">10</property>
+                <property name="hscrollbar_policy">never</property>
+                <property name="shadow_type">in</property>
                 <child>
                   <object class="GtkViewport" id="LogViewport">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <placeholder/>
                     </child>
