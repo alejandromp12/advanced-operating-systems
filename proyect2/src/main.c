@@ -166,7 +166,7 @@ int main(int argc, char  *argv[])
 	insertProducerConsumerPIDToList(sharedBufferName, producer.pid, PRODUCER_ROLE);
 
 	dataMessage data;
-	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
+	data.producerId = producer.pid;
 	producer.producerId = data.producerId;
 
 	time_t rawTime;

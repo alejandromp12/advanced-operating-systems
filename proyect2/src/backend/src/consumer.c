@@ -133,6 +133,12 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, con
 		pConsumer->killerPID = pBuffElement->data.killerPID;
 	}
 
+	dataMessage tmp;
+	strcpy(tmp.date,"");
+	tmp.key = NO_PID;
+	tmp.producerId = NO_PID;
+
+	pBuffElement->data = tmp;
     //signal
     sem_post(&(pBuffElement->mutex));
 
