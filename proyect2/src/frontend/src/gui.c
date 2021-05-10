@@ -2,7 +2,6 @@
 #include "include/gui.h"
 #include <gtk/gtk.h>
 
-bufferElementStruct buffer[50];
 
 GtkBuilder *builder;
 GtkWidget *window;
@@ -205,4 +204,11 @@ gboolean time_handler(GtkWidget *widget) {
 void exit_app()
 {
 	gtk_main_quit();
+}
+
+
+
+
+updateGui{
+
 }
