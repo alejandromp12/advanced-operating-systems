@@ -23,13 +23,14 @@
 
 #if defined(CREATOR_APP)
 
-void updateBufferElementGUI(int bufferSize)
+
+void updateBufferElementGUI()
 {	
 	char tmp[100];
 	time_t t;
 	srand((unsigned)time(&t));
 
-	for(int i = 0; i < bufferSize; i++)
+	for(int i = 0; i < _bufferSizeGUI; i++)
 	{	
 		sprintf(tmp, "random %i", rand() % 10);
 		gtk_label_set_text(GTK_LABEL(bufferGUI[i].indexLabel), tmp);
@@ -68,9 +69,12 @@ int main(int argc, char  *argv[])
 		return 1;
 	}
 
-	runGUI(argc, argv, bufferSize);
+	void (*ptr)() = &updateBufferElementGUI;
+	_ptrUpdateGUI = ptr;
+	_bufferSizeGUI = bufferSize;
 
-	while (1);
+	runGUI(argc, argv);
+
 
     // ends
 

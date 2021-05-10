@@ -73,9 +73,9 @@ GtkWidget *consumerCounterLabel;
 // }
 
 
-void runGUI(int argc, char *argv[], int bufferSize) {
+void runGUI(int argc, char *argv[]) {
     
-    
+
     gtk_init(&argc, &argv);
 
     builder = gtk_builder_new();
@@ -127,7 +127,7 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 
     //Add the buffer widgets
 	char tmp[100];
-	for(int i = 0 ; i < bufferSize; i++)
+	for(int i = 0 ; i < _bufferSizeGUI; i++)
 	{	
 		sprintf(tmp, "%i \n", i);
 		bufferGUI[i].indexLabel = gtk_label_new(tmp);
@@ -142,7 +142,7 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 		bufferGUI[i].keyLabel = gtk_label_new(tmp);
 	}
 
-	for(int i = 0 ; i < bufferSize; i++)
+	for(int i = 0 ; i < _bufferSizeGUI; i++)
 	{	
 		gtk_grid_insert_column(GTK_GRID(bufferGrid), i);
 		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].indexLabel, i, 0, 1 ,1);
@@ -171,7 +171,7 @@ void runGUI(int argc, char *argv[], int bufferSize) {
 
 	
     
-    //g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
+    g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
 
     
     g_object_unref(builder);
@@ -190,8 +190,8 @@ gboolean time_handler(GtkWidget *widget) {
 
 	//printf("GUI ThreadId: %i \n", _pGuiThreadId);
 
-	//Run Lottery
-	//(*_ptrGuiLottery) ();
+	//Run Creator
+	(*_ptrUpdateGUI) ();
 
 	//Update the GUI information
 	//updateGUI(_pGuiThreadId, _pGuiThreadProgress, _pGuiPiApprox, _pGuiTotalProgress, _pGuiPiApprox);

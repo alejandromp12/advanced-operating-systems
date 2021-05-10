@@ -18,6 +18,9 @@
 // 	GtkWidget *piApproxLabel;
 	
 // } threadStruct; ///< Struct to handle threads information
+#ifndef GUI_FILE
+#define GUI_FILE
+
 
 #define MAX_PIDS_GUI 50
 
@@ -32,11 +35,12 @@ typedef struct
 
 
 bufferElementStruct bufferGUI[MAX_PIDS_GUI];
+int _bufferSizeGUI;
 
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
 
-void runGUI(int argc, char **argv, int bufferSize);
+void runGUI(int argc, char **argv);
 
 gboolean time_handler(GtkWidget *widget);
 
@@ -48,4 +52,7 @@ void exit_app();
 // int _pGuiThreadProgress;
 // int _pGuiTotalProgress;
 // float _pGuiPiApprox;
-// void (*_ptrGuiLottery)();
+
+void (*_ptrUpdateGUI)();
+
+#endif
