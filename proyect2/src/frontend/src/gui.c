@@ -148,7 +148,20 @@ void runGUI(int argc, char *argv[], int bufferId) {
 		bufferGUI[i].keyLabel = gtk_label_new(tmp);
 	}
 
-	for(int i = 0 ; i < _bufferSizeGUI; i++)
+	GtkWidget *indexLabel = gtk_label_new("Index");
+	GtkWidget *pidLabel = gtk_label_new("PID");
+	GtkWidget *dateLabel = gtk_label_new("Date");
+	GtkWidget *keyLabel = gtk_label_new("Key");
+
+	gtk_grid_insert_column(GTK_GRID(bufferGrid), 0);
+	gtk_grid_attach(GTK_GRID(bufferGrid), indexLabel, 0, 0, 1 ,1);
+	gtk_grid_attach(GTK_GRID(bufferGrid), pidLabel, 0, 1, 1 ,1);
+	gtk_grid_attach(GTK_GRID(bufferGrid), dateLabel, 0, 2, 1 ,1);
+	gtk_grid_attach(GTK_GRID(bufferGrid), keyLabel, 0, 3, 1 ,1);
+
+
+
+	for(int i = 1 ; i <= _bufferSizeGUI; i++)
 	{	
 		gtk_grid_insert_column(GTK_GRID(bufferGrid), i);
 		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].indexLabel, i, 0, 1 ,1);
