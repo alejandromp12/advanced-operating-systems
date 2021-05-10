@@ -124,6 +124,7 @@ int killProducers(char *bufferName)
 	// wake up poducers to they read the message written by terminator
 	wakeup2(pSharedBuffer, PRODUCER_ROLE);
 	sleep(1);
+	//usleep(500000);
 
 	//for(int i= 0; i < MAX_PIDS; i++)
 	//{
@@ -200,7 +201,7 @@ void logTerminatorAction(char *bufferName, int bufferIndex, bufferElement *pBuff
 		    		"TERMINATOR is about to free shared buffer %s memory\n"
 		    		"Consumers alive: %d\n"
 		    		"Producers alive: %d\n"
-		    		"==================================",
+		    		"==================================\n",
 					bufferName,
 					getProducerConsumer(CONSUMER_ROLE, bufferName),
 					getProducerConsumer(PRODUCER_ROLE, bufferName));
@@ -216,7 +217,7 @@ void logTerminatorAction(char *bufferName, int bufferIndex, bufferElement *pBuff
 		    		"Date of the message %s.\n"
 		    		"Consumers alive: %d\n"
 		    		"Producers alive: %d\n"
-		    		"==================================",
+		    		"==================================\n",
 					bufferIndex + 1,
 					bufferName,
 					pBuffElement->data.killFlag,
@@ -234,7 +235,7 @@ void logTerminatorAction(char *bufferName, int bufferIndex, bufferElement *pBuff
 		    		"Producers are going to be killed once read it.\n"
 		    		"Consumers alive: %d\n"
 		    		"Producers alive: %d\n"
-		    		"==================================",
+		    		"==================================\n",
 					bufferName,
 					getProducerConsumer(CONSUMER_ROLE, bufferName),
 					getProducerConsumer(PRODUCER_ROLE, bufferName));
@@ -246,5 +247,5 @@ void logTerminatorAction(char *bufferName, int bufferIndex, bufferElement *pBuff
 	}
 
 	doLogging(log, pSharedBuffer);
-	printf("%s\n", log);
+	printf("%s", log);
 }

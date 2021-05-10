@@ -8,6 +8,38 @@
 #include <limits.h>
 #include <sys/mman.h>
 
+void getLogFileData(sharedBuffer *pSharedBuffer, char output[])
+{
+	char line[255] = {0};
+	int sizeLines = 0;
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, pSharedBuffer is NULL.\n");
+		return;
+	}
+
+	sem_wait(&pSharedBuffer->loggingFileMutex);
+
+	FILE *fp = fopen(pSharedBuffer->loggingFileName, "r");
+	if (fp == NULL)
+	{
+		printf("Error, fopen() failed.\n");
+		sem_post(&pSharedBuffer->loggingFileMutex);
+		return;
+	}
+
+	while (fgets(line, 255, fp) != NULL)
+	{
+		strcpy(&output[sizeLines], line);
+		//printf("%s\n", &output[sizeLines]);
+		sizeLines++;
+	}
+
+	fclose(fp);
+
+	//strcpy(output, tmp);
+	sem_post(&pSharedBuffer->loggingFileMutex);
+}
 
 // Concatenates a char base name with an integer
 char *getFixedName(char *baseName, int id)
@@ -44,11 +76,12 @@ void doLogging(char *text, sharedBuffer *pSharedBuffer)
 	if (fp == NULL)
 	{
 		printf("Error, fopen() failed.\n");
+		sem_post(&pSharedBuffer->loggingFileMutex);
 		return;
 	}
 
 	fputs(text, fp);
-	fputs("\n", fp);
+	//fputs("\n", fp);
 
 	fclose(fp);
 

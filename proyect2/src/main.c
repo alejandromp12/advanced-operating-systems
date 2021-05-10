@@ -72,6 +72,11 @@ void updateBufferElementGUI()
 
 			sprintf(tmp, "");
 		}
+
+		char logFileData[LOGGING_FILE_SIZE];
+	    getLogFileData(_pSharedBuffer, logFileData);
+
+	    //printf("%s", logFileData);
 	}
 }
 

@@ -133,7 +133,7 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 		    "Message %s at index %d of the buffer %s\n"
 		    "Consumers alive: %d\n"
 		    "Producers alive: %d\n"
-		    "==================================",
+		    "==================================\n",
 			(role == PRODUCER_ROLE) ? "produced" : "consumed",
 			bufferIndex + 1,
 			bufferName,

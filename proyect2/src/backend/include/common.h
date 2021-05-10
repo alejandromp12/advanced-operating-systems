@@ -91,4 +91,6 @@ int isBufferFull(sharedBuffer *pSharedBuffer);
 
 int isBufferEmpty(sharedBuffer *pSharedBuffer);
 
+void getLogFileData(sharedBuffer *pSharedBuffer, char output[]);
+
 #endif // COMMON_FILE

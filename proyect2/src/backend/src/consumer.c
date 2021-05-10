@@ -51,7 +51,7 @@ void logConsumerStatistics(consumerProcess *pConsumer, sharedBuffer *pSharedBuff
 		    "Time blocked by semaphores: %f s\n"
 		    "Active time: %f s\n"
 		    "Idle time: %f s\n"
-		    "==================================",
+		    "==================================\n",
 			pConsumer->consumerId,
 			pConsumer->pid,
 			pConsumer->readMessages,

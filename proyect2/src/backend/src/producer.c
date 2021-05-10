@@ -81,7 +81,7 @@ void logProducerStatistics(producerProcess *pProducer, sharedBuffer *pSharedBuff
 		    "Time blocked by semaphores: %f s\n"
 		    "Active time: %f s\n"
 		    "Idle time: %f s\n"
-		    "==================================",
+		    "==================================\n",
 			pProducer->producerId,
 			pProducer->pid,
 			pProducer->writtenMessages,
