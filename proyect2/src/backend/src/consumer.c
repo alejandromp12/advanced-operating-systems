@@ -181,17 +181,15 @@ void tryRead(consumerProcess *pConsumer)
 		{
 			if (isBufferEmpty(pSharedBuffer))
 			{	
-				if (pSharedBuffer->killerPID != NO_PID)
-				{
-					doProcess(pSharedBuffer->killerPID, CONTINUE);
-				}
-
+				// ===================================
+				// ===================================
+				// CRITICAL SECTION DO NOT CHANGE THIS
 				wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
-				setProducerConsumerPIDState(pSharedBuffer, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
 
     			struct timeval startTime;
 				gettimeofday(&startTime, NULL);
 
+				setProducerConsumerPIDState(pSharedBuffer, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
 				doProcess(pConsumer->pid, STOP);
 
     			struct timeval endTime;
@@ -201,6 +199,9 @@ void tryRead(consumerProcess *pConsumer)
     			pConsumer->idleTime += delta;
 
 				printf("CONSUMER with PID %i, just woke up.\n", pConsumer->pid);
+				// ===================================
+				// ===================================
+				// ===================================
 			}
 
 			continue;

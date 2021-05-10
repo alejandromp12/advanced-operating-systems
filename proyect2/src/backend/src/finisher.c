@@ -125,10 +125,10 @@ int killProducers(char *bufferName)
 	wakeup2(pSharedBuffer, PRODUCER_ROLE);
 	sleep(1);
 
-	for(int i= 0; i < MAX_PIDS; i++)
-	{
-		printf("[%i][%i]\n", pSharedBuffer ->PIDs.producersPIDs[i][0], pSharedBuffer ->PIDs.producersPIDs[i][1]);
-	}
+	//for(int i= 0; i < MAX_PIDS; i++)
+	//{
+	//	printf("[%i][%i]\n", pSharedBuffer ->PIDs.producersPIDs[i][0], pSharedBuffer ->PIDs.producersPIDs[i][1]);
+	//}
 
 	return 1;
 }

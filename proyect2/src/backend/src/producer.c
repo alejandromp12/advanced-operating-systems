@@ -139,12 +139,15 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 
 			if (isBufferFull(pSharedBuffer))
 			{
+				// ===================================
+				// ===================================
+				// CRITICAL SECTION DO NOT CHANGE THIS
 				wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
-				setProducerConsumerPIDState(pSharedBuffer, pProducer->pid, INACTIVE, PRODUCER_ROLE);
 
     			struct timeval startTime;
 				gettimeofday(&startTime, NULL);
 
+				setProducerConsumerPIDState(pSharedBuffer, pProducer->pid, INACTIVE, PRODUCER_ROLE);
 				doProcess(pProducer->pid, STOP);
 
     			struct timeval endTime;
@@ -154,6 +157,9 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
     			pProducer->idleTime += delta;
 
 				printf("PRODUCER with PID %i, just woke up.\n", pProducer->pid);
+				// ===================================
+				// ===================================
+				// ===================================
 			}
 
 			continue;
