@@ -36,6 +36,7 @@ typedef struct
 
 bufferElementStruct bufferGUI[MAX_PIDS_GUI];
 int _bufferSizeGUI;
+int _bufferId;
 
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);

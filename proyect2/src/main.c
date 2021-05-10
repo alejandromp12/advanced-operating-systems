@@ -29,6 +29,10 @@ void updateBufferElementGUI()
 	char tmp[100];
 	time_t t;
 	srand((unsigned)time(&t));
+	char sharedBufferName[50];
+
+	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, _bufferId));
+	sharedBuffer *pSharedBuffer = getSharedBuffer(sharedBufferName);
 
 	for(int i = 0; i < _bufferSizeGUI; i++)
 	{	
@@ -72,6 +76,7 @@ int main(int argc, char  *argv[])
 	void (*ptr)() = &updateBufferElementGUI;
 	_ptrUpdateGUI = ptr;
 	_bufferSizeGUI = bufferSize;
+	_bufferId = bufferId;
 
 	runGUI(argc, argv, bufferId);
 
