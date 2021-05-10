@@ -34,38 +34,45 @@ void updateBufferElementGUI()
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, _bufferId));
 
-	sharedBuffer *pSharedBuffer = getSharedBuffer(sharedBufferName);
+	struct stat buffer;
+	if (!stat(sharedBufferName, &buffer))
+	{
+		sharedBuffer *pSharedBuffer = getSharedBuffer(sharedBufferName);
+		for(int i = 0; i < _bufferSizeGUI; i++)
+		{	
+			if (pSharedBuffer->bufferElements[i].data.producerId == -1)
+			{
+				gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), "No PID");
+			}
+			else
+			{
+				sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.producerId);
+				gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), tmp);
+			}
 
-	for(int i = 0; i < _bufferSizeGUI; i++)
-	{	
-		if(pSharedBuffer->bufferElements[i].data.producerId == -1)
-			gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), "No PID");
+			if (strcmp(pSharedBuffer->bufferElements[i].data.date, "") == 0)
+			{
+				gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), "No Date");
+			}
+			else
+			{
+				sprintf(tmp, "%s", pSharedBuffer->bufferElements[i].data.date);
+				gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), tmp);
+			}
 
-		else{
-			sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.producerId);
-			gtk_label_set_text(GTK_LABEL(bufferGUI[i].producerIdLabel), tmp);
+			if (pSharedBuffer->bufferElements[i].data.key == -1)
+			{
+				gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), "No Key");
+			}
+			else
+			{
+				sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.key);
+				gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), tmp);
+			}
+
+			sprintf(tmp, "");
 		}
-
-		if(strcmp(pSharedBuffer->bufferElements[i].data.date, "") == 0)
-			gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), "No Date");
-
-		else{
-			sprintf(tmp, "%s", pSharedBuffer->bufferElements[i].data.date);
-			gtk_label_set_text(GTK_LABEL(bufferGUI[i].dateLabel), tmp);
-		}
-
-		if(pSharedBuffer->bufferElements[i].data.key == -1)
-			gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), "No Key");
-
-		else{
-			sprintf(tmp, "%i", pSharedBuffer->bufferElements[i].data.key);
-			gtk_label_set_text(GTK_LABEL(bufferGUI[i].keyLabel), tmp);
-		}
-
-
-		sprintf(tmp, "");
 	}
-
 }
 
 
