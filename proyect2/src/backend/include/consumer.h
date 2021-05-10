@@ -2,6 +2,7 @@
 #define CONSUMER_FILE
 
 #include <stdio.h>
+#include <sys/time.h>
 #include "common.h"
 
 typedef struct
@@ -9,13 +10,14 @@ typedef struct
 	int pid;
 	char sharedBufferName[50];
 	int readIndex;
-	int readMessage;
+	int readMessages;
 	int killerPID;
+	int consumerId;
+	double timeSpendInMutex;
+	double idleTime;
+	struct timeval startTime;
 } consumerProcess; ///<
 
 void tryRead(consumerProcess *pConsumer);
-int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, consumerProcess *pConsumer);
-void logConsumerTermination(consumerProcess *pConsumer, int key);
-void xkillConsumer(consumerProcess *pConsumer);
 
 #endif // CONSUMER_FILE

@@ -140,7 +140,7 @@ void logProducerConsumerAction(char *bufferName, producerConsumerRole role, int 
 			getProducerConsumer(CONSUMER_ROLE, bufferName),
 			getProducerConsumer(PRODUCER_ROLE, bufferName));
 
-	doLogging(log, pSharedBuffer->counter);
+	doLogging(log, pSharedBuffer);
 
 	//printf("Message logged:\n%s\n", log);
 }

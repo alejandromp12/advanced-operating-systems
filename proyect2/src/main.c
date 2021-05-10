@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #include "backend/include/consumer.h"
 #include "backend/include/common.h"
@@ -156,20 +157,25 @@ int main(int argc, char  *argv[])
 	producerProcess producer;
 	producer.pid = getpid();
 	producer.indexWrite = 0;
-	producer.writtenMessage = 0;
+	producer.timeSpendInMutex = 0;
+	producer.idleTime = 0;
+	producer.writtenMessages = 0;
 	strcpy(producer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(PRODUCER_ROLE, sharedBufferName);
 	insertProducerConsumerPIDToList(sharedBufferName, producer.pid, PRODUCER_ROLE);
 
 	dataMessage data;
-	data.producerId = producer.pid;
+	data.producerId = getProducerConsumer(PRODUCER_ROLE, sharedBufferName);
+	producer.producerId = data.producerId;
+
 	time_t rawTime;
 	struct tm *infoTime;
 	time(&rawTime);
 	infoTime = localtime(&rawTime);
 	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
 
+	gettimeofday(&producer.startTime, NULL);
     while (1)
     {
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
@@ -233,13 +239,17 @@ int main(int argc, char  *argv[])
 	consumerProcess consumer;
 	consumer.pid = getpid();
 	consumer.readIndex = 0;
-	consumer.readMessage = 0;
+	consumer.readMessages = 0;
 	consumer.killerPID = 0;
+	consumer.timeSpendInMutex = 0;
+	consumer.idleTime = 0;
 	strcpy(consumer.sharedBufferName, sharedBufferName);
 
 	addProducerConsumer(CONSUMER_ROLE, sharedBufferName);
 	insertProducerConsumerPIDToList(sharedBufferName, consumer.pid, CONSUMER_ROLE);
 
+	consumer.consumerId = getProducerConsumer(CONSUMER_ROLE, sharedBufferName);
+	gettimeofday(&consumer.startTime, NULL);
 	while (1)
     {
 		waitTime = ceil(getRandomExponentialDistribution(lambda));

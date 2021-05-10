@@ -148,7 +148,6 @@ int killConsumers(char *bufferName)
 	int index = 0;
 	int terminatorPid = getpid();
 	int consumerPid = -1;
-	int loopCondition = 1;
 
 	dataMessage data;
 	data.producerId = 0;

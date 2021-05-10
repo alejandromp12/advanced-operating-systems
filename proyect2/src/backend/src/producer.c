@@ -9,9 +9,9 @@
 #include <limits.h>
 #include <sys/mman.h>
 #include <semaphore.h>
+#include <sys/time.h>
 
-
-int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex, char *bufferName)
+int writeData(bufferElement *pBuffElement, producerProcess *pProducer, dataMessage message, int bufferIndex, char *bufferName)
 {
 	int semValue;
     if ((pBuffElement->indexAvailable != 1) || (sem_getvalue(&(pBuffElement->mutex), &semValue) < 0) || (semValue == 0))
@@ -20,7 +20,17 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
     	return 0;
     }
 
+    struct timeval startTime;
+	gettimeofday(&startTime, NULL);
+
     sem_wait(&(pBuffElement->mutex));
+
+    struct timeval endTime;
+	gettimeofday(&endTime, NULL);
+    double delta = (endTime.tv_sec - startTime.tv_sec) * 1e6;
+    delta = (delta + (endTime.tv_usec - startTime.tv_usec)) * 1e-6;
+
+    pProducer->timeSpendInMutex += delta;
 
     //critical section
     pBuffElement->data.producerId = message.producerId;
@@ -45,21 +55,59 @@ int writeData(bufferElement *pBuffElement, dataMessage message, int bufferIndex,
     return 1;
 }
 
-void logProducerTermination(producerProcess *pProducer)
+void logProducerStatistics(producerProcess *pProducer, sharedBuffer *pSharedBuffer)
 {
-	printf("==================================\n");
-	printf("Producer with pid %i killed due to termination flag\n", pProducer->pid);
-	printf("Producer put %i messages in the mailbox\n", pProducer->writtenMessage);
-	printf("==================================\n");
+	if ((pProducer == NULL) || (pSharedBuffer == NULL))
+	{
+		printf("Error, in logProducerStatistics(), a ptr is NULL.\n");
+		return;
+	}
+ 
+	struct timeval endTime;
+	gettimeofday(&endTime, NULL);
+
+	double producerProgramElapsedTime = (endTime.tv_sec - pProducer->startTime.tv_sec) * 1e6;
+	producerProgramElapsedTime = (producerProgramElapsedTime + (endTime.tv_usec - pProducer->startTime.tv_usec)) * 1e-6;
+	// perform logging of the process
+	char log[250];
+	sprintf(log,
+		    "==================================\n"
+		    "PRODUCER statistics\n"
+		    "ID: %d\n"
+		    "PID: %d\n"
+		    "Messages written: %d\n"
+		    "Time blocked by semaphores: %f s\n"
+		    "Active time: %f s\n"
+		    "Idle time: %f s\n"
+		    "==================================",
+			pProducer->producerId,
+			pProducer->pid,
+			pProducer->writtenMessages,
+			pProducer->timeSpendInMutex,
+			producerProgramElapsedTime,
+			pProducer->idleTime);
+
+	doLogging(log, pSharedBuffer);
+
+	//printf("Message logged:\n%s\n", log);
 }
 
-void xkillProducer(producerProcess *pProducer)
+
+void xkillProducer(producerProcess *pProducer, sharedBuffer *pSharedBuffer)
 {
 	removeProducerConsumer(PRODUCER_ROLE, pProducer->sharedBufferName);
 	removeProducerConsumerPIDFromList(pProducer->sharedBufferName, pProducer->pid, PRODUCER_ROLE);
-	logProducerTermination(pProducer);
+
+	printf("==================================\n");
+	printf("Producer with pid %i killed due to termination flag\n", pProducer->pid);
+	printf("Producer put %i messages in the mailbox\n", pProducer->writtenMessages);
+	printf("==================================\n");
+
+	logProducerStatistics(pProducer, pSharedBuffer);
+
 	exit(0);
 }
+
 
 void tryWrite(dataMessage message, producerProcess *pProducer)
 {
@@ -72,27 +120,37 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 
 	if (pSharedBuffer->killFlag == TERMINATE_SYSTEM)
 	{
-		xkillProducer(pProducer);
+		xkillProducer(pProducer, pSharedBuffer);
 	}
 
 	int index;
 	int bufferSize = pSharedBuffer->size;
 	for (pProducer->indexWrite; (pProducer->indexWrite % bufferSize) < bufferSize; pProducer->indexWrite++)
-	{	
+	{
 		index = pProducer->indexWrite % bufferSize;
-		if (!writeData(&(pSharedBuffer->bufferElements[index]), message, index, pProducer->sharedBufferName))
+		if (!writeData(&(pSharedBuffer->bufferElements[index]), pProducer, message, index, pProducer->sharedBufferName))
 		{	
 			if (pSharedBuffer->killFlag == TERMINATE_SYSTEM) 
 			{
-				xkillProducer(pProducer);
+				xkillProducer(pProducer, pSharedBuffer);
 			}
 
 			if (isBufferFull(pSharedBuffer))
 			{
 				wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
 				setProducerConsumerPIDState(pSharedBuffer, pProducer->pid, INACTIVE, PRODUCER_ROLE);
+
+    			struct timeval startTime;
+				gettimeofday(&startTime, NULL);
+
 				doProcess(pProducer->pid, STOP);
-				
+
+    			struct timeval endTime;
+				gettimeofday(&endTime, NULL);
+    			double delta = (endTime.tv_sec - startTime.tv_sec) * 1e6;
+    			delta = (delta + (endTime.tv_usec - startTime.tv_usec)) * 1e-6;
+    			pProducer->idleTime += delta;
+
 				printf("PRODUCER with PID %i, just woke up.\n", pProducer->pid);
 			}
 
@@ -104,7 +162,7 @@ void tryWrite(dataMessage message, producerProcess *pProducer)
 			// perform logging of the process
 			logProducerConsumerAction(pProducer->sharedBufferName, PRODUCER_ROLE, index);
 
-			pProducer->writtenMessage++;
+			pProducer->writtenMessages++;
 			// wake up consumers
 			wakeup(pProducer->sharedBufferName, CONSUMER_ROLE);
 			pProducer->indexWrite++;

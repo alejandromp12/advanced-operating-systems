@@ -9,13 +9,13 @@
 #include <limits.h>
 #include <sys/mman.h>
 #include <semaphore.h>
-
+#include <sys/time.h>
 
 void logConsumerTerminationByMod5(consumerProcess *pConsumer, int key)
 {
 	printf("==================================\n");
 	printf("Consumer with pid %i is dead by read message with key %i ==> pid %i MOD 5 = key %i\n", pConsumer->pid, key, pConsumer->pid, key);
-	printf("Consumer read %i messages from the mailbox\n", pConsumer ->readMessage);
+	printf("Consumer read %i messages from the mailbox\n", pConsumer->readMessages);
 	printf("==================================\n");
 }
 
@@ -23,14 +23,53 @@ void logConsumerTerminationByTerminator(consumerProcess *pConsumer)
 {
 	printf("==================================\n");
 	printf("Consumer with pid %i killed due to termination message", pConsumer->pid);
-	printf("Consumer read %i messages from the mailbox\n", pConsumer->readMessage);
+	printf("Consumer read %i messages from the mailbox\n", pConsumer->readMessages);
 	printf("==================================\n");
 }
 
-void xkillConsumer(consumerProcess *pConsumer)
+void logConsumerStatistics(consumerProcess *pConsumer, sharedBuffer *pSharedBuffer)
+{
+	if ((pConsumer == NULL) || (pSharedBuffer == NULL))
+	{
+		printf("Error, in logProducerStatistics(), a ptr is NULL.\n");
+		return;
+	}
+ 
+	struct timeval endTime;
+	gettimeofday(&endTime, NULL);
+
+	double consumerProgramElapsedTime = (endTime.tv_sec - pConsumer->startTime.tv_sec) * 1e6;
+	consumerProgramElapsedTime = (consumerProgramElapsedTime + (endTime.tv_usec - pConsumer->startTime.tv_usec)) * 1e-6;
+	// perform logging of the process
+	char log[250];
+	sprintf(log,
+		    "==================================\n"
+		    "CUNSUMER statistics\n"
+		    "ID: %d\n"
+		    "PID: %d\n"
+		    "Messages read: %d\n"
+		    "Time blocked by semaphores: %f s\n"
+		    "Active time: %f s\n"
+		    "Idle time: %f s\n"
+		    "==================================",
+			pConsumer->consumerId,
+			pConsumer->pid,
+			pConsumer->readMessages,
+			pConsumer->timeSpendInMutex,
+			consumerProgramElapsedTime,
+			pConsumer->idleTime);
+
+	doLogging(log, pSharedBuffer);
+
+	printf("Message logged:\n%s\n", log);
+}
+
+void xkillConsumer(consumerProcess *pConsumer, sharedBuffer *pSharedBuffer)
 {
 	removeProducerConsumer(CONSUMER_ROLE, pConsumer->sharedBufferName);
 	removeProducerConsumerPIDFromList(pConsumer->sharedBufferName, pConsumer->pid, CONSUMER_ROLE);
+
+	logConsumerStatistics(pConsumer, pSharedBuffer);
 	exit(0);
 }
 
@@ -47,7 +86,18 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, con
 	int killConsumer;
 	int killConsumerByTerminator;
 	int key;
+
+    struct timeval startTime;
+	gettimeofday(&startTime, NULL);
+
     sem_wait(&(pBuffElement->mutex));
+
+    struct timeval endTime;
+	gettimeofday(&endTime, NULL);
+    double delta = (endTime.tv_sec - startTime.tv_sec) * 1e6;
+    delta = (delta + (endTime.tv_usec - startTime.tv_usec)) * 1e-6;
+
+    pConsumer->timeSpendInMutex += delta;
 
 	if(pBuffElement->data.killFlag != NO_PID && pBuffElement->data.killFlag != pConsumer->pid)
 	{
@@ -82,12 +132,12 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, con
 	{
 		pConsumer->killerPID = pBuffElement->data.killerPID;
 	}
-	
+
     //signal
     sem_post(&(pBuffElement->mutex));
 
-	pConsumer->readMessage++;
-	
+	pConsumer->readMessages++;
+
 	if (killConsumerByTerminator == pConsumer->pid)
 	{
 		return KILL_CONSUMER_BY_TERMINATOR;
@@ -130,7 +180,18 @@ void tryRead(consumerProcess *pConsumer)
 
 				wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
 				setProducerConsumerPIDState(pSharedBuffer, pConsumer->pid, INACTIVE, CONSUMER_ROLE);
+
+    			struct timeval startTime;
+				gettimeofday(&startTime, NULL);
+
 				doProcess(pConsumer->pid, STOP);
+
+    			struct timeval endTime;
+				gettimeofday(&endTime, NULL);
+    			double delta = (endTime.tv_sec - startTime.tv_sec) * 1e6;
+    			delta = (delta + (endTime.tv_usec - startTime.tv_usec)) * 1e-6;
+    			pConsumer->idleTime += delta;
+
 				printf("CONSUMER with PID %i, just woke up.\n", pConsumer->pid);
 			}
 
@@ -144,7 +205,7 @@ void tryRead(consumerProcess *pConsumer)
 
 			wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
 
-			xkillConsumer(pConsumer);
+			xkillConsumer(pConsumer, pSharedBuffer);
 		}
 		else if(readDataReturn == KILL_CONSUMER)
 		{
@@ -152,7 +213,7 @@ void tryRead(consumerProcess *pConsumer)
 
 			wakeup(pConsumer->sharedBufferName, PRODUCER_ROLE);
 
-			xkillConsumer(pConsumer);
+			xkillConsumer(pConsumer, pSharedBuffer);
 		}
 		else
 		{

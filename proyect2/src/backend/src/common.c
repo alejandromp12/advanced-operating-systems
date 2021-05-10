@@ -31,11 +31,16 @@ double getRandomExponentialDistribution(double lambda)
 }
 
 
-void doLogging(char *text, producerConsumerCounter counter)
+void doLogging(char *text, sharedBuffer *pSharedBuffer)
 {
-	sem_wait(&counter.loggingFileMutex);
+	if (pSharedBuffer == NULL)
+	{
+		printf("Error, pSharedBuffer is NULL.\n");
+	}
 
-	FILE *fp = fopen(counter.loggingFileName, "a");
+	sem_wait(&pSharedBuffer->loggingFileMutex);
+
+	FILE *fp = fopen(pSharedBuffer->loggingFileName, "a");
 	if (fp == NULL)
 	{
 		printf("Error, fopen() failed.\n");
@@ -47,7 +52,7 @@ void doLogging(char *text, producerConsumerCounter counter)
 
 	fclose(fp);
 
-	sem_post(&counter.loggingFileMutex);
+	sem_post(&pSharedBuffer->loggingFileMutex);
 }
 
 

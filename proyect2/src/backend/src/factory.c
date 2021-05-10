@@ -9,6 +9,30 @@
 #include <limits.h>
 #include <sys/mman.h>
 
+
+// populates matrix
+int initializeLoggingMechanism(sharedBuffer *pSharedBuffer, int bufferId)					
+{
+	if (sem_init(&(pSharedBuffer->loggingFileMutex), 1, 1) < 0)
+	{
+		printf("Error, sem_init() failed.\n");
+		return 0;
+	}
+
+	strcpy(pSharedBuffer->loggingFileName, getFixedName(LOGGING_FILE_NAME, bufferId));
+
+	FILE *fp = fopen(pSharedBuffer->loggingFileName, "w+");
+	if (fp == NULL)
+	{
+		printf("Error, fopen() failed.\n");
+		return 0;
+	}
+
+	fclose(fp);
+
+	return 1;
+}
+
 // populates matrix
 void populatePIDsList(int pidsList[MAX_PIDS][MAX_STATES])					
 {
@@ -43,7 +67,7 @@ int initializeProducersConsumersPIDs(sharedBuffer *pSharedBuffer)
 
 
 // Inits counter struct
-int initializeCounter(sharedBuffer *pSharedBuffer, int bufferId)
+int initializeCounter(sharedBuffer *pSharedBuffer)
 {
 	pSharedBuffer->counter.producers = 0;
 	pSharedBuffer->counter.consumers = 0;
@@ -59,23 +83,6 @@ int initializeCounter(sharedBuffer *pSharedBuffer, int bufferId)
 		printf("Error, sem_init() failed.\n");
 		return 0;
 	}
-
-	if (sem_init(&(pSharedBuffer->counter.loggingFileMutex), 1, 1) < 0)
-	{
-		printf("Error, sem_init() failed.\n");
-		return 0;
-	}
-
-	strcpy(pSharedBuffer->counter.loggingFileName, getFixedName(LOGGING_FILE_NAME, bufferId));
-
-	FILE *fp = fopen(pSharedBuffer->counter.loggingFileName, "w+");
-	if (fp == NULL)
-	{
-		printf("Error, fopen() failed.\n");
-		return 0;
-	}
-
-	fclose(fp);
 
 	return 1;
 }
@@ -134,7 +141,7 @@ int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, s
 	strcpy(pSharedBuffer->name, sharedBufferName);
 
 	// initialize counter
-	if (!initializeCounter(pSharedBuffer, bufferId))
+	if (!initializeCounter(pSharedBuffer))
 	{
 		printf("Error, initializeCounter() failed.\n");
 		return 0;
@@ -144,6 +151,12 @@ int populateSharedBuffer(int bufferSize, int bufferId, char *sharedBufferName, s
 	if (!initializeProducersConsumersPIDs(pSharedBuffer))
 	{
 		printf("Error, initializeProducersConsumersPIDs() failed.\n");
+		return 0;
+	}
+
+	if (!initializeLoggingMechanism(pSharedBuffer, bufferId))
+	{
+		printf("Error, initializeLoggingMechanism() failed.\n");
 		return 0;
 	}
 

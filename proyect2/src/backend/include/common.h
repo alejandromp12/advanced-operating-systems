@@ -44,12 +44,10 @@ typedef struct
 
 typedef struct
 {
-	char loggingFileName[50];
 	int producers;
 	int consumers;
 	sem_t producersMutex;
 	sem_t consumersMutex;
-	sem_t loggingFileMutex;
 } producerConsumerCounter;
 
 typedef struct
@@ -65,6 +63,8 @@ typedef struct
 	int id;
 	int size;
 	char name[50];
+	char loggingFileName[50];
+	sem_t loggingFileMutex;
 	producerConsumerCounter counter;
 	producerConsumePIDs PIDs;
 	bufferElement bufferElements[MAX_BUFFER_ELEMENTS];
@@ -83,7 +83,7 @@ char *getFixedName(char *baseName, int id);
 
 double getRandomExponentialDistribution(double lambda);
 
-void doLogging(char *text, producerConsumerCounter counter);
+void doLogging(char *text, sharedBuffer *pSharedBuffer);
 
 sharedBuffer *getSharedBuffer(char *bufferName);
 
