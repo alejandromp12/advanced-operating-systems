@@ -40,7 +40,7 @@ int _bufferSizeGUI;
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
 
-void runGUI(int argc, char **argv);
+void runGUI(int argc, char **argv, int bufferId);
 
 gboolean time_handler(GtkWidget *widget);
 

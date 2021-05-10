@@ -73,7 +73,7 @@ GtkWidget *consumerCounterLabel;
 // }
 
 
-void runGUI(int argc, char *argv[]) {
+void runGUI(int argc, char *argv[], int bufferId) {
     
 
     gtk_init(&argc, &argv);
@@ -127,9 +127,15 @@ void runGUI(int argc, char *argv[]) {
 
     //Add the buffer widgets
 	char tmp[100];
+
+	//Change title to indicate Buffer ID
+	sprintf(tmp, "Buffer %i \n", bufferId);
+	gtk_label_set_text(GTK_LABEL(titleLabel),tmp);
+
+
 	for(int i = 0 ; i < _bufferSizeGUI; i++)
 	{	
-		sprintf(tmp, "%i \n", i);
+		sprintf(tmp, "%i \n", i+1);
 		bufferGUI[i].indexLabel = gtk_label_new(tmp);
 
 		sprintf(tmp, "%i \n", 0);
