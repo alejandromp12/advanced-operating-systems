@@ -162,9 +162,9 @@ int killConsumers(char *bufferName)
 		if (NO_PID != consumerPid)
 		{
 			data.killFlag = consumerPid;
-
+			time(&rawTime);
 			infoTime = localtime(&rawTime);
-			strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
+			strftime(data.date, sizeof(data.date), "%x - %X", infoTime);
 			if (tryWriteTerminateMessage(data, pSharedBuffer, &index, terminatorPid) == 0)
 			{
 				// wake up consumers to they read the message written by terminator
