@@ -180,16 +180,16 @@ int main(int argc, char  *argv[])
 	struct tm *infoTime;
 	time(&rawTime);
 	infoTime = localtime(&rawTime);
-	strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
+	strftime(data.date, sizeof(data.date), "%x - %X", infoTime);
 
 	gettimeofday(&producer.startTime, NULL);
     while (1)
     {
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
-
+		time(&rawTime);
 		infoTime = localtime(&rawTime);
-		strftime(data.date, sizeof(data.date), "%x - %I:%M%p", infoTime);
+		strftime(data.date, sizeof(data.date), "%x - %X", infoTime);
 		data.key = rand() % 5;
 		data.killerPID = NO_PID;
 		tryWrite(data, &producer);
