@@ -38,6 +38,9 @@ bufferElementStruct bufferGUI[MAX_PIDS_GUI];
 int _bufferSizeGUI;
 int _bufferId;
 
+GtkWidget *producerCounterLabel;
+GtkWidget *consumerCounterLabel;
+GtkWidget *logContentLabel;
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
 

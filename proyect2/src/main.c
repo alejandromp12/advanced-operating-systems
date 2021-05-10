@@ -76,6 +76,11 @@ void updateBufferElementGUI()
 		char logFileData[LOGGING_FILE_SIZE];
 	    getLogFileData(_pSharedBuffer, logFileData);
 
+	    //GtkTextBuffer *textBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logContentLabel));
+	    //gtk_text_buffer_set_text(GTK_TEXT_BUFFER(textBuffer), logFileData, LOGGING_FILE_SIZE);
+
+	    gtk_label_set_text(GTK_LABEL(logContentLabel),logFileData);
+
 	    //printf("%s", logFileData);
 	}
 }

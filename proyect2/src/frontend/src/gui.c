@@ -16,8 +16,6 @@ GtkWidget *logScrollWindow;
 GtkWidget *logViewport;
 
 GtkWidget *titleLabel;
-GtkWidget *producerCounterLabel;
-GtkWidget *consumerCounterLabel;
 
 // static GtkWidget *totalProgressLabel;
 // static GtkWidget *totalProgressBar;
@@ -125,6 +123,9 @@ void runGUI(int argc, char *argv[], int bufferId) {
 	consumerCounterLabel = GTK_WIDGET(gtk_builder_get_object(builder,"ConsumerCounter"));
 	gtk_builder_connect_signals(builder, NULL);
 
+	logContentLabel = GTK_WIDGET(gtk_builder_get_object(builder,"LogContent"));
+	gtk_builder_connect_signals(builder, NULL);
+
     //Add the buffer widgets
 	char tmp[100];
 
@@ -172,22 +173,6 @@ void runGUI(int argc, char *argv[], int bufferId) {
 
 		gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].keyLabel, i+1, 3, 1 ,1);
 	}
-			
-		
-
-	/* GtkWidget *tmp = gtk_label_new("Holaaaa");
-
-	gtk_grid_insert_column(GTK_GRID(bufferGrid), 1);
-	gtk_grid_attach(GTK_GRID(bufferGrid), tmp, 0, 1, 1 ,1);
-
-	GtkWidget *tmp2 = gtk_label_new("Holaaaa");
-
-	gtk_grid_insert_column(GTK_GRID(bufferGrid), 2);
-	gtk_grid_attach(GTK_GRID(bufferGrid), tmp, 0, 2, 1 ,1); */
-		
-	
-
-
 	
     
     g_timeout_add(1, (GSourceFunc) time_handler, (gpointer) window);
