@@ -25,6 +25,10 @@
 #define LOGGING_FILE_NAME "/tmp/sharedBuffer.log."
 #define LOGGING_FILE_SIZE 5120 // 5MB
 
+int NUMBER_LINE;
+int NUMBER_LINE_TMP;
+char LOGGING_BUFFER [LOGGING_FILE_SIZE];
+
 typedef struct
 {
 	int producerId;
@@ -91,6 +95,6 @@ int isBufferFull(sharedBuffer *pSharedBuffer);
 
 int isBufferEmpty(sharedBuffer *pSharedBuffer);
 
-void getLogFileData(sharedBuffer *pSharedBuffer, char output[]);
+void getLogFileData(sharedBuffer *pSharedBuffer);
 
 #endif // COMMON_FILE

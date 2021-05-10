@@ -41,6 +41,7 @@ int _bufferId;
 GtkWidget *producerCounterLabel;
 GtkWidget *consumerCounterLabel;
 GtkWidget *logContentLabel;
+GtkWidget *logViewText;
 
 //void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
 

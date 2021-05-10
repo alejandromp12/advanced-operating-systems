@@ -28,7 +28,7 @@ char _sharedBufferName[50];
 sharedBuffer *_pSharedBuffer;
 
 void updateBufferElementGUI()
-{	
+{
 	char tmp[100];
 	time_t t;
 	srand((unsigned)time(&t));
@@ -36,8 +36,8 @@ void updateBufferElementGUI()
 	struct stat buffer;
 	if (!stat(_sharedBufferName, &buffer) && (_pSharedBuffer != NULL))
 	{
-		for(int i = 0; i < _bufferSizeGUI; i++)
-		{	
+		for (int i = 0; i < _bufferSizeGUI; i++)
+		{
 			sem_wait(&(_pSharedBuffer->bufferElements[i].mutex));
 			if (_pSharedBuffer->bufferElements[i].data.producerId == -1)
 			{
@@ -83,20 +83,24 @@ void updateBufferElementGUI()
 		gtk_label_set_text(GTK_LABEL(consumerCounterLabel), tmp);
 		sem_post(&(_pSharedBuffer->counter.consumersMutex));
 
-		char logFileData[LOGGING_FILE_SIZE];
-	    getLogFileData(_pSharedBuffer, logFileData);
+		getLogFileData(_pSharedBuffer);
 
-	    //GtkTextBuffer *textBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logContentLabel));
-	    //gtk_text_buffer_set_text(GTK_TEXT_BUFFER(textBuffer), logFileData, LOGGING_FILE_SIZE);
+		//GtkTextBuffer *textBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(logContentLabel));
+		//gtk_text_buffer_set_text(GTK_TEXT_BUFFER(textBuffer), logFileData, LOGGING_FILE_SIZE);
 
-	    gtk_label_set_text(GTK_LABEL(logContentLabel),logFileData);
+		//gtk_label_set_text(GTK_LABEL(logContentLabel),logFileData);
+		if(NUMBER_LINE != NUMBER_LINE_TMP)
+		{
+			gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(logViewText)), LOGGING_BUFFER, -1);
+			NUMBER_LINE_TMP = NUMBER_LINE;
+		}
+			
 
-	    //printf("%s", logFileData);
+		//make printf("%s", logFileData);
 	}
 }
 
-
-int main(int argc, char  *argv[])
+int main(int argc, char *argv[])
 {
 	// sanity check
 	if (!argv)
@@ -124,6 +128,9 @@ int main(int argc, char  *argv[])
 		return 1;
 	}
 
+	NUMBER_LINE = 0;
+	NUMBER_LINE_TMP = NUMBER_LINE;
+
 	void (*ptr)() = &updateBufferElementGUI;
 	_ptrUpdateGUI = ptr;
 	_bufferSizeGUI = bufferSize;
@@ -139,15 +146,14 @@ int main(int argc, char  *argv[])
 
 	runGUI(argc, argv, bufferId);
 
-
-    // ends
+	// ends
 
 	return 0;
 }
 
 #elif defined(PRODUCER_APP)
 
-int main(int argc, char  *argv[])
+int main(int argc, char *argv[])
 {
 	// sanity check
 	if (!argv)
@@ -167,7 +173,7 @@ int main(int argc, char  *argv[])
 	int bufferId = atoi(argv[1]);
 	double averageTime = atoi(argv[2]);
 
-	double lambda = 1/averageTime;
+	double lambda = 1 / averageTime;
 
 	// Intializes time for random number generator
 	time_t t;
@@ -175,13 +181,12 @@ int main(int argc, char  *argv[])
 
 	int waitTime = 0;
 
-
 	// simple test, just for review functionality
 	printf("PRODUCER_APP.\n");
 
 	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
-	
+
 	struct stat buffer;
 	if (stat(sharedBufferName, &buffer) != 0)
 	{
@@ -211,8 +216,8 @@ int main(int argc, char  *argv[])
 	strftime(data.date, sizeof(data.date), "%x - %X", infoTime);
 
 	gettimeofday(&producer.startTime, NULL);
-    while (1)
-    {
+	while (1)
+	{
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 		time(&rawTime);
@@ -222,15 +227,14 @@ int main(int argc, char  *argv[])
 		data.key = rand() % 5;
 		data.killerPID = NO_PID;
 		tryWrite(data, &producer);
-    }
-
+	}
 
 	return 0;
 }
 
 #elif defined(CONSUMER_APP)
 
-int main(int argc, char  *argv[])
+int main(int argc, char *argv[])
 {
 	// sanity check
 	if (!argv)
@@ -250,7 +254,7 @@ int main(int argc, char  *argv[])
 	int bufferId = atoi(argv[1]);
 	double averageTime = atoi(argv[2]);
 
-	double lambda = 1/averageTime;
+	double lambda = 1 / averageTime;
 
 	// Intializes time for random number generator
 	time_t t;
@@ -260,9 +264,9 @@ int main(int argc, char  *argv[])
 
 	// simple test, just for review functionality
 	printf("CONSUMER_APP.\n");
-    // ends
+	// ends
 
-    char sharedBufferName[50];
+	char sharedBufferName[50];
 	strcpy(sharedBufferName, getFixedName(SHARED_BUFFER_NAME, bufferId));
 
 	struct stat buffer;
@@ -287,7 +291,7 @@ int main(int argc, char  *argv[])
 	consumer.consumerId = getProducerConsumer(CONSUMER_ROLE, sharedBufferName);
 	gettimeofday(&consumer.startTime, NULL);
 	while (1)
-    {
+	{
 		waitTime = ceil(getRandomExponentialDistribution(lambda));
 		sleep(waitTime);
 
@@ -299,7 +303,7 @@ int main(int argc, char  *argv[])
 
 #elif defined(TERMINATOR_APP)
 
-int main(int argc, char  *argv[])
+int main(int argc, char *argv[])
 {
 	// sanity check
 	if (!argv)
@@ -353,7 +357,6 @@ int main(int argc, char  *argv[])
 		}
 	} while (waitCondition);
 
-
 	logTerminatorAction(sharedBufferName, 0, NULL, REMOVE_SHARED_BUFFER);
 	if (!removeBuffer(sharedBufferName))
 	{
@@ -361,10 +364,9 @@ int main(int argc, char  *argv[])
 		return 1;
 	}
 
-    // ends
+	// ends
 
 	return 0;
 }
 
 #endif
-

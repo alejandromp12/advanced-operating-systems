@@ -111,6 +111,9 @@ void runGUI(int argc, char *argv[], int bufferId) {
 	logViewport = GTK_WIDGET(gtk_builder_get_object(builder,"LogViewport"));
 	gtk_builder_connect_signals(builder, NULL);
 
+	logViewText = GTK_WIDGET(gtk_builder_get_object(builder,"Log"));
+	gtk_builder_connect_signals(builder, NULL);
+
 
 	titleLabel = GTK_WIDGET(gtk_builder_get_object(builder,"TitleLabel"));
 	gtk_builder_connect_signals(builder, NULL);
@@ -134,6 +137,7 @@ void runGUI(int argc, char *argv[], int bufferId) {
 	gtk_label_set_text(GTK_LABEL(titleLabel),tmp);
 
 
+	
 	for(int i = 0 ; i < _bufferSizeGUI; i++)
 	{	
 		sprintf(tmp, "%i \n", i+1);

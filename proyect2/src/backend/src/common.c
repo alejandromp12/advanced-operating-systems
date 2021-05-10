@@ -8,7 +8,7 @@
 #include <limits.h>
 #include <sys/mman.h>
 
-void getLogFileData(sharedBuffer *pSharedBuffer, char output[])
+void getLogFileData(sharedBuffer *pSharedBuffer)
 {
 	char line[255] = {0};
 	int sizeLines = 0;
@@ -28,16 +28,20 @@ void getLogFileData(sharedBuffer *pSharedBuffer, char output[])
 		return;
 	}
 
+	int numberLine = 0;
 	while (fgets(line, 255, fp) != NULL)
 	{
-		strcpy(&output[sizeLines], line);
-		//printf("%s\n", &output[sizeLines]);
-		sizeLines++;
+		if(NUMBER_LINE == numberLine)
+		{
+			strcat(LOGGING_BUFFER, line);
+			NUMBER_LINE ++;
+		}
+		
+		numberLine ++;
 	}
 
 	fclose(fp);
 
-	//strcpy(output, tmp);
 	sem_post(&pSharedBuffer->loggingFileMutex);
 }
 
