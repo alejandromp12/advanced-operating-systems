@@ -61,7 +61,7 @@ void logConsumerStatistics(consumerProcess *pConsumer, sharedBuffer *pSharedBuff
 
 	doLogging(log, pSharedBuffer);
 
-	printf("Message logged:\n%s\n", log);
+	//printf("Message logged:\n%s\n", log);
 }
 
 void xkillConsumer(consumerProcess *pConsumer, sharedBuffer *pSharedBuffer)
@@ -113,6 +113,8 @@ int readData(bufferElement *pBuffElement, int bufferIndex, char *bufferName, con
 	printf("Producer ID who wrote the message %i.\n", pBuffElement->data.producerId);
 	printf("Key of the message %i.\n", pBuffElement->data.key);
 	printf("Date of the message %s.\n", pBuffElement->data.date);
+	printf("Consumers alive: %d\n", getProducerConsumer(CONSUMER_ROLE, bufferName));
+	printf("Producers alive: %d\n", getProducerConsumer(PRODUCER_ROLE, bufferName));
 	printf("==================================\n");
 
 

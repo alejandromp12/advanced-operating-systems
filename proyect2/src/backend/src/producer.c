@@ -47,6 +47,8 @@ int writeData(bufferElement *pBuffElement, producerProcess *pProducer, dataMessa
 	printf("Producer ID who wrote the message %i.\n", pBuffElement->data.producerId);
 	printf("Key of the message %i.\n", pBuffElement->data.key);
 	printf("Date of the message %s.\n", pBuffElement->data.date);
+	printf("Consumers alive: %d\n", getProducerConsumer(CONSUMER_ROLE, bufferName));
+	printf("Producers alive: %d\n", getProducerConsumer(PRODUCER_ROLE, bufferName));
 	printf("==================================\n");
 
     //signal
