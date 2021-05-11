@@ -23,7 +23,7 @@
 #define NO_PID -1
 
 #define LOGGING_FILE_NAME "/tmp/sharedBuffer.log."
-#define LOGGING_FILE_SIZE 5120 // 5MB
+#define LOGGING_FILE_SIZE 1000000 // 5MB
 
 int NUMBER_LINE;
 int NUMBER_LINE_TMP;
