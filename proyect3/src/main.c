@@ -12,18 +12,32 @@
 #include <sys/time.h>
 
 #include "backend/include/beamer.h"
-#include "backend/include/realTimeSchedulingFactory.h"
+#include "backend/include/common.h"
 #include "backend/include/rateMonothonicScheduler.h"
 #include "backend/include/earliestDeadlineFirstScheduler.h"
 #include "backend/include/leastLaxityFirstScheduler.h"
 //#include "frontend/include/gui.h"
 
-static int APPLICATION_ARGS_NUM = 3;
+
+rateMonotonicGui *_pRateMonotonicGui;
 
 // sincronizes GUI elements
-void updateGUI()
+void getDataFromGUI()
 {
+	// dummy by the moment
+	if (!_pRateMonotonicGui)
+	{
+		printf("Error, NULL ptr in getDataFromGUI()\n");
+		return;
+	}
 
+	_pRateMonotonicGui->numProcesses = MAX_PROCESS;
+	for (int i = 0; i < MAX_PROCESS; i++)
+	{
+		_pRateMonotonicGui->executionTime[i] = (rand() % 5) + 1;
+		_pRateMonotonicGui->remainTime[i] = _pRateMonotonicGui->executionTime[i];
+		_pRateMonotonicGui->period[i] = (rand() % 20) + 1;
+	}
 }
 
 int main(int argc, char *argv[])
@@ -35,18 +49,44 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if (argc != APPLICATION_ARGS_NUM)
+	// Initializes time for random number generator
+	time_t t;
+	srand((unsigned)time(&t));
+
+
+	_pRateMonotonicGui = (rateMonotonicGui*)malloc(sizeof(rateMonotonicGui));
+	getDataFromGUI();
+
+	//void (*ptr)() = &getDataFromGUI;
+	//_ptrUpdateGUI = ptr;
+
+	//runGUI(argc, argv, bufferId);
+
+	rateMonotonic *pRateMonotonic = (rateMonotonic*)malloc(sizeof(rateMonotonic));
+	if (!pRateMonotonic)
 	{
-		printf("Usage: $ %s ....\n", argv[0]);
+		printf("Error: pRateMonotonic is NULL.\n");
 		return 1;
 	}
 
+	if (populateRMProcessInfo(pRateMonotonic, _pRateMonotonicGui) == ERROR)
+	{
+		printf("Error: while running populateRMProcessInfo().\n");
+		return 1;
+	}
 
-	//void (*ptr)() = &updateGUI;
-	//_ptrUpdateGUI = ptr;
+	int observationTime = getObservationTime(pRateMonotonic->period);
+	if (observationTime == ERROR)
+	{
+		printf("Error: while running getObservationTime().\n");
+		return 1;
+	}
 
-
-	//runGUI(argc, argv, bufferId);
+	if (runRateMonotonicScheduler(pRateMonotonic, observationTime) == ERROR)
+	{
+		printf("Error: while running rateMonotonic algorithm.\n");
+		return 1;
+	}
 
 	return 0;
 }
