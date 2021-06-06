@@ -18,11 +18,14 @@
 #include "backend/include/leastLaxityFirstScheduler.h"
 #include "frontend/include/gui.h"
 
-int _executionTime[MAX_PROCESS];
-int _remainTime[MAX_PROCESS];
-int _timeLine[MAX_PROCESS];
+int *_executionTime;
+int *_remainTime;
+int *_timeLine;
 int _numProcesses;
 
+int _rmFlag = 0;
+int _edfFlag = 0;
+int _llfFlag = 0;
 
 rateMonothonic *_pRateMonothonic;
 earliestDeadlineFirst *_pEarliestDeadlineFirst;
@@ -35,6 +38,9 @@ void getDataFromGUI()
 	_llfFlag = _selectedLLF;
 
 	_numProcesses = _numTasks;
+	_executionTime = (int*)malloc(_numProcesses * sizeof(int));
+	_remainTime = (int*)malloc(_numProcesses * sizeof(int));
+	_timeLine = (int*)malloc(_numProcesses * sizeof(int));
 	for (int i = 0; i < _numProcesses; i++)
 	{
 		_executionTime[i] = tasksGUI[i].executionTime;
@@ -111,7 +117,7 @@ void getDataFromGUI()
 
 void runRateMonothonicScheduler()
 {
-	if (populateRMProcessInfo(_pRateMonothonic, _numProcessesRM, _executionTimeRM, _periodRM, _remainTimeRM) == ERROR)
+	if (populateRMProcessInfo(_pRateMonothonic, _numProcesses, _executionTime, _timeLine, _remainTime) == ERROR)
 	{
 		printf("Error: while running populateRMProcessInfo().\n");
 		_pRateMonothonic = NULL;
@@ -134,12 +140,6 @@ void runRateMonothonicScheduler()
 	{
 		printf("Error: while running RateMonothonic algorithm.\n");
 		exit(1);
-	}
-
-	// clean up section
-	if (_pRateMonothonic != NULL)
-	{
-		free(_pRateMonothonic);
 	}
 }
 
@@ -170,12 +170,6 @@ void runEarliestDeadlineFirstScheduler()
 		printf("Error: while running EarliestDeadlineFirst algorithm.\n");
 		exit(1);
 	}
-
-		// clean up section
-	if (_pEarliestDeadlineFirst != NULL)
-	{
-		free(_pEarliestDeadlineFirst);
-	}
 }
 
 
@@ -193,11 +187,78 @@ int main(int argc, char *argv[])
 
 	void (*ptr)() = &getDataFromGUI;
 	_ptrGetFromGUI = ptr;
-	runGUI(argc, argv)
+	runGUI(argc, argv);
 
 	getDataFromGUI();
-    	runRateMonothonicScheduler();
-	runEarliestDeadlineFirstScheduler();
+
+		_rmFlag = _selectedRM;
+	_edfFlag = _selectedEDF;
+	_llfFlag = _selectedLLF;
+
+	if (_edfFlag && _rmFlag && _llfFlag)
+	{
+		runRateMonothonicScheduler();
+		runEarliestDeadlineFirstScheduler();
+		// runLeastLaxityFirstScheduler();
+	}
+	else if (_edfFlag && _rmFlag && !_llfFlag)
+	{
+		runRateMonothonicScheduler();
+		runEarliestDeadlineFirstScheduler();
+	}
+	else if (_edfFlag && !_rmFlag && _llfFlag)
+	{
+		runEarliestDeadlineFirstScheduler();
+		// runLeastLaxityFirstScheduler();
+	}
+	else if (_edfFlag && !_rmFlag && !_llfFlag)
+	{
+		runEarliestDeadlineFirstScheduler();
+	}
+	else if (!_edfFlag && _rmFlag && _llfFlag)
+	{
+		runRateMonothonicScheduler();
+		// runLeastLaxityFirstScheduler();
+	}
+	else if (!_edfFlag && _rmFlag && !_llfFlag)
+	{
+		runRateMonothonicScheduler();
+	}
+	else if (!_edfFlag && !_rmFlag && _llfFlag)
+	{
+		// runLeastLaxityFirstScheduler();
+	}
+	else
+	{
+		printf("No algorithm selected.\n");
+	}
+
+
+	// clean up section
+	if (_pEarliestDeadlineFirst != NULL)
+	{
+		free(_pEarliestDeadlineFirst);
+	}
+
+	if (_pRateMonothonic != NULL)
+	{
+		free(_pRateMonothonic);
+	}
+
+	if (_executionTime != NULL)
+	{
+		free(_executionTime);
+	}
+
+	if (_remainTime != NULL)
+	{
+		free(_remainTime);
+	}
+
+	if (_timeLine != NULL)
+	{
+		free(_timeLine);
+	}
 
 	return 0;
 }
