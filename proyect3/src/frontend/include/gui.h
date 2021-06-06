@@ -7,49 +7,44 @@
 #include <string.h>
 #include <time.h>
 
-// typedef struct
-// {
-// 	int threadId;
-// 	int progress;
-// 	float piApprox;
-// 	GtkWidget *threadIdLabel;
-// 	GtkWidget *progressLabel;
-// 	GtkWidget *progressBar;
-// 	GtkWidget *piApproxLabel;
-	
-// } threadStruct; ///< Struct to handle threads information
+
 #ifndef GUI_FILE
 #define GUI_FILE
 
 
-#define MAX_PIDS_GUI 50
+#define MAX_TASKS_GUI 6
 
 typedef struct
 {
-	GtkWidget *indexLabel;
-	GtkWidget *producerIdLabel;
-	GtkWidget *dateLabel;
-	GtkWidget *keyLabel;
+	GtkWidget *taskIdLabel;
+	GtkWidget *executionEntry;
+	GtkWidget *periodEntry;
+	int executionTime;
+	int periodTime;
 	
-} bufferElementStruct; ///< Struct to handle threads information
+} taskGuiStruct; ///< Struct to handle threads information
 
 
-bufferElementStruct bufferGUI[MAX_PIDS_GUI];
-int _bufferSizeGUI;
-int _bufferId;
+taskGuiStruct tasksGUI[MAX_TASKS_GUI];
+int _selectedRM;
+int _selectedEDF;
+int _selectedLLF;
 
-GtkWidget *producerCounterLabel;
-GtkWidget *consumerCounterLabel;
-GtkWidget *logContentLabel;
-GtkWidget *logViewText;
+int _numTasks;
 
-//void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox);
 
-void runGUI(int argc, char **argv, int bufferId);
+void runGUI(int argc, char **argv);
 
-gboolean time_handler(GtkWidget *widget);
+//gboolean time_handler(GtkWidget *widget);
 
 void exit_app();
+
+void rm_check(GtkToggleButton *button);
+void edf_check(GtkToggleButton *button);
+void llf_check(GtkToggleButton *button);
+void ok_clicked(GtkButton *button);
+void start_clicked(GtkButton *button);
+void populateGrid();
 
 
 //Pointers to update the GUI
@@ -58,6 +53,6 @@ void exit_app();
 // int _pGuiTotalProgress;
 // float _pGuiPiApprox;
 
-void (*_ptrUpdateGUI)();
+void (*_ptrGetFromGUI)();
 
 #endif

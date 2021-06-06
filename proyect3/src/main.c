@@ -16,7 +16,7 @@
 #include "backend/include/rateMonothonicScheduler.h"
 #include "backend/include/earliestDeadlineFirstScheduler.h"
 #include "backend/include/leastLaxityFirstScheduler.h"
-//#include "frontend/include/gui.h"
+#include "frontend/include/gui.h"
 
 int _executionTimeRM[MAX_PROCESS];
 int _remainTimeRM[MAX_PROCESS];
@@ -58,6 +58,8 @@ void getDataFromGUI()
 		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeEDF[i];
 		_deadlineEDF[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
 	}
+
+	exit_app();
 }
 
 
@@ -95,6 +97,7 @@ void runRateMonothonicScheduler()
 	}
 }
 
+	//runGUI(argc, argv, bufferId);
 
 void runEarliestDeadlineFirstScheduler()
 {
@@ -140,15 +143,15 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	//void (*ptr)() = &getDataFromGUI;
-	//_ptrUpdateGUI = ptr;
-
-	//runGUI(argc, argv, bufferId);
-
 	_pRateMonothonic = (rateMonothonic*)malloc(sizeof(rateMonothonic));
 	_pEarliestDeadlineFirst = (earliestDeadlineFirst*)malloc(sizeof(earliestDeadlineFirst));
+	
+	void (*ptr)() = &getDataFromGUI;
+	_ptrGetFromGUI = ptr;
+	runGUI(argc, argv);
 
-	getDataFromGUI();
+
+	//getDataFromGUI();
 	runRateMonothonicScheduler();
 	//runEarliestDeadlineFirstScheduler();
 
