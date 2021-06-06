@@ -40,6 +40,9 @@ int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 	}
 
 	float utilization = 0;
+	int deadProcess = -1;
+	int t_deadProcess = -1;
+
 	for (int i = 0; i < pRM->numProcesses; i++)
 	{
 		utilization += ((float)pRM->executionTime[i])/pRM->period[i];
@@ -87,6 +90,10 @@ int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 			if ((pRM->remainTime[k] > pRM->remainPeriod[k]) && (pRM->remainPeriod[k] == 0))
 			{
 				printf("Deadline lost at process: %d\n", k + 1);
+				printf("Deadline T: %d", t);
+				deadProcess = k + 1;
+				t_deadProcess = t;
+
 				stopCond = 1;
 				break;
 			}
@@ -100,6 +107,7 @@ int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 	}
 
 	printSchedule(processListRM, time, pRM->numProcesses, RATE_MONOTHONIC);
+	printPresentation(processListRM, time, pRM ->numProcesses, pRM ->period, deadProcess, t_deadProcess, pRM->executionTime ,RATE_MONOTHONIC);
 
 	return NO_ERROR;
 }

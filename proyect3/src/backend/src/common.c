@@ -1,5 +1,5 @@
 #include "include/common.h"
-
+#include "include/beamer.h"
 
 //get maximum of 2 numbers
 int getMax(int *timeUnit, int size)
@@ -53,6 +53,29 @@ char *getAlgorithmStr(RealTimeSchedulingAlgorithm algorithm)
 		default:
 			return "Unknown";
 	}
+}
+
+
+void printPresentation(int processList[], int cycles, int numProcesses, int deadline[], int deadProcess, int t_deadProcess, int executionTime[] ,RealTimeSchedulingAlgorithm algorithm)
+{	
+	char *algorithm_title;
+	if(algorithm == RATE_MONOTHONIC)
+	{
+		algorithm_title = "Rate Monothonic (RM)";
+		definitionRM();
+	}
+	else if(algorithm == EARLIEST_DEADLINE_FIRST)
+	{
+		algorithm_title = "Earliest Deadline First (EDF)";
+		definitionEDF();
+	}
+	else
+	{
+		algorithm_title = "Least Laxity First (LLF)";
+		definitionLLF();
+	}
+
+	simulationStep(algorithm_title, processList, cycles, numProcesses, deadline, deadProcess, t_deadProcess, executionTime);
 }
 
 //print scheduling sequence

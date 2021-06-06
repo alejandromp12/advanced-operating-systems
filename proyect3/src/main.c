@@ -168,7 +168,7 @@ void runEarliestDeadlineFirstScheduler()
 		exit(1);
 	}
 
-	if (earliestDeadlineFirstScheduler(_pEarliestDeadlineFirst, observationTimeEDF) == ERROR)
+	if (earliestDeadlineFirstScheduler(_pEarliestDeadlineFirst, observationTimeEDF, _timeLine, _executionTime) == ERROR)
 	{
 		printf("Error: while running EarliestDeadlineFirst algorithm.\n");
 		exit(1);
@@ -197,7 +197,7 @@ void runLeastLaxityFirstScheduler()
 		exit(1);
 	}
 
-	if (leastLaxityFirstScheduler(_pLeastLaxityFirst, observationTimeLLF) == ERROR)
+	if (leastLaxityFirstScheduler(_pLeastLaxityFirst, observationTimeLLF, _timeLine, _executionTime) == ERROR)
 	{
 		printf("Error: while running leastLaxityFirstScheduler algorithm.\n");
 		exit(1);
@@ -223,6 +223,8 @@ int main(int argc, char *argv[])
 	runGUI(argc, argv);
 
 	getDataFromGUI();
+
+	createPresentation();
 
 	if (_edfFlag)
 	{
@@ -275,6 +277,8 @@ int main(int argc, char *argv[])
 	{
 		free(_timeLine);
 	}
+
+	finistPresentation();
 
 	return 0;
 }

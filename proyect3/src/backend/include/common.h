@@ -26,4 +26,7 @@ int getObservationTime(int *timeUnit, int size);
 //print scheduling sequence
 void printSchedule(int processList[], int cycles, int numProcesses, RealTimeSchedulingAlgorithm algorithm);
 
+//print scheduling sequence in 
+void printPresentation(int processList[], int cycles, int numProcesses, int deadline[], int deadProcess, int t_deadProcess, int executionTime [], RealTimeSchedulingAlgorithm algorithm);
+
 #endif // COMMON_FILE

@@ -35,7 +35,7 @@ int populateLLFProcessInfo(leastLaxityFirst *pLLF, int numProcesses, int executi
 }
 
 
-int leastLaxityFirstScheduler(leastLaxityFirst *pLLF, int time)
+int leastLaxityFirstScheduler(leastLaxityFirst *pLLF, int time, int deadLine[], int executionTime[])
 {
 	if (!pLLF)
 	{
@@ -56,6 +56,8 @@ int leastLaxityFirstScheduler(leastLaxityFirst *pLLF, int time)
 		printf("Given problem is not schedulable.\n");
 	}
 
+	int deadProcess = -1;
+	int t_deadProcess = -1;
 	// tracking variables for ?
 	int processes[pLLF->numProcesses];
 	int isReady[pLLF->numProcesses];
@@ -167,6 +169,9 @@ int leastLaxityFirstScheduler(leastLaxityFirst *pLLF, int time)
 			if ((pLLF->currentLaxity[i] <= 0) && (pLLF->executionTime[i] > pLLF->remainDeadline[i]) && (pLLF->remainDeadline[i] == 0) && isReady[i])
 			{
 				printf("Deadline lost at process: %d\n", processes[i]);
+				deadProcess = processes[i];
+				t_deadProcess = t;
+
 				stopCond = 1;
 				//printf("=======================================\n");
 				break;
@@ -211,6 +216,7 @@ int leastLaxityFirstScheduler(leastLaxityFirst *pLLF, int time)
 	}
 
 	printSchedule(processListLLF, time, pLLF->numProcesses, LEAST_LAXITY_FIRST);
+	printPresentation(processListLLF, time, pLLF ->numProcesses, deadLine, deadProcess, t_deadProcess, executionTime,LEAST_LAXITY_FIRST);
 
 	return NO_ERROR;
 }

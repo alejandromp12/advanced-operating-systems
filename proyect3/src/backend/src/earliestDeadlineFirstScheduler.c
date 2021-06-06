@@ -30,7 +30,7 @@ int populateEDFProcessInfo(earliestDeadlineFirst *pEDF, int numProcesses, int ex
 }
 
 
-int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
+int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time, int deadLine[], int executionTime[])
 {
 	if (!pEDF)
 	{
@@ -49,6 +49,8 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 		printf("Given problem is not schedulable.\n");
 	}
 
+	int deadProcess = -1;
+	int t_deadProcess = -1;
 	// tracking variables for ?
 	int processes[pEDF->numProcesses];
 	int isReady[pEDF->numProcesses];
@@ -140,6 +142,11 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 			if ((pEDF->deadline[i] == 0) && (pEDF->executionTime[i] > pEDF->deadline[i]) && isReady[i])
 			{
 				printf("Deadline lost at process: %d\n", processes[i]);
+				deadProcess = processes[i];
+
+
+				t_deadProcess = t;
+				printf("-- %d --", t_deadProcess);
 				stopCond = 1;
 				//printf("=======================================\n");
 				break;
@@ -193,6 +200,7 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 	}
 
 	printSchedule(processListEDF, time, pEDF->numProcesses, EARLIEST_DEADLINE_FIRST);
+	printPresentation(processListEDF, time, pEDF ->numProcesses, deadLine, deadProcess, t_deadProcess, executionTime,EARLIEST_DEADLINE_FIRST);
 
 	return NO_ERROR;
 }
