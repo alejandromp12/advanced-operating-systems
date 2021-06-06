@@ -5,6 +5,7 @@
 
 
 #define MAX_PROCESS 6
+#define MAX_TIME_UNITS 7
 
 typedef enum
 {
@@ -12,18 +13,17 @@ typedef enum
 	NO_ERROR = 1
 } Result;
 
-typedef struct
+typedef enum
 {
-	int numProcesses;
-	int executionTime[MAX_PROCESS];
-	int period[MAX_PROCESS];
-	int remainTime[MAX_PROCESS];
-} rateMonotonicGui;
+	RATE_MONOTHONIC = 0,
+	EARLIEST_DEADLINE_FIRST = 1,
+	LEAST_LAXITY_FIRST = 2,
+} RealTimeSchedulingAlgorithm;
 
 //calculating the observation time for scheduling timeline
-int getObservationTime(int period[]);
+int getObservationTime(int *timeUnit, int size);
 
 //print scheduling sequence
-void printSchedule(int processList[], int cycles, int numProcesses);
+void printSchedule(int processList[], int cycles, int numProcesses, RealTimeSchedulingAlgorithm algorithm);
 
 #endif // COMMON_FILE

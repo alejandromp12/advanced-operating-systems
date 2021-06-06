@@ -1,34 +1,41 @@
 #include "include/rateMonothonicScheduler.h"
 #include <math.h>
+#include <stdlib.h>
 
 //collecting details of processes
-int populateRMProcessInfo(rateMonotonic *pRM, rateMonotonicGui *pRMGui)
+int populateRMProcessInfo(rateMonothonic *pRM, int numProcesses, int executionTime[], int period[], int remainTime[])
 {
-	if (!pRM || !pRMGui)
+	if (!pRM)
 	{
 		printf("Error, NULL ptr in populateRMProcessInfo()\n");
 		return ERROR;
 	}
 
-	pRM->numProcesses = pRMGui->numProcesses;
-	for (int i = 0; i < pRM->numProcesses; i++)
+	pRM->numProcesses = numProcesses;
+	pRM->executionTime = (int*)malloc(numProcesses * sizeof(int));
+	pRM->remainTime = (int*)malloc(numProcesses * sizeof(int));
+	pRM->period = (int*)malloc(numProcesses * sizeof(int));
+	pRM->carryPeriod = (int*)malloc(numProcesses * sizeof(int));
+	for (int i = 0; i < numProcesses; i++)
 	{
-		printf("Process %d:-", i + 1);
-		pRM->executionTime[i] = pRMGui->executionTime[i];
+		printf("Process %d: ", i + 1);
+		pRM->executionTime[i] = executionTime[i];
 		printf("==> Execution time: %d ", pRM->executionTime[i]);
-		pRM->remainTime[i] = pRMGui->executionTime[i];
-		pRM->period[i] = pRMGui->period[i];
+		pRM->remainTime[i] = executionTime[i];
+		pRM->period[i] = period[i];
 		printf("==> Period: %d\n", pRM->period[i]);
+		pRM->carryPeriod[i] = period[i];
 	}
 
 	return NO_ERROR;
 }
 
-int runRateMonotonicScheduler(rateMonotonic *pRM, int time)
+
+int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 {
 	if (!pRM)
 	{
-		printf("Error, NULL ptr in rateMonotonic()\n");
+		printf("Error, NULL ptr in runRateMonothonicScheduler()\n");
 		return ERROR;
 	}
 
@@ -45,40 +52,63 @@ int runRateMonotonicScheduler(rateMonotonic *pRM, int time)
 	}
 
 	int processListRM[time];
-	int min = 999;
-	int nextProcess = 0;
 	for (int i = 0; i < time; i++)
 	{
-		min = 1000;
-		for (int j = 0; j < pRM->numProcesses; j++)
+		processListRM[i] = -1;
+	}
+
+	int tmpPeriod;
+	int nextProcess = 0;
+	int stopCond = 0;
+	for (int t = 0; (t < time) && !stopCond; t++)
+	{
+		for (int i = 0; i < pRM->numProcesses; i++)
 		{
-			if (pRM->remainTime[j] > 0)
+			if (pRM->remainTime[i] > pRM->carryPeriod[i])
 			{
-				if (min > pRM->period[j])
-				{
-					min = pRM->period[j];
-					nextProcess = j;
-				}
+				stopCond = 1;
+				break;
+			}
+			else if ((t + 1) % pRM->period[i] == 0)
+			{
+				pRM->carryPeriod[i] = pRM->period[i];
 			}
 		}
 
+		// logic to get the next process, in order to set the number in the array
+		tmpPeriod = 100;
+		for (int j = 0; j < pRM->numProcesses; j++)
+		{
+			if ((pRM->remainTime[j] > 0) && (pRM->period[j] < tmpPeriod))
+			{
+				tmpPeriod = pRM->period[j];
+				nextProcess = j;
+			}
+		}
+
+		// knowing the next process which could be 0, then we can assign it to the list
+		// and reduce the remain
 		if (pRM->remainTime[nextProcess] > 0)
 		{
-			processListRM[i] = nextProcess + 1; 	// +1 for catering 0 array index.
+			printf("time: %i\n", t);
+			printf("nextProcess: %i\n", nextProcess + 1);
+			processListRM[t] = nextProcess + 1; // +1 for catering 0 array index.
 			pRM->remainTime[nextProcess] -= 1;
 		}
 
 		for (int k = 0; k < pRM->numProcesses; k++)
 		{
-			if ((i + 1) % pRM->period[k] == 0)
+			if ((t + 1) % pRM->period[k] == 0)
 			{
 				pRM->remainTime[k] = pRM->executionTime[k];
 				nextProcess = k;
 			}
+
+			--pRM->carryPeriod[k];
 		}
 	}
 
-	printSchedule(processListRM, time, pRM->numProcesses);
+	printSchedule(processListRM, time, pRM->numProcesses, RATE_MONOTHONIC);
 
 	return NO_ERROR;
 }

@@ -18,27 +18,118 @@
 #include "backend/include/leastLaxityFirstScheduler.h"
 //#include "frontend/include/gui.h"
 
+int _executionTimeRM[MAX_PROCESS];
+int _remainTimeRM[MAX_PROCESS];
+int _periodRM[MAX_PROCESS];
+int _numProcessesRM;
 
-rateMonotonicGui *_pRateMonotonicGui;
+int _executionTimeEDF[MAX_PROCESS];
+int _remainTimeEDF[MAX_PROCESS];
+int _deadlineEDF[MAX_PROCESS];
+int _numProcessesEDF;
+
+rateMonothonic *_pRateMonothonic;
+earliestDeadlineFirst *_pEarliestDeadlineFirst;
 
 // sincronizes GUI elements
 void getDataFromGUI()
 {
+	// Initializes time for random number generator: dummy by the moment
+	time_t t;
+	srand((unsigned)time(&t));
+
 	// dummy by the moment
-	if (!_pRateMonotonicGui)
+	_numProcessesRM = MAX_PROCESS;
+	int tmp;
+	for (int i = 0; i < _numProcessesRM; i++)
 	{
-		printf("Error, NULL ptr in getDataFromGUI()\n");
-		return;
+		_executionTimeRM[i] = (rand() % MAX_TIME_UNITS) + 1;
+		_remainTimeRM[i] = _executionTimeRM[i];
+		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeRM[i];
+		_periodRM[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
 	}
 
-	_pRateMonotonicGui->numProcesses = MAX_PROCESS;
-	for (int i = 0; i < MAX_PROCESS; i++)
+	// dummy by the moment
+	_numProcessesEDF = MAX_PROCESS;
+	for (int i = 0; i < _numProcessesEDF; i++)
 	{
-		_pRateMonotonicGui->executionTime[i] = (rand() % 5) + 1;
-		_pRateMonotonicGui->remainTime[i] = _pRateMonotonicGui->executionTime[i];
-		_pRateMonotonicGui->period[i] = (rand() % 20) + 1;
+		_executionTimeEDF[i] = (rand() % MAX_TIME_UNITS) + 1;
+		_remainTimeEDF[i] = _executionTimeEDF[i];
+		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeEDF[i];
+		_deadlineEDF[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
 	}
 }
+
+
+void runRateMonothonicScheduler()
+{
+	if (populateRMProcessInfo(_pRateMonothonic, _numProcessesRM, _executionTimeRM, _periodRM, _remainTimeRM) == ERROR)
+	{
+		printf("Error: while running populateRMProcessInfo().\n");
+		_pRateMonothonic = NULL;
+	}
+
+	if (!_pRateMonothonic)
+	{
+		printf("Error: _pRateMonothonic is NULL.\n");
+		exit(1);
+	}
+
+	int observationTimeRM = getObservationTime(_pRateMonothonic->period, _pRateMonothonic->numProcesses);
+	if (observationTimeRM == ERROR)
+	{
+		printf("Error: while running getObservationTime().\n");
+		exit(1);
+	}
+
+	if (rateMonothonicScheduler(_pRateMonothonic, observationTimeRM) == ERROR)
+	{
+		printf("Error: while running RateMonothonic algorithm.\n");
+		exit(1);
+	}
+
+	// clean up section
+	if (_pRateMonothonic != NULL)
+	{
+		free(_pRateMonothonic);
+	}
+}
+
+
+void runEarliestDeadlineFirstScheduler()
+{
+	if (populateEDFProcessInfo(_pEarliestDeadlineFirst, _numProcessesEDF, _executionTimeEDF, _deadlineEDF, _remainTimeEDF) == ERROR)
+	{
+		printf("Error: while running populateEDFProcessInfo().\n");
+		_pEarliestDeadlineFirst = NULL;
+	}
+
+	if (!_pEarliestDeadlineFirst)
+	{
+		printf("Error: _pEarliestDeadlineFirst is NULL.\n");
+		exit(1);
+	}
+
+	int observationTimeEDF = getObservationTime(_pEarliestDeadlineFirst->deadline, _pEarliestDeadlineFirst->numProcesses);
+	if (observationTimeEDF == ERROR)
+	{
+		printf("Error: while running getObservationTime().\n");
+		exit(1);
+	}
+
+	if (earliestDeadlineFirstScheduler(_pEarliestDeadlineFirst, observationTimeEDF) == ERROR)
+	{
+		printf("Error: while running EarliestDeadlineFirst algorithm.\n");
+		exit(1);
+	}
+
+		// clean up section
+	if (_pEarliestDeadlineFirst != NULL)
+	{
+		free(_pEarliestDeadlineFirst);
+	}
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -46,47 +137,20 @@ int main(int argc, char *argv[])
 	if (!argv)
 	{
 		printf("Error: argv is NULL.\n");
-		return 1;
+		exit(1);
 	}
-
-	// Initializes time for random number generator
-	time_t t;
-	srand((unsigned)time(&t));
-
-
-	_pRateMonotonicGui = (rateMonotonicGui*)malloc(sizeof(rateMonotonicGui));
-	getDataFromGUI();
 
 	//void (*ptr)() = &getDataFromGUI;
 	//_ptrUpdateGUI = ptr;
 
 	//runGUI(argc, argv, bufferId);
 
-	rateMonotonic *pRateMonotonic = (rateMonotonic*)malloc(sizeof(rateMonotonic));
-	if (!pRateMonotonic)
-	{
-		printf("Error: pRateMonotonic is NULL.\n");
-		return 1;
-	}
+	_pRateMonothonic = (rateMonothonic*)malloc(sizeof(rateMonothonic));
+	_pEarliestDeadlineFirst = (earliestDeadlineFirst*)malloc(sizeof(earliestDeadlineFirst));
 
-	if (populateRMProcessInfo(pRateMonotonic, _pRateMonotonicGui) == ERROR)
-	{
-		printf("Error: while running populateRMProcessInfo().\n");
-		return 1;
-	}
-
-	int observationTime = getObservationTime(pRateMonotonic->period);
-	if (observationTime == ERROR)
-	{
-		printf("Error: while running getObservationTime().\n");
-		return 1;
-	}
-
-	if (runRateMonotonicScheduler(pRateMonotonic, observationTime) == ERROR)
-	{
-		printf("Error: while running rateMonotonic algorithm.\n");
-		return 1;
-	}
+	getDataFromGUI();
+	runRateMonothonicScheduler();
+	//runEarliestDeadlineFirstScheduler();
 
 	return 0;
 }

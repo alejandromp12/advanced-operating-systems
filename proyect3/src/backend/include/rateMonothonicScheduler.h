@@ -7,14 +7,15 @@
 typedef struct
 {
 	int numProcesses;
-	int executionTime[MAX_PROCESS];
-	int period[MAX_PROCESS];
-	int remainTime[MAX_PROCESS];
-} rateMonotonic;
+	int *executionTime;
+	int *period;
+	int *remainTime;
+	int *carryPeriod;
+} rateMonothonic;
 
-int populateRMProcessInfo(rateMonotonic *pRM, rateMonotonicGui *pRMGui);
+int populateRMProcessInfo(rateMonothonic *pRM, int numProcesses, int executionTime[], int period[], int remainTime[]);
 
-int runRateMonotonicScheduler(rateMonotonic *pRM, int time);
+int rateMonothonicScheduler(rateMonothonic *pRM, int time);
 
 
 #endif // RATE_MONOTHONIC_SHCEDULER_FILE

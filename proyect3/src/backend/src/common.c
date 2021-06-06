@@ -1,38 +1,64 @@
 #include "include/common.h"
 
 
-//get maximum of three numbers
-int getMax(int a,int b, int c, int d, int e, int f)
+//get maximum of 2 numbers
+int getMax(int *timeUnit, int size)
 {
-	if (a>=b && a>=c && a>=d && a>=e && a>=f)
-		return (long)a;
-	else if (b>=a && b>=c && b>=d && b>=e && b>=f)
-		return (long)b;
-	else if (c>=a && c>=b && c>=d && c>=e && c>=f)
-		return (long)c;
-	else if (d>=a && d>=b && d>=c && d>=e && d>=f)
-		return (long)d;
-	else if (e>=a && e>=b && e>=c && e>=d && e>=f)
-		return (long)c;
-	else if (f>=a && f>=b && f>=c && f>=d && f>=e)
-		return (long)f;
-	else
-		return ERROR;
+	int max = timeUnit[0];
+	for (int i = 0; (i < size) && ((i + 1) < size); i++)
+	{
+		max = (max >= timeUnit[i + 1]) ? max : timeUnit[i + 1];
+	}
+
+	return max;
+}
+
+// Utility function to find
+// GCD of 'a' and 'b'
+int gcd(int a, int b)
+{
+	if (b == 0)
+	{
+		return a;
+	}
+
+	return gcd(b, a % b);
 }
 
 
 //calculating the observation time for scheduling timeline
-int getObservationTime(int period[])
+int getObservationTime(int *timeUnit, int size)
 {
-	return getMax(period[0], period[1], period[2], period[3], period[4], period[5]);
-	//return max(deadline[0], deadline[1], deadline[2])
+	static int MAX_TIMELINE = 25;
+	int lmc = timeUnit[0];
+	for (int i = 1; i < size; i++)
+	{
+		lmc = (timeUnit[i] * lmc) / gcd(timeUnit[i], lmc);
+	}
+	return (lmc <= MAX_TIMELINE) ? lmc : MAX_TIMELINE;
+
+	///return getMax(timeUnit, size);
 }
 
+char *getAlgorithmStr(RealTimeSchedulingAlgorithm algorithm)
+{
+	switch (algorithm)
+	{
+		case RATE_MONOTHONIC:
+			return "Rate Monothonic";
+		case EARLIEST_DEADLINE_FIRST:
+			return "Earliest Deadline First";
+		case LEAST_LAXITY_FIRST:
+			return "Least Laxity First";
+		default:
+			return "Unknown";
+	}
+}
 
 //print scheduling sequence
-void printSchedule(int processList[], int cycles, int numProcesses)
+void printSchedule(int processList[], int cycles, int numProcesses, RealTimeSchedulingAlgorithm algorithm)
 {
-	printf("Scheduling:-\n");
+	printf("Scheduling: %s\n", getAlgorithmStr(algorithm));
 	printf("Time: ");
 	for (int i = 0; i < cycles; i++)
 	{
@@ -47,12 +73,12 @@ void printSchedule(int processList[], int cycles, int numProcesses)
 	}
 	printf("|\n");
 
-	for (int i=0; i<numProcesses; i++)
+	for (int i = 0; i < numProcesses; i++)
 	{
 		printf("P[%d]: ", i + 1);
-		for (int j=0; j<cycles; j++)
+		for (int j = 0; j < cycles; j++)
 		{
-			if (processList[j] == i+1)
+			if (processList[j] == i + 1)
 			{
 				printf("|####");
 			}
