@@ -26,6 +26,7 @@ int _numProcesses;
 int _rmFlag = 0;
 int _edfFlag = 0;
 int _llfFlag = 0;
+int _mixedSlidesFlag = 0;
 
 rateMonothonic *_pRateMonothonic;
 earliestDeadlineFirst *_pEarliestDeadlineFirst;
@@ -36,6 +37,7 @@ void getDataFromGUI()
 	_rmFlag = _selectedRM;
 	_edfFlag = _selectedEDF;
 	_llfFlag = _selectedLLF;
+	_mixedSlidesFlag = _mixedSlides;
 
 	_numProcesses = _numTasks;
 	_executionTime = (int*)malloc(_numProcesses * sizeof(int));

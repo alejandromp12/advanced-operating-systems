@@ -32,26 +32,21 @@ int _selectedLLF;
 
 int _numTasks;
 
+int _mixedSlides;
+
 
 void runGUI(int argc, char **argv);
 
-//gboolean time_handler(GtkWidget *widget);
 
 void exit_app();
 
 void rm_check(GtkToggleButton *button);
 void edf_check(GtkToggleButton *button);
 void llf_check(GtkToggleButton *button);
+void mixed_slides_check(GtkToggleButton *button);
 void ok_clicked(GtkButton *button);
 void start_clicked(GtkButton *button);
 void populateGrid();
-
-
-//Pointers to update the GUI
-// int _pGuiThreadId;
-// int _pGuiThreadProgress;
-// int _pGuiTotalProgress;
-// float _pGuiPiApprox;
 
 void (*_ptrGetFromGUI)();
 

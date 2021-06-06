@@ -13,6 +13,7 @@ GtkWidget *algorithmBox;
 GtkWidget *rmCheckButton;
 GtkWidget *edfCheckButton;
 GtkWidget *llfCheckButton;
+GtkWidget *mixedSlidesCheckButton;
 
 GtkWidget *taskQuantityBox;
 GtkWidget *taskQuantityLabel;
@@ -26,60 +27,6 @@ GtkWidget *periodColumnLabel;
 
 GtkWidget *startButton;
 
-
-
-// static GtkWidget *totalProgressLabel;
-// static GtkWidget *totalProgressBar;
-// static GtkWidget *totalPercentageLabel;
-// static GtkWidget *totalPiApproxLabel;
-
-// void setPercentageLabel(int progress, GtkWidget *label)
-// {
-// 	char percentageString[4];
-// 	sprintf(percentageString, "%d", progress);
-// 	strncat(percentageString, "\%", 1);
-// 	gtk_label_set_text(GTK_LABEL(label), percentageString);
-// }
-
-// void setProgressBar(int progress, GtkWidget *bar)
-// {
-// 	float percentageFloat = (float)progress / 100;
-// 	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (bar), percentageFloat);
-// }
-
-// void setPiApproxLabel(float piApprox, GtkWidget *label)
-// {
-// 	char piApproxString[10];
-// 	sprintf(piApproxString, "%f", piApprox);
-// 	char piApproxText[] = "Pi: ";
-// 	strncat(piApproxText, piApproxString, 10);
-// 	gtk_label_set_text(GTK_LABEL(label), piApproxText);
-// }
-
-// void updateGUI(int threadId, int progress, float piApprox, int totalProgress, float totalPiApprox)
-// {
-// 	int i = threadId - 1;
-// 	threadBank[i].progress = progress;
-// 	threadBank[i].piApprox = piApprox;
-	
-// 	// Thread Pi Approximate
-// 	setPiApproxLabel(threadBank[i].piApprox, threadBank[i].piApproxLabel);
-		
-// 	// Thread Percentage Label
-// 	setPercentageLabel(threadBank[i].progress, threadBank[i].progressLabel);
-			
-// 	// Thread Progress Bar
-// 	setProgressBar(threadBank[i].progress, threadBank[i].progressBar);
-		
-// 	// Total Percentage Label
-// 	setPercentageLabel(totalProgress, totalPercentageLabel);
-
-// 	// Total Progress Bar
-// 	setProgressBar(totalProgress, totalProgressBar);
-
-// 	// Total Pi Approimate
-// 	setPiApproxLabel(totalPiApprox, totalPiApproxLabel);
-// }
 
 
 void runGUI(int argc, char *argv[]) {
@@ -120,6 +67,10 @@ void runGUI(int argc, char *argv[]) {
 	gtk_builder_connect_signals(builder, NULL);
 	g_signal_connect(llfCheckButton, "toggled", G_CALLBACK(llf_check), NULL);
 
+	mixedSlidesCheckButton = GTK_WIDGET(gtk_builder_get_object(builder,"MixedSlidesCheckButton"));
+	gtk_builder_connect_signals(builder, NULL);
+	g_signal_connect(mixedSlidesCheckButton, "toggled", G_CALLBACK(mixed_slides_check), NULL);
+
 	taskQuantityBox = GTK_WIDGET(gtk_builder_get_object(builder,"TaskQuantityBox"));
 	gtk_builder_connect_signals(builder, NULL);
 
@@ -149,59 +100,6 @@ void runGUI(int argc, char *argv[]) {
 	g_signal_connect(startButton, "clicked", G_CALLBACK(start_clicked), NULL);
 	gtk_builder_connect_signals(builder, NULL);
 
-
-    //Add the buffer widgets
-	//char tmp[100];
-
-	//Change title to indicate Buffer ID
-	// sprintf(tmp, "Buffer %i \n", bufferId);
-	// gtk_label_set_text(GTK_LABEL(titleLabel),tmp);
-
-
-	
-	// for(int i = 0 ; i < _bufferSizeGUI; i++)
-	// {	
-	// 	sprintf(tmp, "%i \n", i+1);
-	// 	bufferGUI[i].indexLabel = gtk_label_new(tmp);
-
-	// 	sprintf(tmp, "%i \n", 0);
-	// 	bufferGUI[i].producerIdLabel = gtk_label_new(tmp);
-
-	// 	sprintf(tmp, "%i \n", 0);
-	// 	bufferGUI[i].dateLabel = gtk_label_new(tmp);
-
-	// 	sprintf(tmp, "%i \n", 0);
-	// 	bufferGUI[i].keyLabel = gtk_label_new(tmp);
-	// }
-
-	// GtkWidget *indexLabel = gtk_label_new("Index");
-	// GtkWidget *pidLabel = gtk_label_new("PID");
-	// GtkWidget *dateLabel = gtk_label_new("Date");
-	// GtkWidget *keyLabel = gtk_label_new("Key");
-
-	// gtk_grid_insert_column(GTK_GRID(bufferGrid), 0);
-	// gtk_grid_attach(GTK_GRID(bufferGrid), indexLabel, 0, 0, 1 ,1);
-	// gtk_grid_attach(GTK_GRID(bufferGrid), pidLabel, 0, 1, 1 ,1);
-	// gtk_grid_attach(GTK_GRID(bufferGrid), dateLabel, 0, 2, 1 ,1);
-	// gtk_grid_attach(GTK_GRID(bufferGrid), keyLabel, 0, 3, 1 ,1);
-
-
-
-	// for(int i = 0 ; i < _bufferSizeGUI; i++)
-	// {	
-	// 	gtk_grid_insert_column(GTK_GRID(bufferGrid), i+1);
-	// 	gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].indexLabel, i+1, 0, 1 ,1);
-
-	// 	gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].producerIdLabel, i+1, 1, 1 ,1);
-
-	// 	gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].dateLabel, i+1, 2, 1 ,1);
-
-	// 	gtk_grid_attach(GTK_GRID(bufferGrid), bufferGUI[i].keyLabel, i+1, 3, 1 ,1);
-	// }
-	
-    
-    //g_timeout_add(1, (GSourceFunc) time_handler, (gpointer) window);
-
     
     g_object_unref(builder);
     
@@ -211,24 +109,6 @@ void runGUI(int argc, char *argv[]) {
     
     
 }
-
-// gboolean time_handler(GtkWidget *widget) {
-    
-//     //Sanity check
-// 	if (widget == NULL) return FALSE;
-
-// 	//printf("GUI ThreadId: %i \n", _pGuiThreadId);
-
-// 	//Run Creator
-// 	(*_ptrUpdateGUI) ();
-
-// 	//Update the GUI information
-// 	//updateGUI(_pGuiThreadId, _pGuiThreadProgress, _pGuiPiApprox, _pGuiTotalProgress, _pGuiPiApprox);
-
-// 	gtk_widget_queue_draw(widget);
-
-// 	return TRUE;
-// }
 
 void exit_app()
 {
@@ -274,6 +154,19 @@ void llf_check(GtkToggleButton *button)
 	else 
 	{
 		_selectedLLF = 0;
+	}
+}
+
+void mixed_slides_check(GtkToggleButton *button)
+{
+	// Check whether check button was checked or unchecked
+	if (gtk_toggle_button_get_active(button)) 
+	{
+		_mixedSlides = 1;
+	}
+	else 
+	{
+		_mixedSlides = 0;
 	}
 }
 
