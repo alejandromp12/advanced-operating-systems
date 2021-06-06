@@ -15,7 +15,7 @@ int populateRMProcessInfo(rateMonothonic *pRM, int numProcesses, int executionTi
 	pRM->executionTime = (int*)malloc(numProcesses * sizeof(int));
 	pRM->remainTime = (int*)malloc(numProcesses * sizeof(int));
 	pRM->period = (int*)malloc(numProcesses * sizeof(int));
-	pRM->carryPeriod = (int*)malloc(numProcesses * sizeof(int));
+	pRM->remainPeriod = (int*)malloc(numProcesses * sizeof(int));
 	for (int i = 0; i < numProcesses; i++)
 	{
 		printf("Process %d: ", i + 1);
@@ -24,7 +24,7 @@ int populateRMProcessInfo(rateMonothonic *pRM, int numProcesses, int executionTi
 		pRM->remainTime[i] = executionTime[i];
 		pRM->period[i] = period[i];
 		printf("==> Period: %d\n", pRM->period[i]);
-		pRM->carryPeriod[i] = period[i];
+		pRM->remainPeriod[i] = period[i];
 	}
 
 	return NO_ERROR;
@@ -62,19 +62,6 @@ int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 	int stopCond = 0;
 	for (int t = 0; (t < time) && !stopCond; t++)
 	{
-		for (int i = 0; i < pRM->numProcesses; i++)
-		{
-			if (pRM->remainTime[i] > pRM->carryPeriod[i])
-			{
-				stopCond = 1;
-				break;
-			}
-			else if ((t + 1) % pRM->period[i] == 0)
-			{
-				pRM->carryPeriod[i] = pRM->period[i];
-			}
-		}
-
 		// logic to get the next process, in order to set the number in the array
 		tmpPeriod = 100;
 		for (int j = 0; j < pRM->numProcesses; j++)
@@ -90,21 +77,25 @@ int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 		// and reduce the remain
 		if (pRM->remainTime[nextProcess] > 0)
 		{
-			printf("time: %i\n", t);
-			printf("nextProcess: %i\n", nextProcess + 1);
 			processListRM[t] = nextProcess + 1; // +1 for catering 0 array index.
 			pRM->remainTime[nextProcess] -= 1;
 		}
 
 		for (int k = 0; k < pRM->numProcesses; k++)
 		{
-			if ((t + 1) % pRM->period[k] == 0)
+			--pRM->remainPeriod[k];
+			if ((pRM->remainTime[k] > pRM->remainPeriod[k]) && (pRM->remainPeriod[k] == 0))
 			{
+				printf("Deadline lost at process: %d\n", k + 1);
+				stopCond = 1;
+				break;
+			}
+			else if ((t + 1) % pRM->period[k] == 0)
+			{
+				pRM->remainPeriod[k] = pRM->period[k];
 				pRM->remainTime[k] = pRM->executionTime[k];
 				nextProcess = k;
 			}
-
-			--pRM->carryPeriod[k];
 		}
 	}
 

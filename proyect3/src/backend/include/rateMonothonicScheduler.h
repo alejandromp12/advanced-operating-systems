@@ -10,7 +10,7 @@ typedef struct
 	int *executionTime;
 	int *period;
 	int *remainTime;
-	int *carryPeriod;
+	int *remainPeriod;
 } rateMonothonic;
 
 int populateRMProcessInfo(rateMonothonic *pRM, int numProcesses, int executionTime[], int period[], int remainTime[]);

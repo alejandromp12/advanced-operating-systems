@@ -1,5 +1,6 @@
 #include "include/earliestDeadlineFirstScheduler.h"
 #include <math.h>
+#include <stdlib.h>
 
 int populateEDFProcessInfo(earliestDeadlineFirst *pEDF, int numProcesses, int executionTime[], int deadline[], int remainTime[])
 {
@@ -10,6 +11,10 @@ int populateEDFProcessInfo(earliestDeadlineFirst *pEDF, int numProcesses, int ex
 	}
 
 	pEDF->numProcesses = numProcesses;
+	pEDF->executionTime = (int*)malloc(numProcesses * sizeof(int));
+	pEDF->remainTime = (int*)malloc(numProcesses * sizeof(int));
+	pEDF->deadline = (int*)malloc(numProcesses * sizeof(int));
+	pEDF->remainDeadline = (int*)malloc(numProcesses * sizeof(int));
 	for (int i = 0; i < numProcesses; i++)
 	{
 		printf("Process %d: ", i + 1);
@@ -44,7 +49,7 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 		printf("Given problem is not schedulable.\n");
 	}
 
-	// tracking variables
+	// tracking variables for ?
 	int processes[pEDF->numProcesses];
 	int isReady[pEDF->numProcesses];
 	for (int i = 0; i < pEDF->numProcesses; i++)
@@ -53,6 +58,7 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 		processes[i] = i + 1; 
 	}
 
+	// capture the higher deadline
 	int maxDeadline = pEDF->deadline[0];
 	for (int i = 1; i < pEDF->numProcesses; i++)
 	{
@@ -62,12 +68,14 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 		}
 	}
 
-	// sort deadlines, execution times, and process
+	// sort deadlines, execution times, and process from lower to higher
 	int temp;
 	for (int i = 0; i < pEDF->numProcesses; i++)
 	{
+		// next process
 		for (int j = i + 1; j < pEDF->numProcesses; j++)
-		{	
+		{
+			// only when the deadline of the next processes is lower than the current one
 			if (pEDF->deadline[j] < pEDF->deadline[i])
 			{
 				// sort execution times
@@ -95,35 +103,60 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 		pEDF->remainDeadline[i] = pEDF->deadline[i];
 	}
 
+	// set default values
+	int processListEDF[time];
+	for(int i = 0; i < time; i++)
+	{
+		processListEDF[i] = -1;
+	}
+
 	int currentProcess = 0;
 	int minDeadline;
-	int processListEDF[time];
-	for (int t = 0; t < time; t++)
+	int stopCond = 0;
+	for (int t = 0; (t < time) && !stopCond; t++)
 	{
 		if (currentProcess != -1)
-		{		
+		{
 			--pEDF->executionTime[currentProcess];
 			processListEDF[t] = processes[currentProcess];
-		}	
-		else
-		{
-			processListEDF[t] = 0;
+			//printf("pEDF->executionTime[%i]: %d\n", currentProcess, pEDF->executionTime[currentProcess]);
 		}
 
-		for (int i = 0; i< pEDF->numProcesses; i++)
+		for (int i = 0; i < pEDF->numProcesses; i++)
 		{
+			// reduce the deadline of all the processes
 			--pEDF->deadline[i];
+			//printf("pEDF->deadline[%i]: %d\n", i, pEDF->deadline[i]);
+
+			// only when a process already consumed its execution time
 			if ((pEDF->executionTime[i] == 0) && isReady[i])
 			{
 				pEDF->deadline[i] += pEDF->remainDeadline[i];
 				isReady[i] = 0;
 			}
 
+			// when process is about to accomplish its deadline (it already did previously)
 			if ((pEDF->deadline[i] <= pEDF->remainDeadline[i]) && (isReady[i] == 0))
 			{
 				pEDF->executionTime[i] = pEDF->remainTime[i];
 				isReady[i] = 0;
 			}
+		}
+
+		for (int i = 0; i < pEDF->numProcesses; i++)
+		{
+			//printf("=======================================\n");
+			//printf("process: %d\n", processes[i]);
+			//printf("pEDF->executionTime[%i]: %d\n", i, pEDF->executionTime[i]);
+			//printf("pEDF->deadline[%i]: %d\n", i, pEDF->deadline[i]);
+			if ((pEDF->deadline[i] == 0) && (pEDF->executionTime[i] > pEDF->deadline[i]) && isReady[i])
+			{
+				printf("Deadline lost at process: %d\n", processes[i]);
+				stopCond = 1;
+				//printf("=======================================\n");
+				break;
+			}
+			//printf("=======================================\n");
 		}
 	
 		minDeadline = maxDeadline;		

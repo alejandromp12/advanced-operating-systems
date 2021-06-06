@@ -8,10 +8,10 @@
 typedef struct
 {
 	int numProcesses;
-	int executionTime[MAX_PROCESS];
-	int deadline[MAX_PROCESS];
-	int remainTime[MAX_PROCESS];
-	int remainDeadline[MAX_PROCESS];
+	int *executionTime;
+	int *deadline;
+	int *remainTime;
+	int *remainDeadline;
 } earliestDeadlineFirst;
 
 int populateEDFProcessInfo(earliestDeadlineFirst *pEDF, int numProcesses, int executionTime[], int deadline[], int remainTime[]);

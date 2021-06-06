@@ -18,75 +18,94 @@
 #include "backend/include/leastLaxityFirstScheduler.h"
 #include "frontend/include/gui.h"
 
-int _executionTimeRM[MAX_PROCESS];
-int _remainTimeRM[MAX_PROCESS];
-int _periodRM[MAX_PROCESS];
-int _numProcessesRM;
-
-int _executionTimeEDF[MAX_PROCESS];
-int _remainTimeEDF[MAX_PROCESS];
-int _deadlineEDF[MAX_PROCESS];
-int _numProcessesEDF;
-
-int _rmFlag = 0;
-int _edfFlag = 0;
-int _llfFlag = 0;
+int _executionTime[MAX_PROCESS];
+int _remainTime[MAX_PROCESS];
+int _timeLine[MAX_PROCESS];
+int _numProcesses;
 
 
 rateMonothonic *_pRateMonothonic;
 earliestDeadlineFirst *_pEarliestDeadlineFirst;
 
 // sincronizes GUI elements
-// void getDataFromGUI()
-// {
-// 	// Initializes time for random number generator: dummy by the moment
-// 	time_t t;
-// 	srand((unsigned)time(&t));
-
-// 	// dummy by the moment
-// 	_numProcessesRM = MAX_PROCESS;
-// 	int tmp;
-// 	for (int i = 0; i < _numProcessesRM; i++)
-// 	{
-// 		_executionTimeRM[i] = (rand() % MAX_TIME_UNITS) + 1;
-// 		_remainTimeRM[i] = _executionTimeRM[i];
-// 		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeRM[i];
-// 		_periodRM[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
-// 	}
-
-// 	// dummy by the moment
-// 	_numProcessesEDF = MAX_PROCESS;
-// 	for (int i = 0; i < _numProcessesEDF; i++)
-// 	{
-// 		_executionTimeEDF[i] = (rand() % MAX_TIME_UNITS) + 1;
-// 		_remainTimeEDF[i] = _executionTimeEDF[i];
-// 		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeEDF[i];
-// 		_deadlineEDF[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
-// 	}
-
-// 	exit_app();
-// }
-
 void getDataFromGUI()
 {
 	_rmFlag = _selectedRM;
 	_edfFlag = _selectedEDF;
 	_llfFlag = _selectedLLF;
 
-	_numProcessesRM = _numTasks;
-	for (int i = 0; i < _numProcessesRM; i++)
+	_numProcesses = _numTasks;
+	for (int i = 0; i < _numProcesses; i++)
 	{
-		_executionTimeRM[i] = tasksGUI[i].executionTime;
-		_executionTimeEDF[i] = tasksGUI[i].executionTime;
-
-		_remainTimeRM[i] = _executionTimeRM[i];
-		_remainTimeEDF[i] = _executionTimeEDF[i];
-
-		_periodRM[i] = tasksGUI[i].periodTime;
-		_deadlineEDF[i] = tasksGUI[i].periodTime;
+		_executionTime[i] = tasksGUI[i].executionTime;
+		_remainTime[i] = _executionTime[i];
+		_timeLine[i] = tasksGUI[i].periodTime;
 	}
 
 	exit_app();
+/*
+	// Initializes time for random number generator: dummy by the moment
+	time_t t;
+	srand((unsigned)time(&t));
+
+	// dummy by the moment
+	_numProcesses = MAX_PROCESS;
+	int tmp;
+	for (int i = 0; i < _numProcesses; i++)
+	{
+		_executionTime[i] = (rand() % MAX_TIME_UNITS) + 1;
+		_remainTime[i] = _executionTime[i];
+		tmp = (rand() % MAX_TIME_UNITS) + _executionTime[i];
+		_timeLine[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
+	}
+
+	if (1)
+	{
+		_executionTime[0] = 4;
+		_executionTime[1] = 5;
+		_executionTime[2] = 5;
+		_executionTime[3] = 4;
+		_executionTime[4] = 1;
+		_executionTime[5] = 6;
+
+		_timeLine[0] = _executionTime[0];
+		_timeLine[1] = _executionTime[1];
+		_timeLine[2] = _executionTime[2];
+		_timeLine[3] = _executionTime[3];
+		_timeLine[4] = _executionTime[4];
+		_timeLine[5] = _executionTime[5];
+	
+		_timeLine[0] = 7;
+		_timeLine[1] = 6;
+		_timeLine[2] = 7;
+		_timeLine[3] = 6;
+		_timeLine[4] = 4;
+		_timeLine[5] = 7;
+	}
+	else
+	{
+		_executionTime[0] = 6;
+		_executionTime[1] = 6;
+		_executionTime[2] = 5;
+		_executionTime[3] = 6;
+		_executionTime[4] = 2;
+		_executionTime[5] = 1;
+
+		_timeLine[0] = _executionTime[0];
+		_timeLine[1] = _executionTime[1];
+		_timeLine[2] = _executionTime[2];
+		_timeLine[3] = _executionTime[3];
+		_timeLine[4] = _executionTime[4];
+		_timeLine[5] = _executionTime[5];
+
+		_timeLine[0] = 7;
+		_timeLine[1] = 6;
+		_timeLine[2] = 7;
+		_timeLine[3] = 7;
+		_timeLine[4] = 4;
+		_timeLine[5] = 1;
+	}
+*/
 }
 
 
@@ -124,11 +143,10 @@ void runRateMonothonicScheduler()
 	}
 }
 
-	//runGUI(argc, argv, bufferId);
 
 void runEarliestDeadlineFirstScheduler()
 {
-	if (populateEDFProcessInfo(_pEarliestDeadlineFirst, _numProcessesEDF, _executionTimeEDF, _deadlineEDF, _remainTimeEDF) == ERROR)
+	if (populateEDFProcessInfo(_pEarliestDeadlineFirst, _numProcesses, _executionTime, _timeLine, _remainTime) == ERROR)
 	{
 		printf("Error: while running populateEDFProcessInfo().\n");
 		_pEarliestDeadlineFirst = NULL;
@@ -175,12 +193,11 @@ int main(int argc, char *argv[])
 
 	void (*ptr)() = &getDataFromGUI;
 	_ptrGetFromGUI = ptr;
-	runGUI(argc, argv);
+	runGUI(argc, argv)
 
-
-	//getDataFromGUI();
-	runRateMonothonicScheduler();
-	//runEarliestDeadlineFirstScheduler();
+	getDataFromGUI();
+    	runRateMonothonicScheduler();
+	runEarliestDeadlineFirstScheduler();
 
 	return 0;
 }
