@@ -332,8 +332,10 @@ void start_clicked(GtkButton *button)
 		const gchar *entrychar = gtk_entry_get_text(GTK_ENTRY(tasksGUI[i].executionEntry));
 		int executionTime = atoi(entrychar);
 
-		entrychar = gtk_entry_get_text(GTK_ENTRY(tasksGUI[i].executionEntry));
+		entrychar = gtk_entry_get_text(GTK_ENTRY(tasksGUI[i].periodEntry));
 		int periodTime = atoi(entrychar);
+
+		//printf("Execution time %d, Period Time %d \n", executionTime, periodTime);
 
 		if(executionTime>0 && periodTime>0 && executionTime <= periodTime)
 		{

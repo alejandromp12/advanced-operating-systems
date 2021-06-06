@@ -28,35 +28,62 @@ int _remainTimeEDF[MAX_PROCESS];
 int _deadlineEDF[MAX_PROCESS];
 int _numProcessesEDF;
 
+int _rmFlag = 0;
+int _edfFlag = 0;
+int _llfFlag = 0;
+
+
 rateMonothonic *_pRateMonothonic;
 earliestDeadlineFirst *_pEarliestDeadlineFirst;
 
 // sincronizes GUI elements
+// void getDataFromGUI()
+// {
+// 	// Initializes time for random number generator: dummy by the moment
+// 	time_t t;
+// 	srand((unsigned)time(&t));
+
+// 	// dummy by the moment
+// 	_numProcessesRM = MAX_PROCESS;
+// 	int tmp;
+// 	for (int i = 0; i < _numProcessesRM; i++)
+// 	{
+// 		_executionTimeRM[i] = (rand() % MAX_TIME_UNITS) + 1;
+// 		_remainTimeRM[i] = _executionTimeRM[i];
+// 		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeRM[i];
+// 		_periodRM[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
+// 	}
+
+// 	// dummy by the moment
+// 	_numProcessesEDF = MAX_PROCESS;
+// 	for (int i = 0; i < _numProcessesEDF; i++)
+// 	{
+// 		_executionTimeEDF[i] = (rand() % MAX_TIME_UNITS) + 1;
+// 		_remainTimeEDF[i] = _executionTimeEDF[i];
+// 		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeEDF[i];
+// 		_deadlineEDF[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
+// 	}
+
+// 	exit_app();
+// }
+
 void getDataFromGUI()
 {
-	// Initializes time for random number generator: dummy by the moment
-	time_t t;
-	srand((unsigned)time(&t));
+	_rmFlag = _selectedRM;
+	_edfFlag = _selectedEDF;
+	_llfFlag = _selectedLLF;
 
-	// dummy by the moment
-	_numProcessesRM = MAX_PROCESS;
-	int tmp;
+	_numProcessesRM = _numTasks;
 	for (int i = 0; i < _numProcessesRM; i++)
 	{
-		_executionTimeRM[i] = (rand() % MAX_TIME_UNITS) + 1;
-		_remainTimeRM[i] = _executionTimeRM[i];
-		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeRM[i];
-		_periodRM[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
-	}
+		_executionTimeRM[i] = tasksGUI[i].executionTime;
+		_executionTimeEDF[i] = tasksGUI[i].executionTime;
 
-	// dummy by the moment
-	_numProcessesEDF = MAX_PROCESS;
-	for (int i = 0; i < _numProcessesEDF; i++)
-	{
-		_executionTimeEDF[i] = (rand() % MAX_TIME_UNITS) + 1;
+		_remainTimeRM[i] = _executionTimeRM[i];
 		_remainTimeEDF[i] = _executionTimeEDF[i];
-		tmp = (rand() % MAX_TIME_UNITS) + _executionTimeEDF[i];
-		_deadlineEDF[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
+
+		_periodRM[i] = tasksGUI[i].periodTime;
+		_deadlineEDF[i] = tasksGUI[i].periodTime;
 	}
 
 	exit_app();
@@ -145,7 +172,7 @@ int main(int argc, char *argv[])
 
 	_pRateMonothonic = (rateMonothonic*)malloc(sizeof(rateMonothonic));
 	_pEarliestDeadlineFirst = (earliestDeadlineFirst*)malloc(sizeof(earliestDeadlineFirst));
-	
+
 	void (*ptr)() = &getDataFromGUI;
 	_ptrGetFromGUI = ptr;
 	runGUI(argc, argv);
