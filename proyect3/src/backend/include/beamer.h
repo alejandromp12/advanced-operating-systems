@@ -55,6 +55,8 @@ void RMSchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
 
 void EDFSchedulabilityTest(int executionTime[], int deadline[], int numProcesses);
 
+void BiniSchedulabilityTest(int executionTime[], int deadline[], int numProcesses);
+
 void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses);
 
 #endif // BEAMER_FILE

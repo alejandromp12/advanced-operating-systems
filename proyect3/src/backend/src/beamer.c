@@ -117,6 +117,8 @@ void RMSchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
      fprintf(OUTPUT, " %f %s", result,"\\]");
 
     fprintf(OUTPUT, "\\[n (2^{1/n} - 1) = %d (2^{1/%d} - 1) = %f\\]\\newline",numProcesses, numProcesses,condition);
+    fprintf(OUTPUT, "\\[%f %s %f\\]",result, result <= condition? "\\leq": ">",condition);
+
     if(result <=condition)
     {
         fprintf(OUTPUT, "%s", " Problem is schedulable for RM test");
@@ -151,13 +153,47 @@ void EDFSchedulabilityTest(int executionTime[], int deadline[], int numProcesses
     }
      fprintf(OUTPUT, " %f %s", result,"\\]");
 
-    fprintf(OUTPUT, "\\[%f %s %f\\]",result, result <= condition? "\\leq": ">",condition);
+    fprintf(OUTPUT, "\\[%f %s %d\\]",result, result <= condition? "\\leq": ">",1);
     if(result <=condition)
     {
         fprintf(OUTPUT, "%s", " Problem is schedulable for EDF test");
     }
     else{
         fprintf(OUTPUT, "%s", " Problem is not schedulable EDF RM test");
+    }
+    fprintf(OUTPUT, "%s", "\\newline where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
+}
+
+void BiniSchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
+{
+
+    setFrame("Schedulability Test", "");
+
+    fprintf(OUTPUT, "%s", "\\begin{itemize}");
+    fprintf(OUTPUT, "%s", "\\item Bini Schedulability Test for RM\\newline");
+    fprintf(OUTPUT, "%s", "\\[\\prod_{i=1}^{n }(C_i/T_i + 1)  \\leq  2\\]");
+
+    fprintf(OUTPUT, "%s", "\\[");
+    double result = 1;
+    double condition = 2;
+    for(int i = 0; i < numProcesses; i ++)
+    {
+        fprintf(OUTPUT, "(%d/%d + 1) %s", executionTime[i], deadline[i], i == (numProcesses - 1)? "= ": "\\cdot");
+        result *= ((double)executionTime[i]/ (double)deadline[i] + 1);
+    }
+     fprintf(OUTPUT, " %f %s", result,"\\]");
+
+    fprintf(OUTPUT, "\\[%f %s %d\\]",result, result <= condition? "\\leq": ">",2);
+    if(result <=condition)
+    {
+        fprintf(OUTPUT, "%s", " Problem is schedulable for Bini test");
+    }
+    else{
+        fprintf(OUTPUT, "%s", " Problem is not schedulable Bini RM test");
     }
     fprintf(OUTPUT, "%s", "\\newline where $n$ is the number of processes");
     fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
@@ -173,6 +209,7 @@ void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
 {
     RMSchedulabilityTest(executionTime, deadline, numProcesses);
     EDFSchedulabilityTest(executionTime, deadline, numProcesses);
+    BiniSchedulabilityTest(executionTime, deadline, numProcesses);
 }
 void simulationStep(char *title, int processList[], int cycles, int numProcesses, int deadline[], int deadProcess, int t_deadProcess, int executionTime[])
 {  
