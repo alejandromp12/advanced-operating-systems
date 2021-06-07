@@ -1,4 +1,6 @@
 #include "include/beamer.h"
+#include <math.h>
+
 
 void InitPresentation()
 {
@@ -45,37 +47,89 @@ void finistPresentation()
     fclose(OUTPUT);
 }
 
-void setFrame(char *title, char *content)
+void setFrame(char *title, char content[])
 {
     fprintf(OUTPUT, "%s", "\\begin{frame}\n");
     fprintf(OUTPUT, "\\frametitle{%s}\n", title);
     fprintf(OUTPUT, "%s\n", content);
-    fprintf(OUTPUT, "%s", "\\end{frame}\n");
+    
 }
 
 void definitionRM()
 {      
     char *title = "RM: Rate Monothonic";
-    char *content = "***Dynamic scheduling algorithm that works with fixed priorities, these are directly proportional to the task's rate. Every time a new task reaches the ready queue, priorities are recalculated and could task away the CPU from the current task.";
+    char *content = "Dynamic scheduling algorithm that works with fixed priorities, these are directly proportional to the task's rate. Every time a new task reaches the ready queue, priorities are recalculated and could task away the CPU from the current task";
     
-
     setFrame(title, content);
+    fprintf(OUTPUT, "%s", "\\begin{itemize} \\item Schedulability Test \\newline");
+    fprintf(OUTPUT, "%s", "\\[\\sum_{i=1}^{n }C_i/T_i  \\leq  n(2^{1/n} - 1)\\] \\[\\lim_{n\\to \\infty}  n(2^{1/n} - 1) = ln(2) \\simeq 0.69\\]");
+    fprintf(OUTPUT, "%s", "\\newline where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
 }
 
 void definitionEDF()
 {
     char *title = "EDF: Earliest Deadline First";
     char *content = " Dynamic scheduling algorithm that works with dynamic priorities, these are inversely proportional to the remaining time to the deadline. Every time a new task reaches the ready queue, priorities are recalculated and could task away the CPU from the current task.";
-
     setFrame(title, content);
+    fprintf(OUTPUT, "%s", "\\begin{itemize} \\item Schedulability Test \\newline");
+    fprintf(OUTPUT, "%s", "\\[\\sum_{i=1}^{n }C_i/T_i \\; \\leq  1\\] \\newline where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
 }
 
 void definitionLLF()
-{
+{   
     char *title = "LLF: Least Laxity First";
     char *content = " Dynamic scheduling algorithm that works with dynamic priorities, these are inversely proportional to the task's laxity, which is defined as the remaining time to deadline minus the remaining computation time. Every time a new task reaches the ready queue, priorities are recalculated and could take away the CPU from the current task.";
-
     setFrame(title, content);
+    fprintf(OUTPUT, "%s", "\\begin{itemize} \\item Schedulability Test \\newline");
+    fprintf(OUTPUT, "%s", "\\[\\sum_{i=1}^{n }C_i/T_i \\; \\leq  1\\]");
+    fprintf(OUTPUT, "%s", "\\newline where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
+}
+
+void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
+{
+
+    setFrame("Schedulability Test", "");
+
+
+    fprintf(OUTPUT, "%s", "\\begin{itemize}");
+    fprintf(OUTPUT, "%s", "\\item RM Schedulability Test \\newline");
+    fprintf(OUTPUT, "%s", "\\[\\sum_{i=1}^{n }C_i/T_i  \\leq  n(2^{1/n} - 1)\\]");
+
+    fprintf(OUTPUT, "%s", "\\[");
+    double result = 0;
+    double condition = (double)numProcesses * (pow(2.0, (1.0/(double)numProcesses )) - 1);
+    for(int i = 0; i < numProcesses; i ++)
+    {
+        fprintf(OUTPUT, "%d/%d %s", executionTime[i], deadline[i], i == (numProcesses - 1)? "= ": "+");
+        result += (double)executionTime[i]/ (double)deadline[i];
+    }
+     fprintf(OUTPUT, " %f %s", result,"\\]");
+
+    fprintf(OUTPUT, "\\[n (2^{1/n} - 1) = %d (2^{1/%d} - 1) = %f\\]\\newline",numProcesses, numProcesses,condition);
+    if(result <=condition)
+    {
+        fprintf(OUTPUT, "%s", " Problem is schedulable for RM test");
+    }
+    else{
+        fprintf(OUTPUT, "%s", " Problem is not schedulable for RM test");
+    }
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
+    fprintf(OUTPUT, "%s", "where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
 }
 
 
@@ -344,6 +398,16 @@ void simulationStepByAlgorithm(RTSchedulerData *data, int step, char *algorithm,
 void simulationAllAlgorithm(int cycles)
 {
     printDefinitionAllAlgorithm();
+
+    if(RMData.isValid){
+        SchedulabilityTest(RMData.executionTime, RMData.deadline, RMData.numProcess);
+    }
+    else if(EDFData.isValid){
+        SchedulabilityTest(EDFData.executionTime, EDFData.deadline, EDFData.numProcess);
+    }
+    else if(LLFData.isValid){
+        SchedulabilityTest(LLFData.executionTime, LLFData.deadline, LLFData.numProcess);
+    }
 
     for(int step = 1; step <=  cycles + 1; step ++)
     {
