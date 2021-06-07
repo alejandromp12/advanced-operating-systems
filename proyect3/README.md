@@ -17,11 +17,10 @@ Guia para usar el programa:
 	
 	#instalar dependencias
 	sudo apt-get install libgtk-3-dev
-	
+	sudo apt install texlive-latex-base
+
 	#compilar el programa
 	make clean; make
-
-	cd src/bin/
 
 	
 
