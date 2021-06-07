@@ -230,6 +230,25 @@ int main(int argc, char *argv[])
 	getDataFromGUI();
 
 	createPresentation();
+	if (_edfFlag && !_mixedSlidesFlag)
+	{	
+		definitionEDF();
+	}
+
+	if (_rmFlag && !_mixedSlidesFlag)
+	{	
+		definitionRM();
+	}
+	
+	if (_llfFlag && !_mixedSlidesFlag)
+	{
+		definitionLLF();
+	}
+
+	if(!_mixedSlidesFlag)
+	{
+		SchedulabilityTest(_executionTime, _timeLine, _numProcesses);
+	}
 
 	if (_edfFlag)
 	{	
