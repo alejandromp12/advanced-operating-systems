@@ -236,7 +236,6 @@ int main(int argc, char *argv[])
 		EDFData.isValid = 1;
 		EDFData.isDone = 0;
 		runEarliestDeadlineFirstScheduler();
-		// runLeastLaxityFirstScheduler();
 	}
 
 	if (_rmFlag)
@@ -257,6 +256,18 @@ int main(int argc, char *argv[])
 	{
 		printf("No algorithm selected.\n");
 	}
+
+	if(_mixedSlidesFlag == 1)
+	{
+		simulationAllAlgorithm(_cycles);
+	}
+		
+	finistPresentation();
+
+
+    system("pdflatex -output-directory presentation presentation/outputBeamer.tex");
+
+	system ("evince presentation/outputBeamer.pdf");
 
 	// clean up section
 	if (_pEarliestDeadlineFirst != NULL)
@@ -288,15 +299,6 @@ int main(int argc, char *argv[])
 	{
 		free(_timeLine);
 	}
-	if(_mixedSlidesFlag == 1)
-		simulationAllAlgorithm(_cycles);
-		
-	finistPresentation();
-
-
-    system("cd presentation && pdflatex -interaction=batchmode outputBeamer.tex");
-
-	system ("evince presentation/outputBeamer.pdf");
 
 	return 0;
 }
