@@ -216,7 +216,27 @@ int leastLaxityFirstScheduler(leastLaxityFirst *pLLF, int time, int deadLine[], 
 	}
 
 	printSchedule(processListLLF, time, pLLF->numProcesses, LEAST_LAXITY_FIRST);
-	printPresentation(processListLLF, time, pLLF ->numProcesses, deadLine, deadProcess, t_deadProcess, executionTime,LEAST_LAXITY_FIRST);
+	if(_mixedSlidesFlag==0)
+	{
+		printPresentation(processListLLF, time, pLLF ->numProcesses, deadLine, deadProcess, t_deadProcess, executionTime,LEAST_LAXITY_FIRST);
+	}
+	else{
+
+		LLFData.time = time;
+		LLFData.numProcess = pLLF ->numProcesses;
+		LLFData.deadProcess = deadProcess;
+		LLFData.t_deadProcess = t_deadProcess;
+		for(int k = 0; k < time; k++)
+		{
+			LLFData.processList[k] = processListLLF[k];
+		}
+
+		for(int k = 0; k < pLLF ->numProcesses; k++)
+		{
+			LLFData.deadline[k] = deadLine[k];
+			LLFData.executionTime[k] = executionTime[k];
+		}
+	}
 
 	return NO_ERROR;
 }

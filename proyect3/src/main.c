@@ -26,7 +26,7 @@ int _numProcesses;
 int _rmFlag = 0;
 int _edfFlag = 0;
 int _llfFlag = 0;
-int _mixedSlidesFlag = 0;
+
 
 rateMonothonic *_pRateMonothonic;
 earliestDeadlineFirst *_pEarliestDeadlineFirst;
@@ -38,8 +38,7 @@ void getDataFromGUI()
 	_rmFlag = _selectedRM;
 	_edfFlag = _selectedEDF;
 	_llfFlag = _selectedLLF;
-	_mixedSlidesFlag = _mixedSlides;
-
+	_mixedSlidesFlag = _mixedSlides? 1: 0;
 	_numProcesses = _numTasks;
 	_executionTime = (int*)malloc(_numProcesses * sizeof(int));
 	_remainTime = (int*)malloc(_numProcesses * sizeof(int));
@@ -133,6 +132,7 @@ void runRateMonothonicScheduler()
 	}
 
 	int observationTimeRM = getObservationTime(_pRateMonothonic->period, _pRateMonothonic->numProcesses);
+	_cycles = observationTimeRM;
 	if (observationTimeRM == ERROR)
 	{
 		printf("Error: while running getObservationTime().\n");
@@ -162,6 +162,7 @@ void runEarliestDeadlineFirstScheduler()
 	}
 
 	int observationTimeEDF = getObservationTime(_pEarliestDeadlineFirst->deadline, _pEarliestDeadlineFirst->numProcesses);
+	_cycles = observationTimeEDF;
 	if (observationTimeEDF == ERROR)
 	{
 		printf("Error: while running getObservationTime().\n");
@@ -191,6 +192,7 @@ void runLeastLaxityFirstScheduler()
 	}
 
 	int observationTimeLLF = getObservationTime(_pLeastLaxityFirst->deadline, _pLeastLaxityFirst->numProcesses);
+	_cycles = observationTimeLLF;
 	if (observationTimeLLF == ERROR)
 	{
 		printf("Error: while running getObservationTime().\n");
@@ -217,6 +219,9 @@ int main(int argc, char *argv[])
 	_pRateMonothonic = (rateMonothonic*)malloc(sizeof(rateMonothonic));
 	_pEarliestDeadlineFirst = (earliestDeadlineFirst*)malloc(sizeof(earliestDeadlineFirst));
 	_pLeastLaxityFirst = (leastLaxityFirst*)malloc(sizeof(leastLaxityFirst));
+	RMData.isDone = 1;
+	EDFData.isDone = 1;
+	LLFData.isDone = 1;
 
 	void (*ptr)() = &getDataFromGUI;
 	_ptrGetFromGUI = ptr;
@@ -227,18 +232,24 @@ int main(int argc, char *argv[])
 	createPresentation();
 
 	if (_edfFlag)
-	{
+	{	
+		EDFData.isValid = 1;
+		EDFData.isDone = 0;
 		runEarliestDeadlineFirstScheduler();
 		// runLeastLaxityFirstScheduler();
 	}
 
 	if (_rmFlag)
-	{
+	{	
+		RMData.isValid = 1;
+		RMData.isDone = 0;
 		runRateMonothonicScheduler();
 	}
 	
 	if (_llfFlag)
 	{
+		LLFData.isValid = 1;
+		LLFData.isDone = 0;
 		runLeastLaxityFirstScheduler();
 	}
 
@@ -277,8 +288,15 @@ int main(int argc, char *argv[])
 	{
 		free(_timeLine);
 	}
-
+	if(_mixedSlidesFlag == 1)
+		simulationAllAlgorithm(_cycles);
+		
 	finistPresentation();
+
+
+    system("cd presentation && pdflatex -interaction=batchmode outputBeamer.tex");
+
+	system ("evince presentation/outputBeamer.pdf");
 
 	return 0;
 }

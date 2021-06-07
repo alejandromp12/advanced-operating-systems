@@ -200,7 +200,27 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time, int de
 	}
 
 	printSchedule(processListEDF, time, pEDF->numProcesses, EARLIEST_DEADLINE_FIRST);
-	printPresentation(processListEDF, time, pEDF ->numProcesses, deadLine, deadProcess, t_deadProcess, executionTime,EARLIEST_DEADLINE_FIRST);
+	if(_mixedSlidesFlag==0)
+	{
+		printPresentation(processListEDF, time, pEDF ->numProcesses, deadLine, deadProcess, t_deadProcess, executionTime,EARLIEST_DEADLINE_FIRST);
+	}
+	else{
+
+		EDFData.time = time;
+		EDFData.numProcess = pEDF ->numProcesses;
+		EDFData.deadProcess = deadProcess;
+		EDFData.t_deadProcess = t_deadProcess;
+		for(int k = 0; k < time; k++)
+		{
+			EDFData.processList[k] = processListEDF[k];
+		}
+
+		for(int k = 0; k < pEDF ->numProcesses; k++)
+		{
+			EDFData.deadline[k] = deadLine[k];
+			EDFData.executionTime[k] = executionTime[k];
+		}
+	}
 
 	return NO_ERROR;
 }

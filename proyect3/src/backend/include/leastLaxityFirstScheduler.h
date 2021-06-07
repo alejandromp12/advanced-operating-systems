@@ -2,6 +2,7 @@
 #define LEAST_LAXITY_FIRST_SCHEDULER_FILE
 
 #include <stdio.h>
+#include "beamer.h"
 #include "common.h"
 
 typedef struct

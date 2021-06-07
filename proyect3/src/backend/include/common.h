@@ -20,6 +20,10 @@ typedef enum
 	LEAST_LAXITY_FIRST = 2,
 } RealTimeSchedulingAlgorithm;
 
+int _mixedSlidesFlag;
+int _cycles;
+
+
 //calculating the observation time for scheduling timeline
 int getObservationTime(int *timeUnit, int size);
 

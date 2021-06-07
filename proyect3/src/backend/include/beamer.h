@@ -8,6 +8,27 @@
 
 FILE *OUTPUT;
 
+
+
+typedef struct 
+{	
+	int time;
+	int numProcess;
+	int processList[100]; //depend time
+	int deadline[100]; //depend numprocess
+	int deadProcess;
+	int t_deadProcess;
+	int executionTime[100];  //depend numprocess
+	int isValid;
+    int isDone;
+
+} RTSchedulerData;
+
+RTSchedulerData RMData;
+RTSchedulerData EDFData;
+RTSchedulerData LLFData;
+
+
 void setCover();
 
 void setFrame(char *title, char *content);
@@ -27,4 +48,7 @@ void definitionLLF();
 void createPresentation();
 
 void simulationStep(char *title, int processList[], int cycles, int numProcesses, int deadline[], int deadProcess, int t_deadProcess, int executionTime[]);
+
+void simulationAllAlgorithm(int cycles);
+
 #endif // BEAMER_FILE

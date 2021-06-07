@@ -2,6 +2,7 @@
 #define RATE_MONOTHONIC_SHCEDULER_FILE
 
 #include <stdio.h>
+#include "beamer.h"
 #include "common.h"
 
 typedef struct

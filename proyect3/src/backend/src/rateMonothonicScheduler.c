@@ -107,7 +107,27 @@ int rateMonothonicScheduler(rateMonothonic *pRM, int time)
 	}
 
 	printSchedule(processListRM, time, pRM->numProcesses, RATE_MONOTHONIC);
-	printPresentation(processListRM, time, pRM ->numProcesses, pRM ->period, deadProcess, t_deadProcess, pRM->executionTime ,RATE_MONOTHONIC);
+	if(_mixedSlidesFlag == 0)
+	{
+		printPresentation(processListRM, time, pRM ->numProcesses, pRM ->period, deadProcess, t_deadProcess, pRM->executionTime ,RATE_MONOTHONIC);
+	}
+	else{
+
+		RMData.time = time;
+		RMData.numProcess = pRM ->numProcesses;
+		RMData.deadProcess = deadProcess;
+		RMData.t_deadProcess = t_deadProcess;
+		for(int k = 0; k < time; k++)
+		{
+			RMData.processList[k] = processListRM[k];
+		}
+
+		for(int k = 0; k < pRM ->numProcesses; k++)
+		{
+			RMData.deadline[k] = pRM ->period[k];
+			RMData.executionTime[k] = pRM->executionTime[k];
+		}
+	}
 
 	return NO_ERROR;
 }

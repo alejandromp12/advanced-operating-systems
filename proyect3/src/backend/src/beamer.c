@@ -41,6 +41,8 @@ void finistPresentation()
 {
 
     fprintf(OUTPUT, "%s", "\\end{document}\n");
+
+    fclose(OUTPUT);
 }
 
 void setFrame(char *title, char *content)
@@ -54,7 +56,8 @@ void setFrame(char *title, char *content)
 void definitionRM()
 {      
     char *title = "RM: Rate Monothonic";
-    char *content = "algorithm definition :v";
+    char *content = "***Dynamic scheduling algorithm that works with fixed priorities, these are directly proportional to the task's rate. Every time a new task reaches the ready queue, priorities are recalculated and could task away the CPU from the current task.";
+    
 
     setFrame(title, content);
 }
@@ -62,7 +65,7 @@ void definitionRM()
 void definitionEDF()
 {
     char *title = "EDF: Earliest Deadline First";
-    char *content = "algorithm definition :v";
+    char *content = " Dynamic scheduling algorithm that works with dynamic priorities, these are inversely proportional to the remaining time to the deadline. Every time a new task reaches the ready queue, priorities are recalculated and could task away the CPU from the current task.";
 
     setFrame(title, content);
 }
@@ -70,7 +73,7 @@ void definitionEDF()
 void definitionLLF()
 {
     char *title = "LLF: Least Laxity First";
-    char *content = "algorithm definition :v";
+    char *content = " Dynamic scheduling algorithm that works with dynamic priorities, these are inversely proportional to the task's laxity, which is defined as the remaining time to deadline minus the remaining computation time. Every time a new task reaches the ready queue, priorities are recalculated and could take away the CPU from the current task.";
 
     setFrame(title, content);
 }
@@ -109,7 +112,15 @@ void simulationStep(char *title, int processList[], int cycles, int numProcesses
                     {
                         if((j) % deadline[i] == 0)
                         {
-                            fprintf(OUTPUT, "\\multicolumn{1}{%sc!{\\color{blue}\\vrule width 1pt}}{\\cellcolor{blue!25}}", j == 1? "|": "");
+                            if(deadProcess == (i  + 1) && j == t_deadProcess + 1)
+                            {
+                                fprintf(OUTPUT, "\\multicolumn{1}{%sc!{\\color{red}\\vrule width 2pt}}{\\cellcolor{blue!25}}", j == 1 ? "|": "");
+
+                            }
+                            else{
+
+                                 fprintf(OUTPUT, "\\multicolumn{1}{%sc!{\\color{blue}\\vrule width 1pt}}{\\cellcolor{blue!25}}", j == 1? "|": "");
+                            }
                         }
                         else{
                             int k;
@@ -120,7 +131,23 @@ void simulationStep(char *title, int processList[], int cycles, int numProcesses
                             }
                             j = tmp_j -1;
                             step_tmp = j > step_tmp? j: step_tmp;
-                            fprintf(OUTPUT, "\\multicolumn{%d}{c|}{\\cellcolor{blue!25}}", k);
+
+                            if((j) % deadline[i] == 0)
+                            {
+                                if(deadProcess == (i  + 1) && j == t_deadProcess + 1)
+                                {
+                                    fprintf(OUTPUT, "\\multicolumn{%d}{c!{\\color{red}\\vrule width 2pt}}{\\cellcolor{blue!25}}", k);
+                                }
+                                else
+                                {
+                                    fprintf(OUTPUT, "\\multicolumn{%d}{c!{\\color{blue}\\vrule width 1pt}}{\\cellcolor{blue!25}}", k);
+                                }
+                                
+                            }
+                            else{
+
+                                fprintf(OUTPUT, "\\multicolumn{%d}{c|}{\\cellcolor{blue!25}}", k);
+                            }
                         }
                     }
                     else
@@ -164,9 +191,9 @@ void simulationStep(char *title, int processList[], int cycles, int numProcesses
         
         fprintf(OUTPUT, "\\end{tabular}}");
         fprintf(OUTPUT, "%s","\\end{frame}");
-        printf("%d\n", step);
+
         step = step_tmp;
-        printf("%d\n", step);
+
 
         if(quit == 1)
             break;
@@ -180,6 +207,178 @@ void simulationStep(char *title, int processList[], int cycles, int numProcesses
     }
            
 }
+
+void printDefinitionAllAlgorithm()
+{
+    char *algorithm_title;
+	if(RMData.isValid == 1)
+	{
+		algorithm_title = "Rate Monothonic (RM)";
+		definitionRM();
+	}
+	if(EDFData.isValid == 1)
+	{
+		algorithm_title = "Earliest Deadline First (EDF)";
+		definitionEDF();
+	}
+	if(LLFData.isValid == 1)
+	{
+		algorithm_title = "Least Laxity First (LLF)";
+		definitionLLF();
+	}
+}
+
+
+void simulationStepByAlgorithm(RTSchedulerData *data, int step, char *algorithm, int cycles)
+{
+
+        fprintf(OUTPUT, "\\item %s\\\\", algorithm);
+        fprintf(OUTPUT, "\\scalebox{0.7}{\\begin{tabular}{");
+        for(int i = 0; i <= cycles + 1; i++)
+        {
+            fprintf(OUTPUT, "|c");
+        }
+        fprintf(OUTPUT, "|}\n \\multicolumn{1}{l}{} &" );
+        for(int i = 1; i <= cycles ; i++)
+        {
+            fprintf(OUTPUT, "\\multicolumn{1}{l}{\\fontsize{2.5}{4}\\selectfont{%d}} %s", i , i < cycles? "&": "\\\\");
+        }
+
+
+        for(int i  = 0; i < data ->numProcess; i++)
+        {
+            fprintf(OUTPUT, "\\hline \n");
+            fprintf(OUTPUT, "\\tiny Task %d &", i  +1);
+            for(int j = 1; j < cycles + 1; j++)
+            {   
+                if(j <= step)
+                {
+                    if(data ->processList[j - 1] == i + 1)
+                    {
+                        if((j) % data ->deadline[i] == 0)
+                        {
+                            if(data ->deadProcess == (i  + 1) && j == data ->t_deadProcess + 1)
+                            {
+                                fprintf(OUTPUT, "\\multicolumn{1}{%sc!{\\color{red}\\vrule width 2pt}}{\\cellcolor{blue!25}}", j == 1 ? "|": "");
+                                data ->isDone = 1;
+                            }
+                            else{
+
+                                 fprintf(OUTPUT, "\\multicolumn{1}{%sc!{\\color{blue}\\vrule width 1pt}}{\\cellcolor{blue!25}}", j == 1? "|": "");
+                            }
+                           
+                        }
+                        else{
+                            int k;
+                            int tmp_j = j;
+                            for(k =1; k <= data ->executionTime[i]; k++)
+                            {   tmp_j += 1;
+                                if(!(data ->processList[tmp_j - 1] == i + 1)) break;
+                            }
+                            j = tmp_j -1;
+
+                            if((j) % data ->deadline[i] == 0)
+                            {
+                                if(data ->deadProcess == (i  + 1) && j == data ->t_deadProcess + 1)
+                                {
+                                    fprintf(OUTPUT, "\\multicolumn{%d}{c!{\\color{red}\\vrule width 2pt}}{\\cellcolor{blue!25}}", k);
+                                    data ->isDone = 1;
+                                }
+                                else
+                                {
+                                    fprintf(OUTPUT, "\\multicolumn{%d}{c!{\\color{blue}\\vrule width 1pt}}{\\cellcolor{blue!25}}", k);
+                                }
+                                
+                            }
+                            else{
+
+                                fprintf(OUTPUT, "\\multicolumn{%d}{c|}{\\cellcolor{blue!25}}", k);
+                            }
+                            
+                        }
+                    }
+                    else
+                    {
+                        if(j% data ->deadline[i] == 0)
+                        {  
+                            if(data ->deadProcess == (i  + 1) && j == data ->t_deadProcess + 1)
+                            {
+                                fprintf(OUTPUT, "\\multicolumn{1}{%sc!{\\color{red}\\vrule width 2pt}}{}", j == 1 ? "|": "");
+                                data ->isDone = 1;
+                            }
+                            else{
+
+                                fprintf(OUTPUT, "\\multicolumn{1}{c!{\\color{blue}\\vrule width 1pt}}{}");
+                            }
+                            
+                        }
+                        else{
+
+                            fprintf(OUTPUT, " ");
+                        }
+                    }
+                }
+                else{
+
+                    if(j % data ->deadline[i] == 0)
+                    {
+                        fprintf(OUTPUT, "\\multicolumn{1}{c!{\\color{blue}\\vrule width 1pt}}{}");   
+                    }
+                    else{
+                        fprintf(OUTPUT, " ");
+                    }
+                }
+                if(!(j == cycles))
+                {
+                    fprintf(OUTPUT, "&");
+                }
+            }
+            fprintf(OUTPUT, "\\\\\n");
+            fprintf(OUTPUT, "\\hline \n");
+        }
+        
+        fprintf(OUTPUT, "\\end{tabular}}\\newline");
+}
+
+
+void simulationAllAlgorithm(int cycles)
+{
+    printDefinitionAllAlgorithm();
+
+    for(int step = 1; step <=  cycles + 1; step ++)
+    {
+        fprintf(OUTPUT, "%s","\\begin{frame}[shrink=20]"); 
+        fprintf(OUTPUT, "\\frametitle{%s - Time %d}", "Algorithm List", step, cycles);
+        fprintf(OUTPUT, "\\begin{itemize}\n");
+
+        if(RMData.isValid)
+        {
+            simulationStepByAlgorithm(&RMData, step, "Rate Monothonic (RM)", cycles);
+        }
+
+        if(EDFData.isValid)
+        {
+            simulationStepByAlgorithm(&EDFData, step, "Earliest Deadline First (EDF)", cycles);
+        }
+        
+        if(LLFData.isValid)
+        {
+            simulationStepByAlgorithm(&LLFData, step, "Least Laxity First (LLF)", cycles);
+        }
+
+
+        fprintf(OUTPUT, "\\end{itemize}\n");
+        fprintf(OUTPUT, "%s","\\end{frame}");
+
+        if(LLFData.isDone == 1 && RMData.isDone == 1&& EDFData.isDone == 1)
+            break;
+    }
+}
+
+
+
+
+
 
 
 void createPresentation()
