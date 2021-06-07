@@ -34,7 +34,7 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 {
 	if (!pEDF)
 	{
-		printf("Error, NULL ptr in runEarliestDeadlineFirstScheduler()\n");
+		printf("Error, NULL ptr in earliestDeadlineFirstScheduler()\n");
 		return ERROR;
 	}
 
@@ -115,7 +115,7 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 	int stopCond = 0;
 	for (int t = 0; (t < time) && !stopCond; t++)
 	{
-		if (currentProcess != -1)
+		if ((currentProcess != -1) && (pEDF->executionTime[currentProcess] > 0))
 		{
 			--pEDF->executionTime[currentProcess];
 			processListEDF[t] = processes[currentProcess];
@@ -125,21 +125,9 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 		for (int i = 0; i < pEDF->numProcesses; i++)
 		{
 			// reduce the deadline of all the processes
-			--pEDF->deadline[i];
-			//printf("pEDF->deadline[%i]: %d\n", i, pEDF->deadline[i]);
-
-			// only when a process already consumed its execution time
-			if ((pEDF->executionTime[i] == 0) && isReady[i])
+			if (pEDF->deadline[i] > 0)
 			{
-				pEDF->deadline[i] += pEDF->remainDeadline[i];
-				isReady[i] = 0;
-			}
-
-			// when process is about to accomplish its deadline (it already did previously)
-			if ((pEDF->deadline[i] <= pEDF->remainDeadline[i]) && (isReady[i] == 0))
-			{
-				pEDF->executionTime[i] = pEDF->remainTime[i];
-				isReady[i] = 0;
+				--pEDF->deadline[i];
 			}
 		}
 
@@ -158,12 +146,45 @@ int earliestDeadlineFirstScheduler(earliestDeadlineFirst *pEDF, int time)
 			}
 			//printf("=======================================\n");
 		}
+
+		for (int i = 0; i < pEDF->numProcesses; i++)
+		{
+			// only when a process already consumed its execution time
+			if ((pEDF->executionTime[i] == 0) && (pEDF->deadline[i] == 0) && isReady[i])
+			{
+				pEDF->deadline[i] = pEDF->remainDeadline[i];
+				isReady[i] = 0;
+			}
+
+			// when process is about to accomplish its deadline (it already did previously)
+			if ((pEDF->deadline[i] <= pEDF->remainDeadline[i]) && (isReady[i] == 0))
+			{
+				pEDF->executionTime[i] = pEDF->remainTime[i];
+				isReady[i] = 1;
+			}
+		}
+
+		//readyCounter = 0;
+		//for (int i = 0; i < pEDF->numProcesses; i++)
+		//{
+		//	if (isReady[i] == 0)
+		//	{
+		//		++readyCounter;
+		//	}
+		//}
+		//if (pEDF->numProcesses == readyCounter)
+		//{
+		//	for (int i = 0; i < pEDF->numProcesses; i++)
+		//	{
+		//		isReady[i] = 1;
+		//	}
+		//}
 	
 		minDeadline = maxDeadline;		
 		currentProcess = -1;
 		for (int i = 0; i < pEDF->numProcesses; i++)
 		{
-			if ((pEDF->deadline[i] <= minDeadline) && (pEDF->executionTime[i] > 0))
+			if ((pEDF->deadline[i] <= minDeadline) && (pEDF->executionTime[i] > 0) && isReady[i])
 			{				
 				currentProcess = i;
 				minDeadline = pEDF->deadline[i];

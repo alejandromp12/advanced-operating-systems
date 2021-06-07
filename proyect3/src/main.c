@@ -30,6 +30,7 @@ int _mixedSlidesFlag = 0;
 
 rateMonothonic *_pRateMonothonic;
 earliestDeadlineFirst *_pEarliestDeadlineFirst;
+leastLaxityFirst *_pLeastLaxityFirst;
 
 // sincronizes GUI elements
 void getDataFromGUI()
@@ -175,6 +176,35 @@ void runEarliestDeadlineFirstScheduler()
 }
 
 
+void runLeastLaxityFirstScheduler()
+{
+	if (populateLLFProcessInfo(_pLeastLaxityFirst, _numProcesses, _executionTime, _timeLine, _remainTime) == ERROR)
+	{
+		printf("Error: while running populateLLFProcessInfo().\n");
+		_pLeastLaxityFirst = NULL;
+	}
+
+	if (!_pLeastLaxityFirst)
+	{
+		printf("Error: _pLeastLaxityFirst is NULL.\n");
+		exit(1);
+	}
+
+	int observationTimeLLF = getObservationTime(_pLeastLaxityFirst->deadline, _pLeastLaxityFirst->numProcesses);
+	if (observationTimeLLF == ERROR)
+	{
+		printf("Error: while running getObservationTime().\n");
+		exit(1);
+	}
+
+	if (leastLaxityFirstScheduler(_pLeastLaxityFirst, observationTimeLLF) == ERROR)
+	{
+		printf("Error: while running leastLaxityFirstScheduler algorithm.\n");
+		exit(1);
+	}
+}
+
+
 int main(int argc, char *argv[])
 {
 	// sanity check
@@ -186,6 +216,7 @@ int main(int argc, char *argv[])
 
 	_pRateMonothonic = (rateMonothonic*)malloc(sizeof(rateMonothonic));
 	_pEarliestDeadlineFirst = (earliestDeadlineFirst*)malloc(sizeof(earliestDeadlineFirst));
+	_pLeastLaxityFirst = (leastLaxityFirst*)malloc(sizeof(leastLaxityFirst));
 
 	void (*ptr)() = &getDataFromGUI;
 	_ptrGetFromGUI = ptr;
@@ -193,48 +224,26 @@ int main(int argc, char *argv[])
 
 	getDataFromGUI();
 
-		_rmFlag = _selectedRM;
-	_edfFlag = _selectedEDF;
-	_llfFlag = _selectedLLF;
+	if (_edfFlag)
+	{
+		runEarliestDeadlineFirstScheduler();
+		// runLeastLaxityFirstScheduler();
+	}
 
-	if (_edfFlag && _rmFlag && _llfFlag)
-	{
-		runRateMonothonicScheduler();
-		runEarliestDeadlineFirstScheduler();
-		// runLeastLaxityFirstScheduler();
-	}
-	else if (_edfFlag && _rmFlag && !_llfFlag)
-	{
-		runRateMonothonicScheduler();
-		runEarliestDeadlineFirstScheduler();
-	}
-	else if (_edfFlag && !_rmFlag && _llfFlag)
-	{
-		runEarliestDeadlineFirstScheduler();
-		// runLeastLaxityFirstScheduler();
-	}
-	else if (_edfFlag && !_rmFlag && !_llfFlag)
-	{
-		runEarliestDeadlineFirstScheduler();
-	}
-	else if (!_edfFlag && _rmFlag && _llfFlag)
-	{
-		runRateMonothonicScheduler();
-		// runLeastLaxityFirstScheduler();
-	}
-	else if (!_edfFlag && _rmFlag && !_llfFlag)
+	if (_rmFlag)
 	{
 		runRateMonothonicScheduler();
 	}
-	else if (!_edfFlag && !_rmFlag && _llfFlag)
+	
+	if (_llfFlag)
 	{
-		// runLeastLaxityFirstScheduler();
+		runLeastLaxityFirstScheduler();
 	}
-	else
+
+	if (!_edfFlag && !_rmFlag && !_llfFlag)
 	{
 		printf("No algorithm selected.\n");
 	}
-
 
 	// clean up section
 	if (_pEarliestDeadlineFirst != NULL)
@@ -245,6 +254,11 @@ int main(int argc, char *argv[])
 	if (_pRateMonothonic != NULL)
 	{
 		free(_pRateMonothonic);
+	}
+
+	if (_pLeastLaxityFirst != NULL)
+	{
+		free(_pLeastLaxityFirst);
 	}
 
 	if (_executionTime != NULL)
