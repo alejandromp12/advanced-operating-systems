@@ -63,16 +63,22 @@ void printPresentation(int processList[], int cycles, int numProcesses, int dead
 	{
 		algorithm_title = "Rate Monothonic (RM)";
 		definitionRM();
+		RMSchedulabilityTest(executionTime, deadline, numProcesses);
+		BiniSchedulabilityTest(executionTime, deadline, numProcesses);
 	}
 	else if(algorithm == EARLIEST_DEADLINE_FIRST)
 	{
 		algorithm_title = "Earliest Deadline First (EDF)";
 		definitionEDF();
+		EDFSchedulabilityTest(executionTime, deadline, numProcesses);
+		BiniSchedulabilityTest(executionTime, deadline, numProcesses);
 	}
 	else
 	{
 		algorithm_title = "Least Laxity First (LLF)";
 		definitionLLF();
+		EDFSchedulabilityTest(executionTime, deadline, numProcesses);
+		BiniSchedulabilityTest(executionTime, deadline, numProcesses);
 	}
 
 	simulationStep(algorithm_title, processList, cycles, numProcesses, deadline, deadProcess, t_deadProcess, executionTime);

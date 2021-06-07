@@ -42,6 +42,8 @@ void startPresentation()
 void finistPresentation()
 {
 
+    setFrame("The End", "The End");
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
     fprintf(OUTPUT, "%s", "\\end{document}\n");
 
     fclose(OUTPUT);
@@ -235,7 +237,7 @@ void simulationStep(char *title, int processList[], int cycles, int numProcesses
         for(int i  = 0; i < numProcesses; i++)
         {
             fprintf(OUTPUT, "\\hline \n");
-            fprintf(OUTPUT, "\\tiny Task %d &", i  +1);
+            fprintf(OUTPUT, "\\tiny Task %d $C_{%d} = %d$ $T_{%d}= %d$&", i  +1,i  +1, executionTime[i], i  +1,deadline[i]);
             for(int j = 1; j < cycles + 1; j++)
             {   
                 if(j <= step)
@@ -380,7 +382,7 @@ void simulationStepByAlgorithm(RTSchedulerData *data, int step, char *algorithm,
         for(int i  = 0; i < data ->numProcess; i++)
         {
             fprintf(OUTPUT, "\\hline \n");
-            fprintf(OUTPUT, "\\tiny Task %d &", i  +1);
+            fprintf(OUTPUT, "\\tiny Task %d $C_{%d} = %d$ $T_{%d}= %d$&", i  +1, i  +1,data->executionTime[i], i  +1, data ->deadline[i]);
             for(int j = 1; j < cycles + 1; j++)
             {   
                 if(j <= step)
@@ -516,12 +518,6 @@ void simulationAllAlgorithm(int cycles)
             break;
     }
 }
-
-
-
-
-
-
 
 void createPresentation()
 {
