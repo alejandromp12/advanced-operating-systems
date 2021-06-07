@@ -21,7 +21,7 @@ void setCover()
     fprintf(OUTPUT, "%s", "{Project 3 - Real Time Scheduling}\n");
     fprintf(OUTPUT, "%s", "\\subtitle{RM - EDF - LLF}\n");
     fprintf(OUTPUT, "%s", "\\author[Alejandro , Javier, Izcar] % (optional, for multiple authors)\n");
-    fprintf(OUTPUT, "%s", "{~Alejandro Mora\\inst{1} \\and ~Javier Cordero\\inst{1} \\and ~Izcar Muñoz\\inst{1}}\n");
+    fprintf(OUTPUT, "%s", "{~Alejandro Morales\\inst{1} \\and ~Javier Cordero\\inst{1} \\and ~Izcar Muñoz\\inst{1}}\n");
     fprintf(OUTPUT, "%s", "\\institute[ITCR] % (optional)\n");
     fprintf(OUTPUT, "%s", "{\n");
     fprintf(OUTPUT, "%s", "\\inst{1}%\n");
