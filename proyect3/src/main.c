@@ -265,9 +265,9 @@ int main(int argc, char *argv[])
 	finistPresentation();
 
 
-    system("pdflatex -output-directory presentation presentation/outputBeamer.tex");
+    system("pdflatex -output-directory presentation presentation/outputBeamer.tex > /dev/null 2>&1");
 
-	system ("evince presentation/outputBeamer.pdf");
+	system ("evince presentation/outputBeamer.pdf &");
 
 	// clean up section
 	if (_pEarliestDeadlineFirst != NULL)
