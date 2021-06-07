@@ -49,7 +49,7 @@ void finistPresentation()
 
 void setFrame(char *title, char content[])
 {
-    fprintf(OUTPUT, "%s", "\\begin{frame}\n");
+    fprintf(OUTPUT, "%s", "\\begin{frame}[shrink=20]\n");
     fprintf(OUTPUT, "\\frametitle{%s}\n", title);
     fprintf(OUTPUT, "%s\n", content);
     
@@ -58,8 +58,7 @@ void setFrame(char *title, char content[])
 void definitionRM()
 {      
     char *title = "RM: Rate Monothonic";
-    char *content = "Dynamic scheduling algorithm that works with fixed priorities, these are directly proportional to the task's rate. Every time a new task reaches the ready queue, priorities are recalculated and could task away the CPU from the current task";
-    
+    char *content = "Rate monotonic (RM)  scheduling is a priority algorithm that belongs to the static priority scheduling category of Real Time Operating Systems. It is preemptive in nature. The priority is decided according to the cycle time of the processes that are involved. If the process has a small job duration, then it has the highest priority. Thus if a process with highest priority starts execution, it will preempt the other running processes. The priority of a process is inversely proportional to the period it will run for.A set of processes can be scheduled by the RM only if they satisfy the following equation :";
     setFrame(title, content);
     fprintf(OUTPUT, "%s", "\\begin{itemize} \\item Schedulability Test \\newline");
     fprintf(OUTPUT, "%s", "\\[\\sum_{i=1}^{n }C_i/T_i  \\leq  n(2^{1/n} - 1)\\] \\[\\lim_{n\\to \\infty}  n(2^{1/n} - 1) = ln(2) \\simeq 0.69\\]");
@@ -97,7 +96,7 @@ void definitionLLF()
     fprintf(OUTPUT, "%s", "\\end{frame}\n");
 }
 
-void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
+void RMSchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
 {
 
     setFrame("Schedulability Test", "");
@@ -125,14 +124,56 @@ void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
     else{
         fprintf(OUTPUT, "%s", " Problem is not schedulable for RM test");
     }
-    fprintf(OUTPUT, "%s", "\\end{itemize}");
-    fprintf(OUTPUT, "%s", "where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline where $n$ is the number of processes");
     fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
     fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
+    
+    fprintf(OUTPUT, "%s", "\\end{frame}\n");
+}
+
+void EDFSchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
+{
+
+    setFrame("Schedulability Test", "");
+
+    fprintf(OUTPUT, "%s", "\\begin{itemize}");
+    fprintf(OUTPUT, "%s", "\\item EDF Schedulability Test \\newline");
+    fprintf(OUTPUT, "%s", "\\[\\sum_{i=1}^{n }C_i/T_i \\; \\leq  1\\] ");
+
+    fprintf(OUTPUT, "%s", "\\[");
+    double result = 0;
+    double condition = 1;
+    for(int i = 0; i < numProcesses; i ++)
+    {
+        fprintf(OUTPUT, "%d/%d %s", executionTime[i], deadline[i], i == (numProcesses - 1)? "= ": "+");
+        result += (double)executionTime[i]/ (double)deadline[i];
+    }
+     fprintf(OUTPUT, " %f %s", result,"\\]");
+
+    fprintf(OUTPUT, "\\[%f %s %f\\]",result, result <= condition? "\\leq": ">",condition);
+    if(result <=condition)
+    {
+        fprintf(OUTPUT, "%s", " Problem is schedulable for EDF test");
+    }
+    else{
+        fprintf(OUTPUT, "%s", " Problem is not schedulable EDF RM test");
+    }
+    fprintf(OUTPUT, "%s", "\\newline where $n$ is the number of processes");
+    fprintf(OUTPUT, "%s", "\\newline  $C_{i}$ is the computation time of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\newline  $T_{i}$ is the period of $process_{i}$");
+    fprintf(OUTPUT, "%s", "\\end{itemize}");
     fprintf(OUTPUT, "%s", "\\end{frame}\n");
 }
 
 
+
+
+void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses)
+{
+    RMSchedulabilityTest(executionTime, deadline, numProcesses);
+    EDFSchedulabilityTest(executionTime, deadline, numProcesses);
+}
 void simulationStep(char *title, int processList[], int cycles, int numProcesses, int deadline[], int deadProcess, int t_deadProcess, int executionTime[])
 {  
     int step_tmp ;

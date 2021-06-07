@@ -51,6 +51,10 @@ void simulationStep(char *title, int processList[], int cycles, int numProcesses
 
 void simulationAllAlgorithm(int cycles);
 
+void RMSchedulabilityTest(int executionTime[], int deadline[], int numProcesses);
+
+void EDFSchedulabilityTest(int executionTime[], int deadline[], int numProcesses);
+
 void SchedulabilityTest(int executionTime[], int deadline[], int numProcesses);
 
 #endif // BEAMER_FILE
