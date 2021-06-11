@@ -12,8 +12,8 @@ BIN_DIR=$(BUILD_DIR)/bin
 LIB_DIR=$(BUILD_DIR)/lib
 STATIC_COMPONENT=$(LIB_DIR)/libbackend.a
 SRC_DIR=src
-OBJECT_FILES=$(BIN_DIR)/beamer.o $(BIN_DIR)/realTimeSchedulingFactory.o $(BIN_DIR)/rateMonothonicScheduler.o $(BIN_DIR)/earliestDeadlineFirstScheduler.o $(BIN_DIR)/leastLaxityFirstScheduler.o
-FILE_NAMES=beamer realTimeSchedulingFactory rateMonothonicScheduler earliestDeadlineFirstScheduler leastLaxityFirstScheduler
+OBJECT_FILES=$(BIN_DIR)/beamer.o $(BIN_DIR)/common.o $(BIN_DIR)/rateMonothonicScheduler.o $(BIN_DIR)/earliestDeadlineFirstScheduler.o $(BIN_DIR)/leastLaxityFirstScheduler.o
+FILE_NAMES=beamer common rateMonothonicScheduler earliestDeadlineFirstScheduler leastLaxityFirstScheduler
 
 build: $(STATIC_COMPONENT)
 
