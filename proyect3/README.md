@@ -27,9 +27,11 @@ Proyecto 3: Scheduling en Tiempo Real
 	cd proyect3/
 	
 	make clean; make
-
 	
-*********************** SALIDA DEL PROGRAMA *********************
+	./src/bin/real_time_scheduling
+	
+# Salida del programa
+
 1. GUI para selecionar los parametros del progrma
 2. Un .pdf con los datos de los algoritmos seleccionados y el resultado de la ejecución de los mismos (schedulability tests e implementación visual)
 
