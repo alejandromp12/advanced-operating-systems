@@ -52,7 +52,7 @@ void getDataFromGUI()
 
 	exit_app();
 /*
-	// Initializes time for random number generator: dummy by the moment
+	// Initializes time for random number generator: dummy for testing
 	time_t t;
 	srand((unsigned)time(&t));
 
@@ -65,53 +65,6 @@ void getDataFromGUI()
 		_remainTime[i] = _executionTime[i];
 		tmp = (rand() % MAX_TIME_UNITS) + _executionTime[i];
 		_timeLine[i] = (tmp <= MAX_TIME_UNITS) ? tmp : MAX_TIME_UNITS;
-	}
-
-	if (1)
-	{
-		_executionTime[0] = 4;
-		_executionTime[1] = 5;
-		_executionTime[2] = 5;
-		_executionTime[3] = 4;
-		_executionTime[4] = 1;
-		_executionTime[5] = 6;
-
-		_timeLine[0] = _executionTime[0];
-		_timeLine[1] = _executionTime[1];
-		_timeLine[2] = _executionTime[2];
-		_timeLine[3] = _executionTime[3];
-		_timeLine[4] = _executionTime[4];
-		_timeLine[5] = _executionTime[5];
-	
-		_timeLine[0] = 7;
-		_timeLine[1] = 6;
-		_timeLine[2] = 7;
-		_timeLine[3] = 6;
-		_timeLine[4] = 4;
-		_timeLine[5] = 7;
-	}
-	else
-	{
-		_executionTime[0] = 6;
-		_executionTime[1] = 6;
-		_executionTime[2] = 5;
-		_executionTime[3] = 6;
-		_executionTime[4] = 2;
-		_executionTime[5] = 1;
-
-		_timeLine[0] = _executionTime[0];
-		_timeLine[1] = _executionTime[1];
-		_timeLine[2] = _executionTime[2];
-		_timeLine[3] = _executionTime[3];
-		_timeLine[4] = _executionTime[4];
-		_timeLine[5] = _executionTime[5];
-
-		_timeLine[0] = 7;
-		_timeLine[1] = 6;
-		_timeLine[2] = 7;
-		_timeLine[3] = 7;
-		_timeLine[4] = 4;
-		_timeLine[5] = 1;
 	}
 */
 }
@@ -284,7 +237,7 @@ int main(int argc, char *argv[])
 	finistPresentation();
 
 
-    system("pdflatex -output-directory presentation presentation/outputBeamer.tex > /dev/null 2>&1");
+        system("pdflatex -output-directory presentation presentation/outputBeamer.tex > /dev/null 2>&1");
 
 	system ("evince presentation/outputBeamer.pdf &");
 
